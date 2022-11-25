@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use \App\Http\Controllers\ClassTransactionController;
+use \App\Http\Controllers\ScheduleController;
+use \App\Http\Controllers\StudentController;
+use \App\Http\Controllers\TeacherController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('admin');
-});
+Route::get('/', [ClassTransactionController::class,'adminPage']);
+Route::get('/viewClass', [ClassTransactionController::class,'viewClass']);
+Route::get('/viewStudentForm', [StudentController::class,'viewStudentForm']);
+Route::get('/viewTeacherForm', [TeacherController::class,'viewTeacherForm']);
+

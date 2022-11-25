@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
+    public function viewTeacherForm(){
+        return view('teacherForm');
+    }
     /**
      * Display a listing of the resource.
      *
