@@ -42,5 +42,7 @@ class DatabaseSeeder extends Seeder
 //           HeaderAbsen::class,
 //           DetailAbsen::class
 //        ]);
+        $this->call(BankSeeder::class);
+        $this->call(ClassTransactionSeeder::class);
     }
 }

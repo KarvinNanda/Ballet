@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
-class BankSeeder extends Seeder
+class MappingClassSeeder extends Seeder
 {
     /**
      * Run the database seeds.

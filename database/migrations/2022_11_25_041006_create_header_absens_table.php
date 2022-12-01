@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id('HeaderAbsenId');
             $table->foreignId('ScheduleId')->references('ScheduleId')->on('schedules')->onUpdate('cascade')->onDelete('cascade');
             $table->string('is_report');
-            $table->timestamps();
         });
     }
 
