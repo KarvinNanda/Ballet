@@ -18,7 +18,6 @@ return new class extends Migration
             $table->foreignId('ClassId')->references('ClassId')->on('class_transactions')->onUpdate('cascade')->onDelete('cascade');
             $table->date('date');
             $table->time('time');
-            $table->timestamps();
         });
     }
 

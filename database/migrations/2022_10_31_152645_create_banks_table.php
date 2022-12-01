@@ -15,7 +15,10 @@ class CreateBanksTable extends Migration
     {
         Schema::create('banks', function (Blueprint $table) {
             $table->id();
-            $table->string('bank_name');
+            $table->foreignId('BankTypeId')->references('id')->on('bank_types')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('bank_rek');
+            $table->string('nama_pengirim');
+
         });
     }
 

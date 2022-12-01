@@ -14,10 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('detail_absens', function (Blueprint $table) {
-            $table->id('HeaderAbsenId');
+            $table->foreignId('HeaderAbsenId')->references('HeaderAbsenId')->on('header_absens')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('ClassId')->references('ClassId')->on('class_transactions')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('StudentId')->references('StudentId')->on('students')->onDelete('cascade')->onUpdate('cascade');
+            $table->primary(['ClassId','HeaderAbsenId']);
             $table->string('Description');
-            $table->timestamps();
         });
     }
 

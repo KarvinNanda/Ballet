@@ -20,8 +20,7 @@ return new class extends Migration
             $table->string('ShortName');
             $table->date('Dob');
             $table->date('EnrollDate');
-            $table->integer('Bank_rek');
-            $table->string('nama_bank_pengirim');
+            $table->foreignId('BankId')->references('id')->on('banks')->onDelete('cascade')->onUpdate('cascade');
             $table->string('nama_orang_tua');
             $table->string('Address');
             $table->string('City');
@@ -32,7 +31,6 @@ return new class extends Migration
             $table->string('Instagram');
             $table->string('Email');
             $table->string('Status');
-            $table->timestamps();
         });
     }
 

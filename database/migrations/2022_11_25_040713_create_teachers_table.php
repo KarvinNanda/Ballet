@@ -20,8 +20,7 @@ return new class extends Migration
             $table->string('Address');
             $table->string('Phone');
             $table->string('Email');
-            $table->string('Salary');
-            $table->timestamps();
+//            $table->string('Salary');
         });
     }
 

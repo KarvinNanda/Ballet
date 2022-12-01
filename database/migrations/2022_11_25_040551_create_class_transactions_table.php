@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('class_transactions', function (Blueprint $table) {
             $table->id('ClassId');
             $table->string('ClassName');
-            $table->timestamps();
         });
     }
 
