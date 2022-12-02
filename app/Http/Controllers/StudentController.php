@@ -10,6 +10,11 @@ class StudentController extends Controller
     public function viewStudentForm(){
         return view('studentForm');
     }
+
+    public function adminStudentView(){
+        return view('adminStudentView');
+    }
+
     /**
      * Display a listing of the resource.
      *

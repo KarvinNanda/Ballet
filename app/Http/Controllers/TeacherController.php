@@ -7,8 +7,31 @@ use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
-    public function viewTeacherForm(){
+    public function adminTeacherView(){
+        $teachers = Teacher::all();
+        return view('adminTeacherView',compact('teachers'));
+    }
+
+    public function adminTeacherForm(){
         return view('teacherForm');
+    }
+
+    public function deleteTeacher(Request $req){
+        $teacher = Teacher::where('TeacherId','=',$req->id);
+        $teacher->delete();
+        return redirect(route('adminTeacherView'));
+    }
+
+    public function adminTeacherFormSubmit(Request $req){
+        $teacher = new Teacher();
+        $teacher->name = $req->inputName;
+        $teacher->Email = $req->inputEmail;
+        $teacher->Dob = $req->inputDOB;
+        $teacher->Address = $req->inputAddress;
+        $teacher->Phone = $req->inputPhone;
+        $teacher->Salary = $req->inputSalary;
+        $teacher->save();
+        return redirect('/adminTeacherView');
     }
     /**
      * Display a listing of the resource.
