@@ -16,8 +16,11 @@ use \App\Http\Controllers\TeacherController;
 |
 */
 
-Route::get('/', [ClassTransactionController::class,'adminPage']);
-Route::get('/viewClass', [ClassTransactionController::class,'viewClass']);
-Route::get('/viewStudentForm', [StudentController::class,'viewStudentForm']);
-Route::get('/viewTeacherForm', [TeacherController::class,'viewTeacherForm']);
-
+Route::get('/', [ClassTransactionController::class,'adminPage'])->name('adminPage');
+Route::get('/viewClass', [ClassTransactionController::class,'viewClass'])->name('adminClassView');
+Route::get('/adminStudentForm', [StudentController::class,'viewStudentForm']);
+Route::get('/adminTeacherForm', [TeacherController::class,'adminTeacherForm'])->name('adminTeacherForm');
+Route::get('/adminTeacherDelete/{id}', [TeacherController::class,'deleteTeacher'])->name('adminTeacherDelete');
+Route::post('/adminTeacherForm', [TeacherController::class,'adminTeacherFormSubmit'])->name('adminTeacherForm');
+Route::get('/adminStudentView', [StudentController::class,'adminStudentView'])->name('adminStudentView');
+Route::get('/adminTeacherView', [TeacherController::class,'adminTeacherView'])->name('adminTeacherView');
