@@ -9,11 +9,11 @@ class DetailAbsen extends Model
 {
     use HasFactory;
     public function HeaderAbsens(){
-        return $this->hasMany(HeaderAbsen::class);
+        return $this->belongsTo(HeaderAbsen::class);
     }
 
     public function Students(){
-        return $this->hasMany(Student::class);
+        return $this->belongsTo(Student::class);
     }
 
     protected $fillable = [];

@@ -14,9 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('header_absens', function (Blueprint $table) {
-            $table->id('HeaderAbsenId');
-            $table->foreignId('ScheduleId')->references('ScheduleId')->on('schedules')->onUpdate('cascade')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('schedule_id')->references('id')->on('schedules')->onUpdate('cascade')->onDelete('cascade');
             $table->string('is_report');
+            $table->timestamps();
         });
     }
 

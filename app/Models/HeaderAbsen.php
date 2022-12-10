@@ -9,11 +9,11 @@ class HeaderAbsen extends Model
 {
     use HasFactory;
     public function Schedules(){
-        return $this->hasMany(Schedule::class);
+        return $this->belongsTo(Schedule::class);
     }
 
     public function DetailAbsen(){
-        return $this->belongsTo(DetailAbsen::class);
+        return $this->hasMany(DetailAbsen::class);
     }
 
     protected $fillable = [];

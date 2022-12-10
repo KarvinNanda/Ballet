@@ -9,11 +9,15 @@ class MappingClassTeacher extends Model
 {
     use HasFactory;
     public function ClassTransactions(){
-        return $this->hasMany(ClassTransaction::class);
+        return $this->belongsTo(ClassTransaction::class);
     }
 
     public function Teachers(){
-        return $this->hasMany(Teacher::class);
+        return $this->belongsTo(Teacher::class);
+    }
+
+    public function User(){
+        return $this->belongsTo(User::class);
     }
 
     protected $fillable = [];

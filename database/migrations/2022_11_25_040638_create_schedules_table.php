@@ -14,10 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('schedules', function (Blueprint $table) {
-            $table->id('ScheduleId');
-            $table->foreignId('ClassId')->references('ClassId')->on('class_transactions')->onUpdate('cascade')->onDelete('cascade');
+            $table->id();
+            $table->foreignId('class_id')->references('id')->on('class_transactions')->onUpdate('cascade')->onDelete('cascade');
             $table->date('date');
             $table->time('time');
+            $table->timestamps();
         });
     }
 

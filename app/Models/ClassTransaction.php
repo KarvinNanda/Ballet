@@ -9,15 +9,19 @@ class ClassTransaction extends Model
 {
     use HasFactory;
     public function ClassChild(){
-        return $this->belongsTo(MappingClassChild::class);
+        return $this->hasMany(MappingClassChild::class);
     }
 
     public function ClassTeacher(){
-        return $this->belongsTo(MappingClassTeacher::class);
+        return $this->hasMany(MappingClassTeacher::class);
     }
 
     public function Schedule(){
-        return $this->belongsTo(Schedule::class);
+        return $this->hasMany(Schedule::class);
+    }
+
+    public function Transaction(){
+        return $this->hasMany(Transaction::class);
     }
 
     protected $fillable = [];

@@ -1,5 +1,3 @@
-
-
 @extends('Master.master')
 
 @section('title','AdminPage')

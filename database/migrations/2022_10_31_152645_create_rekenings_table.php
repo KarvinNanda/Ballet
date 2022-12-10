@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBanksTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateBanksTable extends Migration
      */
     public function up()
     {
-        Schema::create('banks', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('BankTypeId')->references('id')->on('bank_types')->onUpdate('cascade')->onDelete('cascade');
+        Schema::create('rekenings', function (Blueprint $table) {
             $table->string('bank_rek');
+            $table->foreignId('banks_id')->references('id')->on('banks')->onUpdate('cascade')->onDelete('cascade');
             $table->string('nama_pengirim');
+            $table->primary(['bank_rek']);
+            $table->timestamps();
 
         });
     }
@@ -31,4 +32,4 @@ class CreateBanksTable extends Migration
     {
         Schema::dropIfExists('banks');
     }
-}
+};

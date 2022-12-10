@@ -14,8 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('class_transactions', function (Blueprint $table) {
-            $table->id('ClassId');
+            $table->id();
             $table->string('ClassName');
+            $table->integer('ClassPrice');
+            $table->string('Status');
+            $table->timestamps();
         });
     }
 

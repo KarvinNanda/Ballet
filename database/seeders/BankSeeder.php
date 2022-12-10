@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -15,5 +16,15 @@ class BankSeeder extends Seeder
     public function run()
     {
         //
+        DB::table('banks')->insert([
+            [
+                'bank_name' => 'BCA'
+            ],
+
+            [
+                'bank_name' => 'Mandiri'
+            ],
+
+        ]);
     }
 }
