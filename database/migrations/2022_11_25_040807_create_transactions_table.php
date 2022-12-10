@@ -14,12 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->id('Transactionid');
-            $table->foreignId('StudentId')->references('StudentId')->on('students')->onDelete('cascade')->onUpdate('cascade');
+            $table->id();
+            $table->foreignId('students_id')->references('id')->on('students')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('class_transactions_id')->references('id')->on('class_transactions')->onDelete('cascade')->onUpdate('cascade');
             $table->date('transaction_date');
-            $table->integer('payment');
             $table->string('payment_status');
 			$table->integer('discount');
+            $table->string('desc');
             $table->timestamps();
         });
     }

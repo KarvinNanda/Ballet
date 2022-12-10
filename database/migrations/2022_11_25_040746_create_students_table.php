@@ -14,13 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->id('StudentId');
+            $table->id();
             $table->string('nis');
             $table->string('LongName');
             $table->string('ShortName');
             $table->date('Dob');
             $table->date('EnrollDate');
-            $table->foreignId('BankId')->references('id')->on('banks')->onDelete('cascade')->onUpdate('cascade');
+            $table->string('bank_rek');
+            $table->foreign('bank_rek')->references('bank_rek')->on('rekenings')->onDelete('cascade')->onUpdate('cascade');
             $table->string('nama_orang_tua');
             $table->string('Address');
             $table->string('City');
@@ -31,6 +32,7 @@ return new class extends Migration
             $table->string('Instagram');
             $table->string('Email');
             $table->string('Status');
+            $table->timestamps();
         });
     }
 

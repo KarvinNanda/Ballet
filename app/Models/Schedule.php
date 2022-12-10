@@ -9,11 +9,11 @@ class Schedule extends Model
 {
     use HasFactory;
     public function ClassTransactions(){
-        return $this->hasMany(ClassTransaction::class);
+        return $this->belongsTo(ClassTransaction::class);
     }
 
     public function HeaderAbsen(){
-        return $this->belongsTo(HeaderAbsen::class);
+        return $this->hasMany(HeaderAbsen::class);
     }
 
     protected $fillable = [];

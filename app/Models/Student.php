@@ -10,15 +10,19 @@ class Student extends Model
     use HasFactory;
 
     public function ClassChild(){
-        return $this->belongsTo(MappingClassChild::class);
+        return $this->hasMany(MappingClassChild::class);
     }
 
     public function Transaction(){
-        return $this->belongsTo(Transaction::class);
+        return $this->hasMany(Transaction::class);
     }
 
     public function DetailAbsen(){
-        return $this->belongsTo(DetailAbsen::class);
+        return $this->hasMany(DetailAbsen::class);
+    }
+
+    public function Rekening(){
+        return $this->hasOne(Rekenings::class);
     }
 
     protected $fillable = [];
