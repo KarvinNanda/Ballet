@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('mapping_class_teachers', function (Blueprint $table) {
             $table->foreignId('class_id')->references('id')->on('class_transactions')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('teacher_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->primary(['class_id', 'teacher_id']);
+            $table->foreignId('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->primary(['class_id', 'user_id']);
             $table->timestamps();
         });
     }
