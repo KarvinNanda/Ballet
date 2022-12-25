@@ -103,11 +103,27 @@
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="">
-                <span>Dashboard</span>
-            </a>
-        </li><!-- End Dashboard Nav -->
+        @auth
+            @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="">
+                        <span>Dashboard</span>
+                    </a>
+                </li><!-- End Dashboard Nav -->
+            @elseif(\Illuminate\Support\Facades\Auth::user()->role == 'head')
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="{{route('head')}}">
+                        <span>Dashboard</span>
+                    </a>
+                </li><!-- End Dashboard Nav -->
+            @else
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="">
+                        <span>Dashboard</span>
+                    </a>
+                </li><!-- End Dashboard Nav -->
+            @endif
+        @endauth
 
         <li class="nav-item">
             <a class="nav-link" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">

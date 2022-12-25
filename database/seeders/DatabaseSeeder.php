@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
         $this->call(ClassTransactionSeeder::class);
         $this->call(StudentSeeder::class);
         $this->call(TransactionSeeder::class);
+        $this->call(ScheduleSeeder::class);
+
 
         DB::table('users')->insert([
             [
@@ -82,5 +84,6 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('ana123'),
             ]
         ]);
+        $this->call(MappingClassTeacherSeeder::class);
     }
 }

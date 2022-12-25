@@ -1,61 +1,43 @@
+@inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
-@section('title','Home')
+@section('title','Dashboard')
 
 @section('content')
     <div class="pagetitle">
-        <h1>General Tables</h1>
+        <h1>Today Schedule</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">Table with stripped rows </h5>
-                    <a href=""><button class="btn btn-success me-5"> Add Class</button></a>
-                </div>
-
 
                 <!-- Table with stripped rows -->
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">#</th>
+                        <th scope="col">Teacher Name</th>
                         <th scope="col">Class Name</th>
-                        <th scope="col">Teacher</th>
-                        <th scope="col">Student Count</th>
-                        <th scope="col">View</th>
-                        <th scope="col">Delete</th>
+                        <th scope="col">Day</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Brocoli</td>
-                        <td>Karvin Nanda</td>
-                        <td>30</td>
-                        <td>
-                            <a href="/viewClass">
-                                <button class="btn btn-success">View</button>
-                            </a>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger">Delete</button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>Brocoli</td>
-                        <td>Karvin Nanda</td>
-                        <td>30</td>
-                        <td>
-                            <button class="btn btn-success">View</button>
-                        </td>
-                        <td>
-                            <button class="btn btn-danger">Delete</button>
-                        </td>
-                    </tr>
+                    @foreach($data as $item)
+                        @if($item->date >= $carbon::now()->toDateString() && $item->date <= $carbon::now()->addDays(7)->toDateString())
+                            <tr>
+                                <td>{{$item->teacherName}}</td>
+                                <td>{{$item->class}}</td>
+                                <td>{{$carbon::parse($item->date)->englishDayOfWeek}}</td>
+                                <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
+                                <td>{{$item->time}}</td>
+{{--                                @if($carbon::now() >= $item->date[hour] &&  $carbon::now() <= carbon::parse($item->date[hour])->addHours(2)}}
+{{--                                tombol--}}
+{{--                                @endif--}}
+                            </tr>
+                        @endif
+                    @endforeach
                     </tbody>
                 </table>
                 <!-- End Table with stripped rows -->
