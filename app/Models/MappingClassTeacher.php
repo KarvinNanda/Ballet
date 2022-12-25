@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class MappingClassTeacher extends Model
 {
     use HasFactory;
+
+    protected $table = 'mapping_class_teachers';
     public function ClassTransactions(){
         return $this->belongsTo(ClassTransaction::class);
     }

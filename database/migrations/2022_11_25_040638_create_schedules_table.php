@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('class_id')->references('id')->on('class_transactions')->onUpdate('cascade')->onDelete('cascade');
-            $table->date('date');
+            $table->dateTime('date');
             $table->time('time');
             $table->timestamps();
         });

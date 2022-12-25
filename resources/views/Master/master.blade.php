@@ -133,7 +133,7 @@
                 @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
             <ul id="tables-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
                 <li>
-                    <a href="{{route('adminPage')}}">
+                    <a href="{{route('adminClassView')}}">
                         <i class="bi bi-circle"></i><span>Class Data</span>
                     </a>
                 </li>
