@@ -1,28 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\head;
+namespace App\Http\Controllers\teacher;
 
 use App\Http\Controllers\Controller;
-use App\Models\ClassTransaction;
-use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class HeadController extends Controller
+class TeacherController extends Controller
 {
     public function index(){
         $data = DB::table('class_transactions')
             ->join('schedules','class_transactions.id','schedules.class_id')
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
-            ->join('users','mapping_class_teachers.user_id','users.id')
             ->selectRaw('
                 class_transactions.ClassName as class,
-                schedules.date,
-                users.name as teacherName
+                schedules.date
             ')
+            ->where('mapping_class_teachers.user_id',Auth::user()->id)
             ->orderBy('schedules.date')
             ->get();
-        return view('head.index',compact('data'));
+        return view('teacher.index',compact('data'));
     }
 }

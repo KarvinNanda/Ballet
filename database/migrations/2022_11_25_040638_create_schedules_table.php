@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('class_id')->references('id')->on('class_transactions')->onUpdate('cascade')->onDelete('cascade');
             $table->dateTime('date');
-            $table->time('time');
             $table->timestamps();
         });
     }

@@ -1,11 +1,11 @@
 @inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
-@section('title','Dashboard')
+@section('title','Report')
 
 @section('content')
     <div class="pagetitle">
-        <h1>Today Schedule</h1>
+        <h1>Report</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -16,24 +16,22 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">Teacher Name</th>
                         <th scope="col">Class Name</th>
-                        <th scope="col">Day</th>
                         <th scope="col">Date</th>
-                        <th scope="col">Time</th>
+                        <th scope="col">Action</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($data as $item)
-                        @if($item->date >= $carbon::now()->toDateString() && $item->date <= $carbon::now()->addDays(7)->toDateString())
                             <tr>
-                                <td>{{$item->teacherName}}</td>
-                                <td>{{$item->class}}</td>
-                                <td>{{$carbon::parse($item->date)->englishDayOfWeek}}</td>
+                                <td>{{$item->class_name}}</td>
                                 <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
-                                <td>{{$carbon::parse($item->date)->format('H:i:s')}}</td>
-                            </tr>
-                        @endif
+                                <td>
+                                    <form action="{{route('headPrintReport',$item->header_id)}}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger">Report</button>
+                                    </form>
+                                </td>
                     @endforeach
                     </tbody>
                 </table>
@@ -43,5 +41,7 @@
         </div>
     </section>
 
+    <script>
 
+    </script>
 @endsection

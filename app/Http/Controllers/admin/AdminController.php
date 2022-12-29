@@ -1,15 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\head;
+namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ClassTransaction;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class HeadController extends Controller
+class AdminController extends Controller
 {
     public function index(){
         $data = DB::table('class_transactions')
@@ -23,6 +19,6 @@ class HeadController extends Controller
             ')
             ->orderBy('schedules.date')
             ->get();
-        return view('head.index',compact('data'));
+        return view('admin.index',compact('data'));
     }
 }

@@ -51,6 +51,7 @@ class HeadClassController extends Controller
         $class = new ClassTransaction();
         $class->ClassName = $req->inputName;
         $class->ClassPrice = $req->inputPrice;
+		$class->Status = 'aktif';
 
         $class->save();
 

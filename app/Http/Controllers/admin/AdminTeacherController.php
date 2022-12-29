@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
-class TeacherController extends Controller
+class AdminTeacherController extends Controller
 {
     public function adminTeacherView(){
         $teachers = User::where('role','teacher')->simplePaginate(5);
