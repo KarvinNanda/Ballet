@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
             $table->string('token');
-            $table->date('expired_at');
+            $table->dateTime('expired_at');
             $table->timestamps();
         });
     }

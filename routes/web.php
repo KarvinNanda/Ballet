@@ -20,7 +20,7 @@ use App\Http\Controllers\head\HeadTransactionController;
 use App\Http\Controllers\teacher\TeacherController;
 use App\Http\Controllers\teacher\TeacherClassController;
 use App\Http\Controllers\ProfileController;
-
+use App\Http\Controllers\ForgotPasswordController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -79,7 +79,6 @@ Route::prefix('admin')->group(function(){
     Route::post('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
     Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detail'])->name('adminTeacherDetail');
     Route::post('/teacher/search', [AdminTeacherController::class,'search'])->name('adminTeacherSearch');
-//Route::post('/classdeleteTeacher/{teacher}/{class}',[ClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
 
     Route::get('/stock', [AdminStockController::class,'index'])->name('adminStockPage');
 
@@ -151,3 +150,12 @@ Route::post('/profile/{user}',[ProfileController::class,'changeProfile'])->name(
 
 Route::get('/password',[ProfileController::class,'changePasswordPage'])->name('change-password-page');
 Route::post('/password/{user}',[ProfileController::class,'changePassword'])->name('change-password');
+
+//forgot password
+Route::get('/forgot/password',[ForgotPasswordController::class,'index'])->name('email-page');
+Route::post('/forgot/password',[ForgotPasswordController::class,'checkEmail'])->name('check-email');
+Route::get('/expired',[ForgotPasswordController::class,'index'])->name('expired-page');
+
+
+Route::get('/reset/password/{token}',[ForgotPasswordController::class,'resetPasswordPage'])->name('reset-password-page');
+Route::post('/reset/password/{token}',[ForgotPasswordController::class,'resetPassword'])->name('reset-password');
