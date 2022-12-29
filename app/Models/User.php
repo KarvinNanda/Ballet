@@ -45,4 +45,8 @@ class User extends Authenticatable
     public function ClassTeacher(){
         return $this->hasMany(MappingClassTeacher::class);
     }
+
+    public function ForgotPassword(){
+        return $this->hasOne(ForgotPassword::class);
+    }
 }

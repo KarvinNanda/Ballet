@@ -40,7 +40,7 @@
                                 <td>Rp.{{number_format($transaction->ClassPrice)}}</td>
                                 <td>{{$transaction->discount}}%</td>
                                 @if($transaction->discount != 0)
-                                    <td>Rp.{{number_format($transaction->ClassPrice * ($transaction->discount/100))}}</td>
+                                    <td>Rp.{{number_format($transaction->ClassPrice - (($transaction->discount/100)*$transaction->ClassPrice))}}</td>
                                 @else
                                     <td>Rp.{{number_format($transaction->ClassPrice)}}</td>
                                 @endif
