@@ -12,10 +12,17 @@
     <section class="section">
         <div class="card">
             <div class="mt-3 w-100 d-flex justify-content-end">
+
                 <form action="{{route('viewaddScheduleClass')}}" method="post">
                     @csrf
                     <input type="hidden" value="{{$classId}}" name="classId">
                     <button class="btn btn-success me-5 mt-2 mb-2"> Add Schedule</button>
+                </form>
+
+                <form action="{{route('viewaddMultipleScheduleClass')}}" method="post">
+                    @csrf
+                    <input type="hidden" value="{{$classId}}" name="classId">
+                    <button class="btn btn-success me-5 mt-2 mb-2"> Add Multiple Schedule</button>
                 </form>
             </div>
             <div class="card-body">
@@ -27,13 +34,11 @@
                         <tr>
                             <th scope="col">Nama Kelas</th>
                             <th scope="col">Tanggal</th>
-                            <th scope="col">Time</th>
                             <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         @if($class->isEmpty())
-                            <td>No Data</td>
                             <td>No Data</td>
                             <td>No Data</td>
                             <td>No Data</td>
@@ -44,7 +49,7 @@
                                 <td>{{$carbon::parse($c->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($c->date)->format('H:i:s')}}</td>
                                 <td>
-                                    <form action="" method="post">
+                                    <form action="{{route("deleteSchedule",['id'=>$c->id,'classId'=>$classId])}}" method="get">
                                         @csrf
                                         <button type="submit" class="btn btn-success">Delete Schedule</button>
                                     </form>
@@ -56,9 +61,9 @@
                     </div>
                 </table>
                 <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-{{--                    {{$students->links()}}--}}
-                </div>
+{{--                <div class="alert text-center" role="alert">--}}
+{{--                    {{$class->links()}}--}}
+{{--                </div>--}}
             </div>
         </div>
     </section>

@@ -43,6 +43,10 @@ class AdminTeacherController extends Controller
         return redirect(route('admin.teacher.adminTeacherView'));
     }
 
+    public function detailTeacher(User $teacher){
+        $delete = User::find($teacher->id);
+    }
+
     public function adminTeacherFormSubmit(Request $req){
         $rules = [
             'inputName' => 'required',

@@ -42,12 +42,12 @@
                                     <td>{{$teacher->teacherAddress}}</td>
                                     <td>{{$teacher->teacherPhone}}</td>
                                     <td>{{$teacher->teacherEmail}}</td>
-{{--                                        <td>--}}
-{{--                                            <form action="{{route('classDeleteTeacher',$teacher->id."/".$class_id)}}" method="post">--}}
-{{--                                                @csrf--}}
-{{--                                                <button type="submit" class="btn btn-danger">Delete</button>--}}
-{{--                                            </form>--}}
-{{--                                        </td>--}}
+                                        <td>
+                                            <form action="{{route('classDeleteTeacher',['teacher' => $teacher->id,'class' => $class_id])}}" method="get">
+                                                @csrf
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </td>
                                 </tr>
                             @endforeach
                         @endif
@@ -100,7 +100,7 @@
                                     <td>{{$student->studentPhone}}</td>
                                     <td>{{$student->studentEmail}}</td>
                                     <td>
-                                        <form action="" method="post">
+                                        <form action="{{route('classDeleteStudent',['student' => $student->id,'class' => $class_id])}}" method="get">
                                             @csrf
                                             <button type="submit" class="btn btn-danger">Delete</button>
                                         </form>
