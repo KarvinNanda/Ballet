@@ -3,16 +3,7 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use App\Models\ClassTransaction;
-use App\Models\DetailAbsen;
-use App\Models\HeaderAbsen;
-use App\Models\MappingClassChild;
-use App\Models\MappingClassTeacher;
-use App\Models\Schedule;
-use App\Models\Student;
 use App\Models\Teacher;
-use App\Models\Transaction;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -85,5 +76,6 @@ class DatabaseSeeder extends Seeder
             ]
         ]);
         $this->call(MappingClassTeacherSeeder::class);
+        $this->call(MappingClassChildSeeder::class);
     }
 }

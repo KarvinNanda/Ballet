@@ -63,7 +63,7 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="{{route('change-profile-page')}}">
-{{--                            <i class="bi bi-person"></i>--}}
+                            {{--                            <i class="bi bi-person"></i>--}}
                             <span>Change Profile</span>
                         </a>
                     </li>
@@ -74,7 +74,7 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="{{route('change-password-page')}}">
-{{--                            <i class="bi bi-person"></i>--}}
+                            {{--                            <i class="bi bi-person"></i>--}}
                             <span>Change Password</span>
                         </a>
                     </li>
@@ -85,7 +85,7 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="{{route('logout')}}">
-{{--                            <i class="bi bi-box-arrow-right"></i>--}}
+                            {{--                            <i class="bi bi-box-arrow-right"></i>--}}
                             <span>Sign Out</span>
                         </a>
                     </li>
@@ -106,7 +106,7 @@
         @auth
             @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
                 <li class="nav-item">
-                    <a class="nav-link collapsed" href="">
+                    <a class="nav-link collapsed" href="{{route('admin')}}">
                         <span>Dashboard</span>
                     </a>
                 </li><!-- End Dashboard Nav -->
@@ -118,78 +118,110 @@
                 </li><!-- End Dashboard Nav -->
             @else
                 <li class="nav-item">
-                    <a class="nav-link collapsed" href="">
+                    <a class="nav-link collapsed" href="{{route('teacher')}}">
                         <span>Dashboard</span>
                     </a>
                 </li><!-- End Dashboard Nav -->
             @endif
         @endauth
 
-        <li class="nav-item">
-            <a class="nav-link" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-                <span>Manage Data</span><i class="bi bi-chevron-down ms-auto"></i>
-            </a>
-            @auth
-                @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
-            <ul id="tables-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                <li>
-                    <a href="{{route('adminClassView')}}">
-                        <i class="bi bi-circle"></i><span>Class Data</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{route('adminStudentView')}}">
-                        <i class="bi bi-circle"></i><span>Student Data</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{route('adminTeacherView')}}">
-                        <i class="bi bi-circle"></i><span>Teacher Data</span>
-                    </a>
-                </li>
-            </ul>
-                @elseif(\Illuminate\Support\Facades\Auth::user()->role == 'head')
-                    <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
-                        <li>
-                            <a href="{{route('headAdminPage')}}">
-                                <i class="bi bi-circle"></i><span>Admin Data</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{route('headClassPage')}}">
-                                <i class="bi bi-circle"></i><span>Class Data</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{route('headStudentPage')}}">
-                                <i class="bi bi-circle"></i><span>Student Data</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{route('headTeacherPage')}}">
-                                <i class="bi bi-circle"></i><span>Teacher Data</span>
-                            </a>
-                        </li>
-                    </ul>
-                @endif
-            @endauth
-        </li><!-- End Tables Nav -->
-
-        @auth()
-            @if(\Illuminate\Support\Facades\Auth::user()->role == 'head')
+        @auth
+            @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin' || \Illuminate\Support\Facades\Auth::user()->role == 'head')
                 <li class="nav-item">
-                    <a class="nav-link collapsed" href="{{route('headStockPage')}}">
-                        <span>Stock</span>
+                    <a class="nav-link" data-bs-target="#tables-nav" href="#">
+                        <span>Manage Data</span>
                     </a>
-                </li>
+                        @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
+                            <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
+                                <li>
+                                    <a href="{{route('adminClassView')}}">
+                                        <i class="bi bi-circle"></i><span>Class Data</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{route('adminStudentView')}}">
+                                        <i class="bi bi-circle"></i><span>Student Data</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{route('adminTeacherView')}}">
+                                        <i class="bi bi-circle"></i><span>Teacher Data</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        @elseif(\Illuminate\Support\Facades\Auth::user()->role == 'head')
+                            <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
+                                <li>
+                                    <a href="{{route('headAdminPage')}}">
+                                        <i class="bi bi-circle"></i><span>Admin Data</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{route('headClassPage')}}">
+                                        <i class="bi bi-circle"></i><span>Class Data</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{route('headStudentPage')}}">
+                                        <i class="bi bi-circle"></i><span>Student Data</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{route('headTeacherPage')}}">
+                                        <i class="bi bi-circle"></i><span>Teacher Data</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        @endif
+                    @endif
+                    @endauth
+                </li><!-- End Tables Nav -->
 
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="{{route('headTransactionPage')}}">
-                        <span>Transaksi</span>
-                    </a>
-                </li>
-            @endif
-        @endauth
+                @auth()
+                    @if(\Illuminate\Support\Facades\Auth::user()->role == 'head')
+                        <li class="nav-item">
+                            <a class="nav-link collapsed" href="{{route('headStockPage')}}">
+                                <span>Stock</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link collapsed" href="{{route('headTransactionPage')}}">
+                                <span>Transaksi</span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link collapsed" href="{{route('headReport')}}">
+                                <span>Laporan</span>
+                            </a>
+                        </li>
+                        @elseif(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
+                            <li class="nav-item">
+                                <a class="nav-link collapsed" href="{{route('adminStockPage')}}">
+                                    <span>Stock</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link collapsed" href="{{route('adminTransactionPage')}}">
+                                    <span>Transaksi</span>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link collapsed" href="{{route('adminReportPage')}}">
+                                    <span>Laporan</span>
+                                </a>
+                            </li>
+                        @else
+                            <li class="nav-item">
+                                <a class="nav-link collapsed" href="{{route('viewClass')}}">
+                                    <span>Class</span>
+                                </a>
+                            </li>
+                    @endif
+                @endauth
 
 
     </ul>
@@ -210,7 +242,7 @@
         <!-- You can delete the links only if you purchased the pro version. -->
         <!-- Licensing information: https://bootstrapmade.com/license/ -->
         <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-{{--        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>--}}
+        {{--        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>--}}
     </div>
 </footer><!-- End Footer -->
 
@@ -228,6 +260,7 @@
 
 <!-- Template Main JS File -->
 <script src="/assets/js/main.js"></script>
+<script src="/assets/js/jquery-3.6.3.min.js"></script>
 
 </body>
 

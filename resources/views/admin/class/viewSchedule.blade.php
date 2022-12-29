@@ -1,3 +1,4 @@
+@inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
 @section('title','Teacher List')
@@ -40,8 +41,8 @@
                             @foreach($class as $c)
                             <tr>
                                 <td>{{$c->classname}}</td>
-                                <td>{{$c->date}}</td>
-                                <td>{{$c->time}}</td>
+                                <td>{{$carbon::parse($c->date)->format('d M Y')}}</td>
+                                <td>{{$carbon::parse($c->date)->format('H:i:s')}}</td>
                                 <td>
                                     <form action="" method="post">
                                         @csrf

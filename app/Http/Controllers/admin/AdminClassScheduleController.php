@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ClassScheduleController extends Controller
+class AdminClassScheduleController extends Controller
 {
     public function viewSchedule(Request $req){
         $classId = $req->classId;
@@ -22,7 +22,6 @@ class ClassScheduleController extends Controller
             ->selectRaw('
                 class_transactions.ClassName as classname,
                 schedules.date as date,
-                schedules.time as time
             ')->where('schedules.class_id',$req->classId)
             ->simplePaginate(5);
         return view('admin.class.viewSchedule',compact('class','classId'));

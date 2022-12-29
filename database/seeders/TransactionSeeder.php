@@ -24,6 +24,7 @@ class TransactionSeeder extends Seeder
                'payment_status' => 'lunas',
                'discount' => 0,
                'desc' => 'ganteng',
+               'price' => 500000
            ],
 
             [
@@ -33,6 +34,7 @@ class TransactionSeeder extends Seeder
                 'payment_status' => 'belum lunas',
                 'discount' => 10,
                 'desc' => 'rajin',
+                'price' => 350000
             ],
         ]);
     }

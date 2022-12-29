@@ -1,3 +1,4 @@
+@inject('carbon','Carbon\Carbon')
 @extends('Master.master')
 
 @section('title','Student List')
@@ -51,7 +52,7 @@
                     @foreach($students as $student)
                         <tr>
                             <td>{{$student->name}}</td>
-                            <td>{{\Carbon\Carbon::parse($student->dob)->format('d M Y')}}</td>
+                            <td>{{$carbon::parse($student->dob)->format('d M Y')}}</td>
                             <td>{{$student->age}}</td>
                             <td>{{$student->ortu}}</td>
                             <td>{{$student->rek}}</td>

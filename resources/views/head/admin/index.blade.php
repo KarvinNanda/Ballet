@@ -1,3 +1,4 @@
+@inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
 @section('title','Admin List')
@@ -35,7 +36,7 @@
                     @foreach($admins as $admin)
                     <tr>
                         <td>{{$admin->name}}</td>
-                        <td>{{\Carbon\Carbon::parse($admin->dob)->format('d M Y')}}</td>
+                        <td>{{$carbon::parse($admin->dob)->format('d M Y')}}</td>
                         <td>{{$admin->address}}</td>
                         <td>{{$admin->phone}}</td>
                         <td>{{$admin->email}}</td>

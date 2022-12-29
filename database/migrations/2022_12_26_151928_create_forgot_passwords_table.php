@@ -13,9 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('header_absens', function (Blueprint $table) {
+        Schema::create('forgot_passwords', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('schedules_id')->references('id')->on('schedules')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('token');
+            $table->date('expired_at');
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('header_absens');
+        Schema::dropIfExists('forgot_passwords');
     }
 };
