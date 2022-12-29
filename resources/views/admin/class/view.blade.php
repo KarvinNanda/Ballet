@@ -38,6 +38,7 @@
                         <th scope="col">Action</th>
                         <th scope="col">Detail</th>
                         <th scope="col">Schedule Detail</th>
+                        <th scope="col">Reset</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -67,6 +68,12 @@
                                     @csrf
                                     <input type="hidden" value="{{$class->id}}" name="classId">
                                     <button type="submit" class="btn btn-success">Schedule</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form action="{{route('resetClass',$class->id)}}" onclick="return confirm('Are you sure?')" method="get">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">Reset Class</button>
                                 </form>
                             </td>
                         </tr>

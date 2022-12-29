@@ -22,29 +22,52 @@ class ClassScheduleController extends Controller
             ->selectRaw('
                 class_transactions.ClassName as classname,
                 schedules.date as date,
-                schedules.time as time
+                schedules.id as id
             ')->where('schedules.class_id',$req->classId)
-            ->simplePaginate(5);
+            ->get();
         return view('admin.class.viewSchedule',compact('class','classId'));
     }
 
     public function viewaddScheduleClass(Request $req){
         $classId = $req->classId;
-        $test = Schedule::find(1);
+        $test = Schedule::find($classId);
         return view('admin.class.viewaddSchedule',compact('classId'));
     }
 
+    public function viewAddMultipleScheduleClass(Request $req){
+        $classId = $req->classId;
+        $test = Schedule::find($classId);
+        return view('admin.class.addMultipleSchedule',compact('classId'));
+    }
+
     public function addSchedule(Request $req){
+
         $schedule = new Schedule();
         $date = Carbon::parse($req->dateTime);
         $schedule->class_id = $req->classId;
         $schedule->date = $date;
-        $schedule->time = $date;
         $schedule->save();
-//        return redirect()->back();
-        return redirect()->route("viewaddScheduleClass");
-
+        $test = Schedule::find($req->classId);
+        return redirect()->route("adminClassView");
     }
+
+    public function addMultipleSchedule(Request $req){
+
+        $date = Carbon::parse($req->dateTime);
+
+        for($i =0;$i < $req->ScheduleLoop;$i++){
+            $schedule = new Schedule();
+            $schedule->class_id = $req->classId;
+            $schedule->date = $date;
+            $schedule->save();
+            $date->addDay(7);
+        }
+
+
+//        return redirect()->back();
+        return redirect()->route("adminClassView");
+    }
+
 
     public function viewAbsen(){
         $view = Schedule::find(1);
@@ -84,10 +107,15 @@ class ClassScheduleController extends Controller
             }
         }
         return "ok";
-
-
     }
 
+    public function deleteScheduleClass($id,$classId){
+        $classDelete = DB::table('schedules')->where('schedules.id',$id)->where('class_id',$classId);
+        $classDelete->delete();
+        return redirect()->route("adminClassView");
+    }
 
+    public function deleteTeacher(){
 
+    }
 }

@@ -155,9 +155,27 @@ class ClassTransactionController extends Controller
         return redirect()->route("adminClassView");
     }
 
-//    public function deleteTeacher(User $teacher, ClassTransaction $class){
-//        dd($teacher);
-//    }
+    public function deleteTeacher($teacher, $class){
+        $teacher = DB::table('mapping_class_teachers')->where('class_id',$class)->where('user_id',$teacher);
+        $teacher->delete();
+        return redirect()->route("adminClassView");
+    }
+
+    public function deleteStudent($student, $class){
+        $teacher = DB::table('mapping_class_children')->where('class_id',$class)->where('user_id',$student);
+        $teacher->delete();
+        return redirect()->route("adminClassView");
+    }
+
+
+    public function resetClass($id){
+        $classStudentReset = DB::table('mapping_class_children')->where('class_id',$id);
+        $classStudentReset->delete();
+        $classTeacherReset = DB::table('mapping_class_teachers')->where('class_id',$id);
+        $classTeacherReset->delete();
+        return redirect()->route("adminClassView");
+    }
+
 
 
 }

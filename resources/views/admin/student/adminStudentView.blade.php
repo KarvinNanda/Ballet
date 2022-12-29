@@ -45,6 +45,8 @@
                             {{--                        <th scope="col">Alamat</th>--}}
                             <th scope="col">Phone</th>
                             <th scope="col">Action</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -66,6 +68,18 @@
                                         @else
                                             <button type="submit" class="btn btn-danger">Active</button>
                                         @endif
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{{route('adminTeacherDelete',$teacher)}}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{{route('adminTeacherDelete',$teacher)}}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger">Detail</button>
                                     </form>
                                 </td>
                             </tr>
