@@ -9,11 +9,12 @@
 
     <section class="section">
         <div class="card">
-            <div class="search-bar mt-3 ms-3 mb-3 w-100">
-                <form class="search-form d-flex align-items-center" method="POST" action="{{route('searchTransaction')}}">
+            <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
+                <form class="search-form d-flex align-items-center" method="POST" action="{{route('searchStock')}}">
                     @csrf
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
+                    <input type="text" name="search" placeholder="Search" title="Enter search keyword" class="ms-3">
                 </form>
+                <a href="{{route("addTransaction")}}"><button class="btn btn-success me-3 mb-3 me-5"> Add Transaction</button></a>
             </div>
             <div class="card-body">
 

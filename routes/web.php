@@ -51,28 +51,6 @@ Route::prefix('admin')->group(function(){
     Route::post('/add/teacher/class', [AdminClassTransactionController::class,'addTeacher'])->name('addTeacherClass');
     Route::post('/add/student/class', [AdminClassTransactionController::class,'addStudent'])->name('addStudentClass');
     Route::post('/view/schedule/class', [AdminClassScheduleController::class,'viewSchedule'])->name('viewScheduleClass');
-    Route::post('/view/add/schedule/class',[AdminClassScheduleController::class,'viewaddScheduleClass'])->name('viewaddScheduleClass');
-    Route::post('/add/schedule/class',[AdminClassScheduleController::class,'addSchedule'])->name('addScheduleClass');
-    Route::get('/view/absence',[AdminClassScheduleController::class,'viewAbsen'])->name('viewAbsen');
-    Route::post('/get/absence/{schedule}',[AdminClassScheduleController::class,'getAbsen'])->name('getAbsen');
-//Route::post('/classdeleteTeacher/{teacher}/{class}',[AdminClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
-
-    Route::get('/student/view', [AdminStudentController::class,'adminStudentView'])->name('adminStudentView');
-    Route::get('/student/form', [AdminStudentController::class,'viewStudentForm'])->name('adminStudentForm');;
-    Route::post('/student/form', [AdminStudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
-    Route::post('/student/search', [AdminStudentController::class,'search'])->name('adminStudentSearch');
-    Route::post('/student/change/{student}', [AdminStudentController::class,'ChangeNonactive'])->name('adminStudentChange');
-    Route::get('/student/active', [AdminStudentController::class,'active'])->name('adminStudentActive');
-    Route::get('/student/non/active', [AdminStudentController::class,'nonActive'])->name('adminStudentNonActive');
-Route::prefix('admin')->group(function(){
-    Route::get('/', [AdminController::class,'index'])->name('adminPage');
-    Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
-    Route::post('/detail/class', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
-    Route::get('/view/add/teacher/class/{id}', [AdminClassTransactionController::class,'viewaddTeacher'])->name('viewaddTeacherClass');
-    Route::get('/view/add/student/class/{id}', [AdminClassTransactionController::class,'viewaddStudent'])->name('viewaddStudentClass');
-    Route::post('/add/teacher/class', [AdminClassTransactionController::class,'addTeacher'])->name('addTeacherClass');
-    Route::post('/add/student/class', [AdminClassTransactionController::class,'addStudent'])->name('addStudentClass');
-    Route::post('/view/schedule/class', [AdminClassScheduleController::class,'viewSchedule'])->name('viewScheduleClass');
     Route::get('/delete/Schedule/class/{id}/{classId}',[AdminClassScheduleController::class,'deleteScheduleClass'])->name('deleteSchedule'); // baru
     Route::get('/reset/class/{id}',[AdminClassTransactionController::class,'resetClass'])->name('resetClass'); // baru
 
@@ -94,19 +72,15 @@ Route::prefix('admin')->group(function(){
     Route::post('/student/change/{student}', [AdminStudentController::class,'ChangeNonactive'])->name('adminStudentChange');
     Route::get('/student/active', [AdminStudentController::class,'active'])->name('adminStudentActive');
     Route::get('/student/non/active', [AdminStudentController::class,'nonActive'])->name('adminStudentNonActive');
+    Route::get('/student/delete/{studentId}', [AdminStudentController::class,'deleteStudent'])->name('adminStudentDelete');
+    Route::get('/student/detail/{studentId}', [AdminStudentController::class,'detailStudent'])->name('adminStudentDetail');
 
     Route::get('/teacher/view', [AdminTeacherController::class,'adminTeacherView'])->name('adminTeacherView');
     Route::get('/teacher/form', [AdminTeacherController::class,'adminTeacherForm'])->name('adminTeacherForm');
     Route::post('/teacher/form', [AdminTeacherController::class,'adminTeacherFormSubmit'])->name('adminTeacherForm');
     Route::post('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
-    Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detail'])->name('adminTeacherDetail');
+    Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detailTeacher'])->name('adminTeacherDetail');
     Route::post('/teacher/search', [AdminTeacherController::class,'search'])->name('adminTeacherSearch');
-});
-
-
-
-
-//Route::post('/classdeleteTeacher/{teacher}/{class}',[ClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
 
     Route::get('/stock', [AdminStockController::class,'index'])->name('adminStockPage');
 
@@ -114,6 +88,8 @@ Route::prefix('admin')->group(function(){
     Route::post('/report/{header}',[AdminReportController::class,'print'])->name('adminPrintReport');
 
     Route::get('/transaction', [AdminTransactionController::class,'index'])->name('adminTransactionPage');
+    Route::get('/transaction/add', [AdminTransactionController::class,'addTransaction'])->name('addTransaction');
+    Route::post('/transaction/insert', [AdminTransactionController::class,'insertTransaction'])->name('insertTransaction');
 });
 
 //head
@@ -153,6 +129,7 @@ Route::prefix('head')->group(function(){
     Route::post('/transaction/update/{transaction}', [HeadTransactionController::class,'update'])->name('update');
     Route::post('/transaction/search', [HeadTransactionController::class,'search'])->name('searchTransaction');
 
+
     Route::get('/stock', [HeadStockController::class,'index'])->name('headStockPage');
     Route::get('/stock/add', [HeadStockController::class,'insertPage'])->name('headStockAddPage');
     Route::post('/stock/add', [HeadStockController::class,'insert'])->name('StockAdd');
@@ -170,6 +147,8 @@ Route::prefix('teacher')->group(function(){
     Route::get('/', [TeacherController::class,'index'])->name('teacher');
     Route::get('/view/class', [TeacherClassController::class,'index'])->name('viewClass');
     Route::post('/view/class/{class:ClassName}', [TeacherClassController::class,'viewDetail'])->name('viewDetail');
+    Route::post('/view/class/absen/{class}', [TeacherController::class,'viewAbsen'])->name('viewAbsen');
+    Route::post('/view/class/getabsen/{schedule}', [TeacherController::class,'getAbsen'])->name('getAbsen');
 });
 
 //profile

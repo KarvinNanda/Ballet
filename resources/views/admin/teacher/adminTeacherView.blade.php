@@ -48,7 +48,7 @@
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="{{route('adminTeacherDelete',$teacher)}}" method="post">
+                                    <form action="{{route('adminTeacherDetail',$teacher)}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Detail</button>
                                     </form>

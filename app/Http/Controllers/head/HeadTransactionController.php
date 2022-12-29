@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClassTransaction;
+use App\Models\Student;
 use App\Models\Transaction;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -55,5 +58,40 @@ class HeadTransactionController extends Controller
         $trans->desc = $req->inputDesc;
         $trans->save();
         return redirect()->route('headTransactionPage');
+    }
+
+    public function addTransaction(){
+        $students = Student::all();
+        $class_transaction = ClassTransaction::all();
+        return view('admin.transaction.insert',compact('students','class_transaction'));
+    }
+
+    public function insertTransaction(Request $req){
+        $rules = [
+            'nis' => 'required',
+            'class' => 'required',
+            'dateTime' => 'required',
+            'Price' => 'required',
+            'Discount' => 'required',
+            'Description' => 'required'
+        ];
+
+        $validate = Validator::make($req->all(),$rules);
+        if($validate->fails()){
+            return redirect()->back()->withErrors($validate);
+        }
+
+        $transaction = new Transaction();
+        $transaction->student_id = $req->nis;
+        $transaction->class_transaction_id = $req->class;
+        $transaction->transaction_date = $req->dateTime;
+        $transaction->payment_status = "belum lunas";
+        $transaction->discount = $req->Discount;
+        $transaction->price = $req->Price;
+        $transaction->desc = $req->Description;
+
+        $transaction->save();
+
+        return redirect()->route("transaction");
     }
 }

@@ -10,6 +10,7 @@
 
     <section class="section">
         <div class="card">
+
             <div class="card-body">
 
                 <!-- Table with stripped rows -->

@@ -44,7 +44,8 @@ class AdminTeacherController extends Controller
     }
 
     public function detailTeacher(User $teacher){
-        $delete = User::find($teacher->id);
+        $detail = User::find($teacher->id);
+        return view('admin.teacher.adminTeacherDetail',compact('detail'));
     }
 
     public function adminTeacherFormSubmit(Request $req){

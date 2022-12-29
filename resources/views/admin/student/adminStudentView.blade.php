@@ -71,13 +71,13 @@
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="{{route('adminTeacherDelete',$teacher)}}" method="post">
+                                    <form action="{{route('adminStudentDelete',$student->id)}}" method="get">
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="{{route('adminTeacherDelete',$teacher)}}" method="post">
+                                    <form action="{{route('adminStudentDetail',$student->id)}}" method="get">
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Detail</button>
                                     </form>

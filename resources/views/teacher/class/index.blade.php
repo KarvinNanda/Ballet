@@ -25,7 +25,6 @@
                     </thead>
                     <tbody>
                     @foreach($data as $item)
-                        @if($item->date >= $carbon::now()->toDateString() && $item->date <= $carbon::now()->addDays(7)->toDateString())
                             <tr>
                                 <td>{{$item->class}}</td>
                                 <td>{{$item->students}}</td>
@@ -39,7 +38,6 @@
                                     </form>
                                 </td>
                             </tr>
-                        @endif
                     @endforeach
                     </tbody>
                 </table>
