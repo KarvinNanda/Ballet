@@ -17,11 +17,9 @@ use App\Http\Controllers\head\HeadStockController;
 use App\Http\Controllers\head\HeadStudentController;
 use App\Http\Controllers\head\HeadTeacherController;
 use App\Http\Controllers\head\HeadTransactionController;
-use App\Http\Controllers\admin\ClassScheduleController;
 use App\Http\Controllers\teacher\TeacherController;
 use App\Http\Controllers\teacher\TeacherClassController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\admin\AdminController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -68,41 +66,41 @@ Route::prefix('admin')->group(function(){
     Route::get('/student/non/active', [AdminStudentController::class,'nonActive'])->name('adminStudentNonActive');
 Route::prefix('admin')->group(function(){
     Route::get('/', [AdminController::class,'index'])->name('adminPage');
-    Route::get('/view/class', [ClassTransactionController::class,'viewClass'])->name('adminClassView');
-    Route::post('/detail/class', [ClassTransactionController::class,'detailClass'])->name('adminDetailClass');
-    Route::get('/view/add/teacher/class/{id}', [ClassTransactionController::class,'viewaddTeacher'])->name('viewaddTeacherClass');
-    Route::get('/view/add/student/class/{id}', [ClassTransactionController::class,'viewaddStudent'])->name('viewaddStudentClass');
-    Route::post('/add/teacher/class', [ClassTransactionController::class,'addTeacher'])->name('addTeacherClass');
-    Route::post('/add/student/class', [ClassTransactionController::class,'addStudent'])->name('addStudentClass');
-    Route::post('/view/schedule/class', [ClassScheduleController::class,'viewSchedule'])->name('viewScheduleClass');
-    Route::get('/delete/Schedule/class/{id}/{classId}',[\App\Http\Controllers\admin\ClassScheduleController::class,'deleteScheduleClass'])->name('deleteSchedule'); // baru
-    Route::get('/reset/class/{id}',[\App\Http\Controllers\admin\ClassTransactionController::class,'resetClass'])->name('resetClass'); // baru
+    Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
+    Route::post('/detail/class', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
+    Route::get('/view/add/teacher/class/{id}', [AdminClassTransactionController::class,'viewaddTeacher'])->name('viewaddTeacherClass');
+    Route::get('/view/add/student/class/{id}', [AdminClassTransactionController::class,'viewaddStudent'])->name('viewaddStudentClass');
+    Route::post('/add/teacher/class', [AdminClassTransactionController::class,'addTeacher'])->name('addTeacherClass');
+    Route::post('/add/student/class', [AdminClassTransactionController::class,'addStudent'])->name('addStudentClass');
+    Route::post('/view/schedule/class', [AdminClassScheduleController::class,'viewSchedule'])->name('viewScheduleClass');
+    Route::get('/delete/Schedule/class/{id}/{classId}',[AdminClassScheduleController::class,'deleteScheduleClass'])->name('deleteSchedule'); // baru
+    Route::get('/reset/class/{id}',[AdminClassTransactionController::class,'resetClass'])->name('resetClass'); // baru
 
-    Route::post('/view/add/schedule/class',[ClassScheduleController::class,'viewaddScheduleClass'])->name('viewaddScheduleClass');
-    Route::post('/add/MultipleSchedule/class',[\App\Http\Controllers\admin\ClassScheduleController::class,'addMultipleSchedule'])->name('addMultipleScheduleClass');// baru
+    Route::post('/view/add/schedule/class',[AdminClassScheduleController::class,'viewaddScheduleClass'])->name('viewaddScheduleClass');
+    Route::post('/add/MultipleSchedule/class',[AdminClassScheduleController::class,'addMultipleSchedule'])->name('addMultipleScheduleClass');// baru
 
-    Route::post('/add/schedule/class',[ClassScheduleController::class,'addSchedule'])->name('addScheduleClass');
-    Route::post('/view/addMultipleSchedule/class',[\App\Http\Controllers\admin\ClassScheduleController::class,'viewAddMultipleScheduleClass'])->name('viewaddMultipleScheduleClass');// baru
-    Route::get('/view/absence',[ClassScheduleController::class,'viewAbsen'])->name('viewAbsen');
-    Route::post('/get/absence/{schedule}',[ClassScheduleController::class,'getAbsen'])->name('getAbsen');
+    Route::post('/add/schedule/class',[AdminClassScheduleController::class,'addSchedule'])->name('addScheduleClass');
+    Route::post('/view/addMultipleSchedule/class',[AdminClassScheduleController::class,'viewAddMultipleScheduleClass'])->name('viewaddMultipleScheduleClass');// baru
+    Route::get('/view/absence',[AdminClassScheduleController::class,'viewAbsen'])->name('viewAbsen');
+    Route::post('/get/absence/{schedule}',[AdminClassScheduleController::class,'getAbsen'])->name('getAbsen');
 
-    Route::get('/delete/TeacherClass/{teacher}/{class}',[ClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
-    Route::get('/delete/StudentClass/{student}/{class}',[ClassTransactionController::class,'deleteStudent'])->name("classDeleteStudent");
+    Route::get('/delete/TeacherClass/{teacher}/{class}',[AdminClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
+    Route::get('/delete/StudentClass/{student}/{class}',[AdminClassTransactionController::class,'deleteStudent'])->name("classDeleteStudent");
 
-    Route::get('/student/view', [StudentController::class,'adminStudentView'])->name('adminStudentView');
-    Route::get('/student/form', [StudentController::class,'viewStudentForm'])->name('adminStudentForm');;
-    Route::post('/student/form', [StudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
-    Route::post('/student/search', [StudentController::class,'search'])->name('adminStudentSearch');
-    Route::post('/student/change/{student}', [StudentController::class,'ChangeNonactive'])->name('adminStudentChange');
-    Route::get('/student/active', [StudentController::class,'active'])->name('adminStudentActive');
-    Route::get('/student/non/active', [StudentController::class,'nonActive'])->name('adminStudentNonActive');
+    Route::get('/student/view', [AdminStudentController::class,'adminStudentView'])->name('adminStudentView');
+    Route::get('/student/form', [AdminStudentController::class,'viewStudentForm'])->name('adminStudentForm');;
+    Route::post('/student/form', [AdminStudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
+    Route::post('/student/search', [AdminStudentController::class,'search'])->name('adminStudentSearch');
+    Route::post('/student/change/{student}', [AdminStudentController::class,'ChangeNonactive'])->name('adminStudentChange');
+    Route::get('/student/active', [AdminStudentController::class,'active'])->name('adminStudentActive');
+    Route::get('/student/non/active', [AdminStudentController::class,'nonActive'])->name('adminStudentNonActive');
 
-    Route::get('/teacher/view', [TeacherController::class,'adminTeacherView'])->name('adminTeacherView');
-    Route::get('/teacher/form', [TeacherController::class,'adminTeacherForm'])->name('adminTeacherForm');
-    Route::post('/teacher/form', [TeacherController::class,'adminTeacherFormSubmit'])->name('adminTeacherForm');
-    Route::post('/teacher/delete/{teacher}', [TeacherController::class,'delete'])->name('adminTeacherDelete');
-    Route::post('/teacher/detail/{teacher}', [TeacherController::class,'detail'])->name('adminTeacherDetail');
-    Route::post('/teacher/search', [TeacherController::class,'search'])->name('adminTeacherSearch');
+    Route::get('/teacher/view', [AdminTeacherController::class,'adminTeacherView'])->name('adminTeacherView');
+    Route::get('/teacher/form', [AdminTeacherController::class,'adminTeacherForm'])->name('adminTeacherForm');
+    Route::post('/teacher/form', [AdminTeacherController::class,'adminTeacherFormSubmit'])->name('adminTeacherForm');
+    Route::post('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
+    Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detail'])->name('adminTeacherDetail');
+    Route::post('/teacher/search', [AdminTeacherController::class,'search'])->name('adminTeacherSearch');
 });
 
 

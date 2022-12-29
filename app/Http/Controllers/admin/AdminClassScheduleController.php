@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
-class ClassScheduleController extends Controller
+class AdminClassScheduleController extends Controller
 {
     public function viewSchedule(Request $req){
         $classId = $req->classId;
