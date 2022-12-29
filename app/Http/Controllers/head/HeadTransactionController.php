@@ -40,8 +40,9 @@ class HeadTransactionController extends Controller
 
     public function update(Request $req,Transaction $transaction){
         $rules=[
-          'inputDisc' => 'required',
+          'inputDisc' => 'required|numeric|min:0|max:100',
           'inputDesc' => 'required',
+          'inputStatus' => 'required',
         ];
 
         $validate = Validator::make($req->all(),$rules);

@@ -20,7 +20,7 @@ use App\Http\Controllers\head\HeadTransactionController;
 use App\Http\Controllers\teacher\TeacherController;
 use App\Http\Controllers\teacher\TeacherClassController;
 use App\Http\Controllers\ProfileController;
-
+use App\Http\Controllers\ForgotPasswordController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,28 +44,6 @@ Route::get('/logout', [LoginController::class,'logout'])->name('logout');
 //admin
 Route::prefix('admin')->group(function(){
     Route::get('/', [AdminController::class,'index'])->name('admin');
-    Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
-    Route::post('/detail/class', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
-    Route::get('/view/add/teacher/class/{id}', [AdminClassTransactionController::class,'viewaddTeacher'])->name('viewaddTeacherClass');
-    Route::get('/view/add/student/class/{id}', [AdminClassTransactionController::class,'viewaddStudent'])->name('viewaddStudentClass');
-    Route::post('/add/teacher/class', [AdminClassTransactionController::class,'addTeacher'])->name('addTeacherClass');
-    Route::post('/add/student/class', [AdminClassTransactionController::class,'addStudent'])->name('addStudentClass');
-    Route::post('/view/schedule/class', [AdminClassScheduleController::class,'viewSchedule'])->name('viewScheduleClass');
-    Route::post('/view/add/schedule/class',[AdminClassScheduleController::class,'viewaddScheduleClass'])->name('viewaddScheduleClass');
-    Route::post('/add/schedule/class',[AdminClassScheduleController::class,'addSchedule'])->name('addScheduleClass');
-    Route::get('/view/absence',[AdminClassScheduleController::class,'viewAbsen'])->name('viewAbsen');
-    Route::post('/get/absence/{schedule}',[AdminClassScheduleController::class,'getAbsen'])->name('getAbsen');
-//Route::post('/classdeleteTeacher/{teacher}/{class}',[AdminClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
-
-    Route::get('/student/view', [AdminStudentController::class,'adminStudentView'])->name('adminStudentView');
-    Route::get('/student/form', [AdminStudentController::class,'viewStudentForm'])->name('adminStudentForm');;
-    Route::post('/student/form', [AdminStudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
-    Route::post('/student/search', [AdminStudentController::class,'search'])->name('adminStudentSearch');
-    Route::post('/student/change/{student}', [AdminStudentController::class,'ChangeNonactive'])->name('adminStudentChange');
-    Route::get('/student/active', [AdminStudentController::class,'active'])->name('adminStudentActive');
-    Route::get('/student/non/active', [AdminStudentController::class,'nonActive'])->name('adminStudentNonActive');
-Route::prefix('admin')->group(function(){
-    Route::get('/', [AdminController::class,'index'])->name('adminPage');
     Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
     Route::post('/detail/class', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
     Route::get('/view/add/teacher/class/{id}', [AdminClassTransactionController::class,'viewaddTeacher'])->name('viewaddTeacherClass');
@@ -101,12 +79,6 @@ Route::prefix('admin')->group(function(){
     Route::post('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
     Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detail'])->name('adminTeacherDetail');
     Route::post('/teacher/search', [AdminTeacherController::class,'search'])->name('adminTeacherSearch');
-});
-
-
-
-
-//Route::post('/classdeleteTeacher/{teacher}/{class}',[ClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
 
     Route::get('/stock', [AdminStockController::class,'index'])->name('adminStockPage');
 
@@ -178,3 +150,12 @@ Route::post('/profile/{user}',[ProfileController::class,'changeProfile'])->name(
 
 Route::get('/password',[ProfileController::class,'changePasswordPage'])->name('change-password-page');
 Route::post('/password/{user}',[ProfileController::class,'changePassword'])->name('change-password');
+
+//forgot password
+Route::get('/forgot/password',[ForgotPasswordController::class,'index'])->name('email-page');
+Route::post('/forgot/password',[ForgotPasswordController::class,'checkEmail'])->name('check-email');
+Route::get('/expired',[ForgotPasswordController::class,'index'])->name('expired-page');
+
+
+Route::get('/reset/password/{token}',[ForgotPasswordController::class,'resetPasswordPage'])->name('reset-password-page');
+Route::post('/reset/password/{token}',[ForgotPasswordController::class,'resetPassword'])->name('reset-password');
