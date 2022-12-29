@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class StudentPaymentController extends Controller
+class AdminStudentPaymentController extends Controller
 {
     public function viewStudentDetail(){
         $students = DB::table('students')

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('transaction_date');
             $table->string('payment_status');
 			$table->integer('discount');
+            $table->integer('price');
             $table->string('desc');
             $table->timestamps();
         });

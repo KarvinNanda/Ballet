@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
@@ -50,6 +51,7 @@ class LoginController extends Controller
     }
 
     public function logout(){
+        Session::flush();
         Auth::logout();
         return redirect()->to('/login');
     }

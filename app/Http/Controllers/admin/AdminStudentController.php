@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class StudentController extends Controller
+class AdminStudentController extends Controller
 {
     public function viewStudentForm(){
         return view('admin.student.studentForm');
