@@ -80,34 +80,7 @@ class AdminClassScheduleController extends Controller
         return view('admin.class.absen',compact("view","class"));
     }
 
-    public function getAbsen(Request $req, Schedule $schedule){
-//        dd($req);
-        //header
-        $header = new HeaderAbsen();
-        $header->schedule_id = $schedule->id;
-        $header->is_report = "false";
-        $header->save();
 
-        $header_id = DB::table("header_absens")->orderBy('id','desc')->first();
-        //detail
-
-        $students = Student::whereIn('nis',$req->nis)->get();
-        for($i = 0;$i < count($req->nis);$i++){
-            $detail = new DetailAbsen();
-            if($req->check[$i] == "on"){
-                $detail->header_absen_id = $header_id->id;
-                $detail->student_id = $students[$i]->id;
-                $detail->Description = "Masuk";
-                $detail->save();
-            }else{
-                $detail->header_absen_id = $header_id->id;
-                $detail->student_id = $students[$i]->id;
-                $detail->Description = $req->keterangan[$i];
-                $detail->save();
-            }
-        }
-        return "ok";
-    }
 
     public function deleteScheduleClass($id,$classId){
         $classDelete = DB::table('schedules')->where('schedules.id',$id)->where('class_id',$classId);

@@ -10,22 +10,6 @@
 
     <section class="section">
         <div class="card">
-            <div class="dropdown mt-3 ms-3">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Pilih
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{route('activeClassPage')}}">Aktif</a></li>
-                    <li><a class="dropdown-item" href="{{route('nonactiveClassPage')}}">Non-Aktif</a></li>
-                </ul>
-            </div>
-            <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="POST" action="{{route('searchClass')}}">
-                    @csrf
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
-                </form>
-                <a href="{{route('headClassAddPage')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Class</button></a>
-            </div>
             <form action="{{route('getAbsen',$view)}}" method="post">
                 @csrf
 
@@ -53,17 +37,28 @@
                                 <td>{{$c->nis}}</td>
                                 <td>{{$c->nama}}</td>
                                 <td>
+                                    @if(!@$detail)
                                     <input type="hidden" name="check[{{$loop->iteration -1}}]" value="off">
-                                    <input type="checkbox" name="check[{{$loop->iteration -1}}]" id="test" value="on">
+                                    <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" >
+                                    @elseif(@$detail[$loop->iteration-1]->Description == "Masuk")
+                                        <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" checked disabled>
+                                    @else
+                                        <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" disabled>
+                                    @endif
                                 </td>
                                 <td >
-                                    <select value="" name="keterangan[]">
+                                    @if(!@$detail)
+                                    <select value="" name="keterangan[]" class="form-select">
                                         <option selected>Select...</option>
                                         <option value="Absen">Absen</option>
                                         <option value="Ijin">Ijin</option>
                                         <option value="Sakit">Sakit</option>
                                     </select>
-
+                                    @else
+                                        <select value="" name="keterangan[]" class="form-select" disabled>
+                                            <option selected> {{@$detail[$loop->iteration-1]->Description}}</option>
+                                        </select>
+                                    @endif
                                 </td>
 
                             </tr>
@@ -74,7 +69,11 @@
                     </tbody>
                 </table>
             </div>
-                <button type="submit" class="btn btn-success">Submit</button>
+                @if(!@$detail)
+                    <div class=" mt-3 mb-3 w-100 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success me-5 mt-2 mb-2">Submit</button>
+                    </div>
+                @endif
             </form>
         </div>
     </section>

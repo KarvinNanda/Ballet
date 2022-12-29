@@ -72,12 +72,14 @@ Route::prefix('admin')->group(function(){
     Route::post('/student/change/{student}', [AdminStudentController::class,'ChangeNonactive'])->name('adminStudentChange');
     Route::get('/student/active', [AdminStudentController::class,'active'])->name('adminStudentActive');
     Route::get('/student/non/active', [AdminStudentController::class,'nonActive'])->name('adminStudentNonActive');
+    Route::get('/student/delete/{studentId}', [AdminStudentController::class,'deleteStudent'])->name('adminStudentDelete');
+    Route::get('/student/detail/{studentId}', [AdminStudentController::class,'detailStudent'])->name('adminStudentDetail');
 
     Route::get('/teacher/view', [AdminTeacherController::class,'adminTeacherView'])->name('adminTeacherView');
     Route::get('/teacher/form', [AdminTeacherController::class,'adminTeacherForm'])->name('adminTeacherForm');
     Route::post('/teacher/form', [AdminTeacherController::class,'adminTeacherFormSubmit'])->name('adminTeacherForm');
     Route::post('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
-    Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detail'])->name('adminTeacherDetail');
+    Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detailTeacher'])->name('adminTeacherDetail');
     Route::post('/teacher/search', [AdminTeacherController::class,'search'])->name('adminTeacherSearch');
 
     Route::get('/stock', [AdminStockController::class,'index'])->name('adminStockPage');
@@ -86,6 +88,8 @@ Route::prefix('admin')->group(function(){
     Route::post('/report/{header}',[AdminReportController::class,'print'])->name('adminPrintReport');
 
     Route::get('/transaction', [AdminTransactionController::class,'index'])->name('adminTransactionPage');
+    Route::get('/transaction/add', [AdminTransactionController::class,'addTransaction'])->name('addTransaction');
+    Route::post('/transaction/insert', [AdminTransactionController::class,'insertTransaction'])->name('insertTransaction');
 });
 
 //head
@@ -125,6 +129,7 @@ Route::prefix('head')->group(function(){
     Route::post('/transaction/update/{transaction}', [HeadTransactionController::class,'update'])->name('update');
     Route::post('/transaction/search', [HeadTransactionController::class,'search'])->name('searchTransaction');
 
+
     Route::get('/stock', [HeadStockController::class,'index'])->name('headStockPage');
     Route::get('/stock/add', [HeadStockController::class,'insertPage'])->name('headStockAddPage');
     Route::post('/stock/add', [HeadStockController::class,'insert'])->name('StockAdd');
@@ -142,6 +147,8 @@ Route::prefix('teacher')->group(function(){
     Route::get('/', [TeacherController::class,'index'])->name('teacher');
     Route::get('/view/class', [TeacherClassController::class,'index'])->name('viewClass');
     Route::post('/view/class/{class:ClassName}', [TeacherClassController::class,'viewDetail'])->name('viewDetail');
+    Route::post('/view/class/absen/{class}', [TeacherController::class,'viewAbsen'])->name('viewAbsen');
+    Route::post('/view/class/getabsen/{schedule}', [TeacherController::class,'getAbsen'])->name('getAbsen');
 });
 
 //profile
