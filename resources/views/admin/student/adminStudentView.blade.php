@@ -36,8 +36,8 @@
                         <thead>
                         <tr>
                             <th scope="col">Nama</th>
-                            <th scope="col">Tanggal Lahir</th>
-                            <th scope="col">Umur</th>
+                            <th scope="col"><a href="{{route("adminStudentViewSorting","dob")}}">Tanggal Lahir</a></th>
+                            <th scope="col"><a href="{{route("adminStudentViewSorting","age")}}">Umur</a></th>
                             <th scope="col">Orang Tua</th>
                             <th scope="col">Rekening</th>
                             <th scope="col">Pengirim</th>

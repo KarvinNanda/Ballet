@@ -18,10 +18,11 @@ return new class extends Migration
             $table->foreignId('students_id')->references('id')->on('students')->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('class_transactions_id')->references('id')->on('class_transactions')->onDelete('cascade')->onUpdate('cascade');
             $table->date('transaction_date');
+            $table->date('transaction_payment')->nullable(true);
             $table->string('payment_status');
 			$table->integer('discount');
             $table->integer('price');
-            $table->string('desc');
+            $table->string('desc')->nullable(true);
             $table->timestamps();
         });
     }

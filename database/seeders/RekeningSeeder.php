@@ -28,6 +28,12 @@ class RekeningSeeder extends Seeder
                 'nama_pengirim' => 'Budi'
             ],
 
+            [
+                'bank_rek' => '4271992837',
+                'banks_id' => 1,
+                'nama_pengirim' => 'Budi'
+            ],
+
         ]);
     }
 }

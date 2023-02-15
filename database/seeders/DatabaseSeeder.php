@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
                 'password' => bcrypt('ana123'),
             ]
         ]);
-        $this->call(MappingClassTeacherSeeder::class);
-        $this->call(MappingClassChildSeeder::class);
+//        $this->call(MappingClassTeacherSeeder::class);
+//        $this->call(MappingClassChildSeeder::class);
     }
 }

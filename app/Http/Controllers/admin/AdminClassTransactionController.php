@@ -143,7 +143,9 @@ class AdminClassTransactionController extends Controller
         $students = DB::table('students')->whereNotIn('id',function($q) use ($class_id){
             $q->select('mapping_class_children.student_id')
                 ->from('mapping_class_children');
-        })->simplePaginate(5);
+        })
+            ->where('students.Status',"=","aktif")
+            ->simplePaginate(5);
         return view('admin.class.viewStudent',compact('students','class_id'));
     }
 
@@ -162,7 +164,7 @@ class AdminClassTransactionController extends Controller
     }
 
     public function deleteStudent($student, $class){
-        $teacher = DB::table('mapping_class_children')->where('class_id',$class)->where('user_id',$student);
+        $teacher = DB::table('mapping_class_children')->where('class_id',$class)->where('student_id',$student);
         $teacher->delete();
         return redirect()->route("adminClassView");
     }
@@ -173,6 +175,8 @@ class AdminClassTransactionController extends Controller
         $classStudentReset->delete();
         $classTeacherReset = DB::table('mapping_class_teachers')->where('class_id',$id);
         $classTeacherReset->delete();
+        $classScheduleReset = DB::table('schedules')->where('class_id',$id);
+        $classScheduleReset->delete();
         return redirect()->route("adminClassView");
     }
 

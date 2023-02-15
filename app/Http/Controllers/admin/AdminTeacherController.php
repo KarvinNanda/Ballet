@@ -78,7 +78,7 @@ class AdminTeacherController extends Controller
         ];
 
         Mail::to('bsena692@gmail.com')->send(new SendingEmail($credential));
-        return redirect('/adminTeacherView');
+        return redirect()->route("adminTeacherView");
     }
     /**
      * Display a listing of the resource.

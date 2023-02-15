@@ -38,7 +38,7 @@ class AdminReportController extends Controller
                 students.LongName as student_name,
                 class_transactions.ClassName as class_name
             ')
-            ->where('schedules.date','=',Carbon::parse($find->Schedules->date)->toDateString())
+            ->where('schedules.date','=',Carbon::parse($find->Schedules->date)->toDateTime())
             ->orderBy('schedules.date')
             ->get();
         $pdf = Pdf::loadView('head.report.print',compact('report'))

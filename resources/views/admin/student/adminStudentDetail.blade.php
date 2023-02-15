@@ -141,12 +141,6 @@
                             <input type="date" class="form-control" name="inputInstagram" value="{{$detail->EnrollDate}}" readonly>
                         </div>
                     </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
                     @endforeach
                 </form><!-- End General Form Elements -->
 
