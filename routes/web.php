@@ -66,6 +66,7 @@ Route::prefix('admin')->group(function(){
     Route::get('/delete/StudentClass/{student}/{class}',[AdminClassTransactionController::class,'deleteStudent'])->name("classDeleteStudent");
 
     Route::get('/student/view', [AdminStudentController::class,'adminStudentView'])->name('adminStudentView');
+    Route::get('/student/sorting/{value}', [AdminStudentController::class,'adminStudentViewSorting'])->name('adminStudentViewSorting');
     Route::get('/student/form', [AdminStudentController::class,'viewStudentForm'])->name('adminStudentForm');;
     Route::post('/student/form', [AdminStudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
     Route::post('/student/search', [AdminStudentController::class,'search'])->name('adminStudentSearch');
@@ -90,6 +91,10 @@ Route::prefix('admin')->group(function(){
     Route::get('/transaction', [AdminTransactionController::class,'index'])->name('adminTransactionPage');
     Route::get('/transaction/add', [AdminTransactionController::class,'addTransaction'])->name('addTransaction');
     Route::post('/transaction/insert', [AdminTransactionController::class,'insertTransaction'])->name('insertTransaction');
+    Route::post('/transaction/search', [AdminTransactionController::class,'searchTransaction'])->name('adminSearchTransaction');
+    Route::get('/transaction/view/paid/{transactionId}', [AdminTransactionController::class,'viewPaidTransaction'])->name('adminPaidTransaction');
+    Route::post('/transaction/submit/paid/{transactionId}', [AdminTransactionController::class,'submitPaidTransaction'])->name('adminSubmitPaidTransaction');
+
 });
 
 //head
@@ -111,6 +116,7 @@ Route::prefix('head')->group(function(){
     Route::get('/student/add', [HeadStudentController::class,'insertPage'])->name('headStudentAddPage');
     Route::post('/student/add', [HeadStudentController::class,'insert'])->name('StudentAdd');
     Route::post('/student/search', [HeadStudentController::class,'search'])->name('searchStudent');
+    Route::get('/student/sorting/{value}', [HeadStudentController::class,'sorting'])->name('sortingStudent');
 
     Route::get('/teacher', [HeadTeacherController::class,'index'])->name('headTeacherPage');
     Route::get('/teacher/add', [HeadTeacherController::class,'insertPage'])->name('headTeacherAddPage');
@@ -125,9 +131,9 @@ Route::prefix('head')->group(function(){
     Route::post('/admin/search', [HeadAdminController::class,'search'])->name('searchAdmin');
 
     Route::get('/transaction', [HeadTransactionController::class,'index'])->name('headTransactionPage');
-    Route::post('/transaction/{id}', [HeadTransactionController::class,'updatePage'])->name('updateTransaction');
+    Route::post('/transaction/search', [HeadTransactionController::class,'search'])->name('headSearchTransaction');
     Route::post('/transaction/update/{transaction}', [HeadTransactionController::class,'update'])->name('update');
-    Route::post('/transaction/search', [HeadTransactionController::class,'search'])->name('searchTransaction');
+    Route::post('/transaction/{id}', [HeadTransactionController::class,'updatePage'])->name('updateTransaction');
 
 
     Route::get('/stock', [HeadStockController::class,'index'])->name('headStockPage');

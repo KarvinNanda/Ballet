@@ -17,11 +17,12 @@ class TeacherClassController extends Controller
             ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
             ->selectRaw('
                 class_transactions.ClassName as class,
-                schedules.date,
+schedules.date,
                 COUNT(mapping_class_children.class_id) as students
             ')
             ->where('mapping_class_teachers.user_id',Auth::user()->id)
             ->groupBy(['class','schedules.date'])
+            ->groupBy('class')
             ->orderBy('schedules.date')
             ->get();
         return view('teacher.class.index',compact('data'));

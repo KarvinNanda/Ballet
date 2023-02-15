@@ -28,7 +28,7 @@ class HeadReportController extends Controller
 
     public function print(HeaderAbsen $header){
         $find = HeaderAbsen::find($header->id);
-
+//        dd($find->Schedules);
         $report = DB::table('schedules')
             ->join('header_absens','header_absens.schedules_id','schedules.id')
             ->join('detail_absens','detail_absens.header_absen_id','header_absens.id')
@@ -40,9 +40,10 @@ class HeadReportController extends Controller
                 students.LongName as student_name,
                 class_transactions.ClassName as class_name
             ')
-            ->where('schedules.date','=',Carbon::parse($find->Schedules->date)->toDateString())
+            ->where('schedules.date','=',Carbon::parse($find->Schedules->date)->toDateTime())
             ->orderBy('schedules.date')
             ->get();
+//        dd($report);
         $pdf = Pdf::loadView('head.report.print',compact('report'))
             ->download('Laporan Siswa '.Carbon::parse($find->Schedules->date)->toDateString().'.pdf');
         return $pdf;

@@ -55,6 +55,25 @@ class StudentSeeder extends Seeder
                 'Status' => 'non-aktif',
             ],
 
+            [
+                'nis' => '2340099123',
+                'LongName' => 'Brian Imanuel',
+                'ShortName' => 'BI',
+                'Dob' => '2012-08-01',
+                'EnrollDate' => '2022-09-22',
+                'bank_rek' => '4271992837',
+                'nama_orang_tua' => 'SiapaHayo',
+                'Address' => 'Jl.Cari Pacar',
+                'City' => 'Jakarta',
+                'kode_pos' => '111210',
+                'Phone1' => '018232342912',
+                'Phone2' => '081239837744',
+                'Whatsapp' => '081239837744',
+                'Instagram' => '@BIi',
+                'Email' => 'Brian@gmail.com',
+                'Status' => 'non-aktif',
+            ],
+
         ]);
     }
 }

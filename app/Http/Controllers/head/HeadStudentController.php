@@ -39,6 +39,29 @@ class HeadStudentController extends Controller
         return view('head.student.index',compact('students'));
     }
 
+    public function sorting($value){
+        $students= DB::table('students')
+            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
+            ->join('banks','banks.id','rekenings.banks_id')
+            ->selectRaw('
+                students.id as id,
+                students.Status as status,
+                students.LongName as name,
+                students.Dob as dob,
+                students.nama_orang_tua as ortu,
+                students.Address as alamat,
+                students.Phone1 as phone,
+                students.Email as email,
+                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                rekenings.bank_rek as rek,
+                rekenings.nama_pengirim as pengirim,
+                banks.bank_name as bank
+            ')
+            ->orderBy($value)
+            ->simplePaginate(5);
+        return view('head.student.index',compact('students'));
+    }
+
     public function search(Request $req){
 
         if($req->search >= 1 && $req->search <= 25){
