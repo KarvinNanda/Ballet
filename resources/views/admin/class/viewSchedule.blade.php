@@ -34,7 +34,9 @@
                         <tr>
                             <th scope="col">Nama Kelas</th>
                             <th scope="col">Tanggal</th>
-                            <th scope="col">Action</th>
+                            <th scope="col">Waktu</th>
+                            <th scope="col">Update</th>
+                            <th scope="col">Delete</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -48,6 +50,13 @@
                                 <td>{{$c->classname}}</td>
                                 <td>{{$carbon::parse($c->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($c->date)->format('H:i:s')}}</td>
+                                <td>
+                                    <form action="{{route('viewUpdateScheduleClass')}}" method="post">
+                                        @csrf
+                                        <input type="hidden" value="{{$c->id}}" name="scheduleId">
+                                        <button class="btn btn-success me-5 mt-2 mb-2"> Update Schedule</button>
+                                    </form>
+                                </td>
                                 <td>
                                     <form action="{{route("deleteSchedule",['id'=>$c->id,'classId'=>$classId])}}" method="get">
                                         @csrf

@@ -21,7 +21,7 @@
                             <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Nis - Name" name="nis">
                                 <datalist id="datalistOptions">
                                 @foreach($students as $s)
-                                    <option value="{{$s->id}}">{{$s->nis}} - {{$s->LongName}}</option>
+                                    <option value="{{$s->nis}}">{{$s->nis}} - {{$s->LongName}}</option>
                                 @endforeach
                                 </datalist>
                         </div>

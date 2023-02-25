@@ -33,6 +33,26 @@ class AdminTransactionController extends Controller
         return view('admin.transaction.index',compact('transactions'));
     }
 
+    public function adminTransactionSorting($value){
+        $transactions = DB::table('transactions')
+            ->join('students','students.id','transactions.students_id')
+            ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->selectRaw('
+                   transactions.id as id,
+                   students.LongName as LongName,
+                   transactions.transaction_date as transaction_date,
+                   transactions.transaction_payment as transaction_payment,
+                   transactions.price as price,
+                   transactions.discount as discount,
+                   transactions.desc as description,
+                   transactions.payment_status as payment_status
+
+            ')->orderBy($value)
+            ->simplePaginate(5);
+//        dd($transactions);
+        return view('admin.transaction.index',compact('transactions'));
+    }
+
     public function addTransaction(){
         $students = Student::all();
         $class_transaction = ClassTransaction::all();
@@ -55,7 +75,8 @@ class AdminTransactionController extends Controller
         }
 //        dd($req->nis);
         $transaction = new Transaction();
-        $transaction->students_id = $req->nis;
+        $student = Student::where('nis',$req->nis)->get();
+        $transaction->students_id = $student[0]->id;
         $transaction->class_transactions_id = $req->class;
         $transaction->transaction_date = $req->dateTime;
         $transaction->transaction_payment = null;

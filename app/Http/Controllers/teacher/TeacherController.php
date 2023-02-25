@@ -61,17 +61,15 @@ class TeacherController extends Controller
         $students = Student::whereIn('nis',$req->nis)->get();
         for($i = 0;$i < count($req->nis);$i++){
             $detail = new DetailAbsen();
+            $detail->header_absen_id = $header_id->id;
+            $detail->student_id = $students[$i]->id;
             if($req->check[$i] == "on"){
-                $detail->header_absen_id = $header_id->id;
-                $detail->student_id = $students[$i]->id;
                 $detail->Description = "Masuk";
-                $detail->save();
             }else{
-                $detail->header_absen_id = $header_id->id;
-                $detail->student_id = $students[$i]->id;
                 $detail->Description = $req->keterangan[$i];
-                $detail->save();
+                $detail->Notes = $req->notes[$i];
             }
+            $detail->save();
         }
         return redirect()->route("teacher");
     }

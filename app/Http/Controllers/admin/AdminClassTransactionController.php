@@ -111,6 +111,31 @@ class AdminClassTransactionController extends Controller
         return view('admin.class.detail',compact('teachers','students','class_id'));
     }
 
+    public function levelUp(Request $req){
+        $class_id = $req->classId;
+
+        $students = DB::table('class_transactions')
+            ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+            ->join('students','mapping_class_children.student_id','students.id')
+            ->selectRaw('
+                students.id as id,
+                students.LongName as studentName,
+                students.Dob as studentDOB,
+                students.Address as studentAddress,
+                students.Email as studentEmail,
+                students.Phone1 as studentPhone
+            ')
+            ->where('class_transactions.id',$req->classId)
+            ->simplePaginate(5);
+
+        return view('admin.class.levelUp',compact('students','class_id'));
+    }
+
+    public function levelUpStudent(Request $req){
+        DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
+        return redirect('/admin/view/class');
+    }
+
     //addteacher
     public function viewaddTeacher(Request $req){
 //        $mappingteachers = MappingClassTeacher::doesntHave("User")->get();
@@ -171,10 +196,6 @@ class AdminClassTransactionController extends Controller
 
 
     public function resetClass($id){
-        $classStudentReset = DB::table('mapping_class_children')->where('class_id',$id);
-        $classStudentReset->delete();
-        $classTeacherReset = DB::table('mapping_class_teachers')->where('class_id',$id);
-        $classTeacherReset->delete();
         $classScheduleReset = DB::table('schedules')->where('class_id',$id);
         $classScheduleReset->delete();
         return redirect()->route("adminClassView");
