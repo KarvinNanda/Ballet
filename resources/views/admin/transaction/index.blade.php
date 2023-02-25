@@ -27,13 +27,11 @@
                             <th scope="col">Nama</th>
                             <th scope="col">Jatuh Tempo</th>
                             <th scope="col">Tanggal Bayar</th>
-                            <th scope="col">Harga</th>
+                            <th scope="col"><a href="{{route("adminTransactionSorting","price")}}">Harga</a></th>
                             <th scope="col">Diskon</th>
                             <th scope="col">Total</th>
                             <th scope="col">Keterangan</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Action</th>
-{{--                            <th scope="col">Update</th>--}}
+                            <th scope="col"><a href="{{route("adminTransactionSorting","payment_status")}}">Status</a></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -70,12 +68,6 @@
                                 @else
                                     <td class="text-danger font-weight-bold">{{$transaction->payment_status}}</td>
                                 @endif
-
-                                <td>
-                                        <a href="{{route('adminPaidTransaction',$transaction->id)}}">
-                                            <button type="submit" class="btn btn-warning">Update</button>
-                                        </a>
-                                </td>
                             </tr>
                         @endforeach
                         </tbody>

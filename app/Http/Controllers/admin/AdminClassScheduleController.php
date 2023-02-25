@@ -21,9 +21,10 @@ class AdminClassScheduleController extends Controller
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->selectRaw('
                 class_transactions.ClassName as classname,
+                class_transactions.ClassName as classname,
                 schedules.date as date,
                 schedules.id as id
-            ')->where('schedules.class_id',$req->classId)
+            ')->where('schedules.class_id',$req->classId)->orderBy("date")
             ->get();
         return view('admin.class.viewSchedule',compact('class','classId'));
     }
@@ -34,6 +35,11 @@ class AdminClassScheduleController extends Controller
         return view('admin.class.viewaddSchedule',compact('classId'));
     }
 
+    public function viewUpdateScheduleClass(Request $req){
+        $schedule = Schedule::find($req->scheduleId);
+        return view('admin.class.viewUpdateSchedule',compact('schedule'));
+    }
+
     public function viewAddMultipleScheduleClass(Request $req){
         $classId = $req->classId;
         $test = Schedule::find($classId);
@@ -41,13 +47,36 @@ class AdminClassScheduleController extends Controller
     }
 
     public function addSchedule(Request $req){
-
-        $schedule = new Schedule();
+        $classId=$req->class_id;
         $date = Carbon::parse($req->dateTime);
-        $schedule->class_id = $req->classId;
-        $schedule->date = $date;
+        $class_schedule = Schedule::where('class_id',$req->classId)->get();
+        $bool = true;
+        foreach ($class_schedule as $sche){
+            if(Carbon::parse($sche->date)->toDateString()==Carbon::parse($date)->toDateString())
+            {
+                $hour = Carbon::parse($date)->diff(Carbon::parse($sche->date))->format('%H');
+                $num = (int)$hour;
+                if($num<1)
+                {
+                    $bool=false;
+                }
+            }
+        }
+        if($bool==false){
+            return view('admin.class.viewaddSchedule',compact('classId'));
+        }else{
+            $schedule = new Schedule();
+            $schedule->class_id = $req->classId;
+            $schedule->date = $date;
+            $schedule->save();
+        }
+        return redirect()->route("adminClassView");
+    }
+
+    public function updateSchedule(Request $req){
+        $schedule = Schedule::find($req->scheduleId);
+        $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
-        $test = Schedule::find($req->classId);
         return redirect()->route("adminClassView");
     }
 
@@ -90,5 +119,9 @@ class AdminClassScheduleController extends Controller
 
     public function deleteTeacher(){
 
+    }
+
+    public function getAbsen(){
+        dd("asd");
     }
 }

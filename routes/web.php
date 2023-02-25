@@ -46,6 +46,10 @@ Route::prefix('admin')->group(function(){
     Route::get('/', [AdminController::class,'index'])->name('admin');
     Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
     Route::post('/detail/class', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
+
+    Route::post('/level/class', [AdminClassTransactionController::class,'levelUp'])->name('levelUp');
+    Route::post('/level/class/student', [AdminClassTransactionController::class,'levelUpStudent'])->name('levelUpStudent');
+
     Route::get('/view/add/teacher/class/{id}', [AdminClassTransactionController::class,'viewaddTeacher'])->name('viewaddTeacherClass');
     Route::get('/view/add/student/class/{id}', [AdminClassTransactionController::class,'viewaddStudent'])->name('viewaddStudentClass');
     Route::post('/add/teacher/class', [AdminClassTransactionController::class,'addTeacher'])->name('addTeacherClass');
@@ -55,9 +59,12 @@ Route::prefix('admin')->group(function(){
     Route::get('/reset/class/{id}',[AdminClassTransactionController::class,'resetClass'])->name('resetClass'); // baru
 
     Route::post('/view/add/schedule/class',[AdminClassScheduleController::class,'viewaddScheduleClass'])->name('viewaddScheduleClass');
+    Route::post('/view/update/schedule/class',[AdminClassScheduleController::class,'viewUpdateScheduleClass'])->name('viewUpdateScheduleClass');
+
     Route::post('/add/MultipleSchedule/class',[AdminClassScheduleController::class,'addMultipleSchedule'])->name('addMultipleScheduleClass');// baru
 
     Route::post('/add/schedule/class',[AdminClassScheduleController::class,'addSchedule'])->name('addScheduleClass');
+    Route::post('/update/schedule/class',[AdminClassScheduleController::class,'updateSchedule'])->name('updateScheduleClass');
     Route::post('/view/addMultipleSchedule/class',[AdminClassScheduleController::class,'viewAddMultipleScheduleClass'])->name('viewaddMultipleScheduleClass');// baru
     Route::get('/view/absence',[AdminClassScheduleController::class,'viewAbsen'])->name('viewAbsen');
     Route::post('/get/absence/{schedule}',[AdminClassScheduleController::class,'getAbsen'])->name('getAbsen');
@@ -67,6 +74,9 @@ Route::prefix('admin')->group(function(){
 
     Route::get('/student/view', [AdminStudentController::class,'adminStudentView'])->name('adminStudentView');
     Route::get('/student/sorting/{value}', [AdminStudentController::class,'adminStudentViewSorting'])->name('adminStudentViewSorting');
+
+
+
     Route::get('/student/form', [AdminStudentController::class,'viewStudentForm'])->name('adminStudentForm');;
     Route::post('/student/form', [AdminStudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
     Route::post('/student/search', [AdminStudentController::class,'search'])->name('adminStudentSearch');
@@ -94,6 +104,8 @@ Route::prefix('admin')->group(function(){
     Route::post('/transaction/search', [AdminTransactionController::class,'searchTransaction'])->name('adminSearchTransaction');
     Route::get('/transaction/view/paid/{transactionId}', [AdminTransactionController::class,'viewPaidTransaction'])->name('adminPaidTransaction');
     Route::post('/transaction/submit/paid/{transactionId}', [AdminTransactionController::class,'submitPaidTransaction'])->name('adminSubmitPaidTransaction');
+
+    Route::get('/transaction/sorting/{value}', [AdminTransactionController::class,'adminTransactionSorting'])->name('adminTransactionSorting');
 
 });
 
@@ -143,6 +155,7 @@ Route::prefix('head')->group(function(){
     Route::post('/stock/update/{stock}', [HeadStockController::class,'update'])->name('StockUpdate');
     Route::post('/stock/delete/{stock}', [HeadStockController::class,'delete'])->name('stockDelete');
     Route::post('/stock/search', [HeadStockController::class,'search'])->name('searchStock');
+
 
     Route::get('/report',[HeadReportController::class,'index'])->name('headReport');
     Route::post('/report/{header}',[HeadReportController::class,'print'])->name('headPrintReport');

@@ -38,6 +38,7 @@
                         <th scope="col">Action</th>
                         <th scope="col">Detail</th>
                         <th scope="col">Schedule Detail</th>
+                        <th scope="col">Level Up</th>
                         <th scope="col">Reset</th>
                     </tr>
                     </thead>
@@ -68,6 +69,13 @@
                                     @csrf
                                     <input type="hidden" value="{{$class->id}}" name="classId">
                                     <button type="submit" class="btn btn-success">Schedule</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form action="{{route('levelUp')}}" method="post">
+                                    @csrf
+                                    <input type="hidden" value="{{$class->id}}" name="classId">
+                                    <button type="submit" class="btn btn-success">Level Up</button>
                                 </form>
                             </td>
                             <td>

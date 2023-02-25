@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('student_id')->references('id')->on('students')->onDelete('cascade')->onUpdate('cascade');
             $table->primary(['header_absen_id','student_id']);
             $table->string('Description');
+            $table->string('Notes')->nullable();
             $table->timestamps();
         });
     }

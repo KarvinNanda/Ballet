@@ -25,7 +25,7 @@
                         <th scope="col">Nama</th>
                         <th scope="col">Action</th>
                         <th scope="col">Keterangan</th>
-
+                        <th scope="col">Notes</th>
 
                     </tr>
                     </thead>
@@ -39,7 +39,7 @@
                                 <td>
                                     @if(!@$detail)
                                     <input type="hidden" name="check[{{$loop->iteration -1}}]" value="off">
-                                    <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" >
+                                    <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" checked>
                                     @elseif(@$detail[$loop->iteration-1]->Description == "Masuk")
                                         <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" checked disabled>
                                     @else
@@ -60,7 +60,14 @@
                                         </select>
                                     @endif
                                 </td>
+                                <td >
+                                    @if(!@$detail)
+                                        <input type="text" name="notes[]" class="form-control">
+                                    @else
+                                        <input type="text" name="notes[]" class="form-control" value="{{@$detail[$loop->iteration-1]->Notes}}" disabled>
+                                     @endif
 
+                                </td>
                             </tr>
 
 
