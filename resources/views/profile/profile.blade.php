@@ -4,6 +4,7 @@
 
 @section('content')
 
+
     <div class="pagetitle">
         <h1>My Profile</h1>
     </div><!-- End Page Title -->

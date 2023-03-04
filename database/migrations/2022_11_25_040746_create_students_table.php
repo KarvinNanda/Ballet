@@ -29,7 +29,8 @@ return new class extends Migration
             $table->string('Phone1');
             $table->string('Phone2');
             $table->string('Whatsapp');
-            $table->string('Instagram');
+            $table->string('Instagram')->nullable(true);
+            $table->string('Line')->nullable(true);
             $table->string('Email');
             $table->string('Status');
             $table->timestamps();

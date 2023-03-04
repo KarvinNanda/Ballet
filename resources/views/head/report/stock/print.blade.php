@@ -6,7 +6,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Report</title>
+    <title>Report Stock</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <style>
         table, th, td {
@@ -16,6 +16,7 @@
         }
         th, td {
             background-color: white;
+            padding: 3px;
         }
     </style>
 </head>
@@ -23,23 +24,43 @@
 <div class="container">
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Laporan Tanggal {{$carbon::parse($report[0]->date)->format('d M Y')}}</h2>
-            <h2>Kelas {{$report[0]->class_name}}</h2>
+            <h2>Laporan Stock Tanggal {{$carbon::parse($date)->format('d M Y')}}</h2>
         </div>
 
         <div class="col text-center">
             <table class="table table-bordered">
                 <thead>
                 <tr>
-                    <th>Student Name</th>
-                    <th>Description</th>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Quantity Awal</th>
+                    <th>Masuk</th>
+                    <th>Keluar</th>
+                    <th>Quantity Akhir</th>
                 </tr>
                 </thead>
                 <tbody>
+                @php
+                    $in=$out=0;
+                @endphp
                 @foreach($report as $item)
                     <tr>
-                        <td>{{$item->student_name}}</td>
-                        <td>{{$item->description}}</td>
+                        <td>{{$item[0]->stock->name}}</td>
+                        <td>{{$item[0]->stock->size}}</td>
+                        <td>{{$item[0]->stock->quantity}}</td>
+                        @foreach($item as $subItem)
+                            @php
+                                $in+=$subItem->in;
+                                $out+=$subItem->out;
+                            @endphp
+                        @endforeach
+                        <td>{{$in}}</td>
+                        <td>{{$out}}</td>
+                        <td>{{$item[0]->stock->quantity + ($in - $out)}}</td>
+                        @php
+                            $in=$out=0;
+                        @endphp
+                    </tr>
                 @endforeach
                 </tbody>
             </table>

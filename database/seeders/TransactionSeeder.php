@@ -22,7 +22,7 @@ class TransactionSeeder extends Seeder
                'class_transactions_id' => 1,
                'transaction_date' => '2022-12-01',
                'transaction_payment' => '2022-12-01',
-               'payment_status' => 'lunas',
+               'payment_status' => 'Paid',
                'discount' => 0,
                'desc' => 'ganteng',
                'price' => 500000
@@ -32,8 +32,8 @@ class TransactionSeeder extends Seeder
                 'students_id' => 2,
                 'class_transactions_id' => 5,
                 'transaction_date' => '2022-11-14',
-                'transaction_payment' => '2022-12-01',
-                'payment_status' => 'belum lunas',
+                'transaction_payment' => null,
+                'payment_status' => 'Unpaid',
                 'discount' => 10,
                 'desc' => 'rajin',
                 'price' => 350000

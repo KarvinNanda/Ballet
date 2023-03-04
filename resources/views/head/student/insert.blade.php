@@ -66,23 +66,6 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Bank Name</label>
-                        <div class="col-sm-10">
-                            <select  class="form-select" name="inputBankName">
-                                <option value="BCA">BCA</option>
-                                <option value="Mandiri">Mandiri</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Sender Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputSenderName">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
                         <label for="inputPhone" class="col-sm-2 col-form-label">Rekening</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputRekening">
@@ -128,6 +111,13 @@
                         <label for="inputPhone" class="col-sm-2 col-form-label">Instagram</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputInstagram">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="inputPhone" class="col-sm-2 col-form-label">Line</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="inputLine">
                         </div>
                     </div>
 

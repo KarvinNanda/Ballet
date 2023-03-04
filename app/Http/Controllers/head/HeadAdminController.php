@@ -56,7 +56,7 @@ class HeadAdminController extends Controller
     }
 
     public function search(Request $req){
-        $admins = User::where('name','like',"%$req->search%")->simplePaginate(5);
+        $admins = User::where('name','like',"%$req->search%")->where('role','admin')->simplePaginate(5);
         return view('head.admin.index',compact('admins'));
     }
 

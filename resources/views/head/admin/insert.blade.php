@@ -1,6 +1,6 @@
 @extends('Master.master')
 
-@section('title','Add Teacher')
+@section('title','Add Admin')
 
 @section('content')
     <div class="pagetitle">

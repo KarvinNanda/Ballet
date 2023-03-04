@@ -240,7 +240,7 @@ class AdminStudentController extends Controller
     }
 
     public function detailStudent($studentId){
-        $details = DB::table('students')
+        $detail = DB::table('students')
             ->join('rekenings','students.bank_rek','rekenings.bank_rek')
             ->join('banks','banks.id','rekenings.banks_id')
             ->selectRaw('
@@ -259,13 +259,41 @@ class AdminStudentController extends Controller
                 students.Phone2 as Phone2,
                 students.Whatsapp as Whatsapp,
                 students.Instagram as Instagram,
+                students.Line as Line,
                 students.Email as Email,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
-            ')->where('students.id',"LIKE",$studentId)->get();
-        return view('admin.student.adminStudentDetail',compact('details'));
+            ')->where('students.id',"LIKE",$studentId)->first();
+
+        if(is_null($detail)){
+            $detail = DB::table('students')
+                ->join('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->selectRaw('
+                students.id as id,
+                students.nis as nis,
+                students.Status as status,
+                students.LongName as LongName,
+                students.ShortName as ShortName,
+                students.Dob as dob,
+                students.EnrollDate as EnrollDate,
+                students.nama_orang_tua as nama_orang_tua,
+                students.Address as Address,
+                students.City as City,
+                students.kode_pos as kode_pos,
+                students.Phone1 as Phone1,
+                students.Phone2 as Phone2,
+                students.Whatsapp as Whatsapp,
+                students.Instagram as Instagram,
+                students.Line as Line,
+                students.Email as Email,
+                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                rekenings.bank_rek as rek,
+                rekenings.nama_pengirim as pengirim
+            ')->where('students.LongName',"LIKE",$student->LongName)->first();
+        }
+        return view('admin.student.adminStudentDetail',compact('detail'));
     }
 
 

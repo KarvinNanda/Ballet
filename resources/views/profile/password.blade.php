@@ -3,6 +3,11 @@
 @section('title','Change Password')
 
 @section('content')
+    @if(@$msg)
+    <div class="alert alert-success" role="alert">
+        {{$msg}}
+    </div>
+    @endif
 
     <div class="pagetitle">
         <h1>Change Password</h1>

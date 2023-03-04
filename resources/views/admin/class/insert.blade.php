@@ -13,7 +13,7 @@
                 <h5 class="card-title"></h5>
 
                 <!-- General Form Elements -->
-                <form action="{{route('ClassAdd')}}" method="post">
+                <form action="{{route('adminClassAdd')}}" method="post">
                     @csrf
                     <div class="row mb-3">
                         <label for="inputName" class="col-sm-2 col-form-label">Name</label>

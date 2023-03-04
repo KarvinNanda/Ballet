@@ -40,7 +40,7 @@ class TeacherController extends Controller
             students.LongName as nama
         ')->where('mapping_class_children.class_id','=',$view->class_id)
             ->get();
-        $header = DB::table('Header_absens')->where('schedules_id',"=",$id)->first();
+        $header = DB::table('header_absens')->where('schedules_id',"=",$id)->first();
         if(!is_null($header)){
             $detail = DB::table('detail_absens')->where('header_absen_id',$header->id)->get();
             return view('teacher.absen',compact("view","class","detail"));
@@ -51,7 +51,8 @@ class TeacherController extends Controller
     }
 
     public function getAbsen(Request $req, Schedule $schedule){
-//        dd($schedule->id);
+
+//        dd($req);
         $header = new HeaderAbsen();
         $header->schedules_id = $schedule->id;
         $header->save();
@@ -63,11 +64,11 @@ class TeacherController extends Controller
             $detail = new DetailAbsen();
             $detail->header_absen_id = $header_id->id;
             $detail->student_id = $students[$i]->id;
+            $detail->Notes = $req->keterangan[$i] == "Ijin" ? $req->notes[$i] : '';
             if($req->check[$i] == "on"){
                 $detail->Description = "Masuk";
             }else{
                 $detail->Description = $req->keterangan[$i];
-                $detail->Notes = $req->notes[$i];
             }
             $detail->save();
         }

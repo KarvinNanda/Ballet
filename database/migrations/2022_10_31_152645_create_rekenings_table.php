@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('rekenings', function (Blueprint $table) {
             $table->string('bank_rek');
-            $table->foreignId('banks_id')->references('id')->on('banks')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('nama_pengirim');
+            $table->unsignedBigInteger('banks_id')->nullable(true);
+            $table->foreign('banks_id')->references('id')->on('banks')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('nama_pengirim')->nullable(true);
             $table->primary(['bank_rek']);
             $table->timestamps();
 

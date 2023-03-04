@@ -42,8 +42,10 @@ class LoginController extends Controller
                 return redirect()->to('/head');
             } else if ($user->role == 'admin'){
                 return redirect()->to('/admin');
-            } else{
+            } else if ($user->role == 'teacher'){
                 return redirect()->to('/teacher');
+            } else {
+                return redirect()->to('/finance');
             }
         } else {
             return redirect()->back()->withErrors(['msg' => 'User Not Found']);

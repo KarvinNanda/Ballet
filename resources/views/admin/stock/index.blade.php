@@ -15,7 +15,6 @@
                     @csrf
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
-                <a href="{{route('headStockAddPage')}}"><button class="btn btn-success me-3 mb-3"> Add Stock</button></a>
             </div>
             <div class="card-body">
 

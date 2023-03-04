@@ -14,16 +14,16 @@
                     Pilih
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{route('activeClassPage')}}">Aktif</a></li>
-                    <li><a class="dropdown-item" href="{{route('nonactiveClassPage')}}">Non-Aktif</a></li>
+                    <li><a class="dropdown-item" href="{{route('adminActiveClassPage')}}">Aktif</a></li>
+                    <li><a class="dropdown-item" href="{{route('adminNonActiveClassPage')}}">Non-Aktif</a></li>
                 </ul>
             </div>
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="POST" action="{{route('searchClass')}}">
+                <form class="search-form d-flex align-items-center" method="POST" action="{{route('adminSearchClass')}}">
                     @csrf
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
-                <a href="{{route('headClassAddPage')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Class</button></a>
+                    <a href="{{route('adminClassAddPage')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Class</button></a>
             </div>
             <div class="card-body">
 
@@ -57,6 +57,7 @@
                                     @endif
                                 </form>
                             </td>
+                            @if($class->Status == 'aktif')
                             <td>
                                 <form action="{{route('adminDetailClass')}}" method="post">
                                     @csrf
@@ -84,6 +85,12 @@
                                     <button type="submit" class="btn btn-danger">Reset Class</button>
                                 </form>
                             </td>
+                            @else
+                                <td>None</td>
+                                <td>None</td>
+                                <td>None</td>
+                                <td>None</td>
+                            @endif
                         </tr>
                     @endforeach
                     </tbody>
