@@ -38,7 +38,7 @@
 
     <div class="d-flex align-items-center justify-content-between">
         <a href="" class="logo d-flex align-items-center">
-            <span class="d-none d-lg-block">Ballet</span>
+            <span class="d-none d-lg-block">Hallo , {{\Illuminate\Support\Facades\Auth::user()->name}}</span>
         </a>
         <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->
@@ -103,27 +103,11 @@
 
     <ul class="sidebar-nav" id="sidebar-nav">
 
-        @auth
-            @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="{{route('admin')}}">
-                        <span>Dashboard</span>
-                    </a>
-                </li><!-- End Dashboard Nav -->
-            @elseif(\Illuminate\Support\Facades\Auth::user()->role == 'head')
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="{{route('head')}}">
-                        <span>Dashboard</span>
-                    </a>
-                </li><!-- End Dashboard Nav -->
-            @else
-                <li class="nav-item">
-                    <a class="nav-link collapsed" href="{{route('teacher')}}">
-                        <span>Dashboard</span>
-                    </a>
-                </li><!-- End Dashboard Nav -->
-            @endif
-        @endauth
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="{{route(\Illuminate\Support\Facades\Auth::user()->role)}}">
+                <span>Dashboard</span>
+            </a>
+        </li><!-- End Dashboard Nav -->
 
         @auth
             @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin' || \Illuminate\Support\Facades\Auth::user()->role == 'head')
@@ -171,6 +155,12 @@
                                         <i class="bi bi-circle"></i><span>Teacher Data</span>
                                     </a>
                                 </li>
+
+                                <li>
+                                    <a href="{{route('headFinancePage')}}">
+                                        <i class="bi bi-circle"></i><span>Finance Data</span>
+                                    </a>
+                                </li>
                             </ul>
                         @endif
                     @endif
@@ -191,11 +181,28 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link collapsed" href="{{route('headReport')}}">
-                                <span>Laporan</span>
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-target="#tables-nav" href="#">
+                                    <span>Laporan</span>
+                                </a>
+                                    <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
+                                        <li>
+                                            <a href="{{route('headClassReport')}}">
+                                                <i class="bi bi-circle"></i><span>Class Attendence Report</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{route('headStockReport')}}">
+                                                <i class="bi bi-circle"></i><span>Stock Report</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{route('headPrintActiveStudent')}}">
+                                                <i class="bi bi-circle"></i><span>Active Student Report</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                            </li>
                         @elseif(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
                             <li class="nav-item">
                                 <a class="nav-link collapsed" href="{{route('adminStockPage')}}">
@@ -210,16 +217,46 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link collapsed" href="{{route('adminReportPage')}}">
+                                <a class="nav-link" data-bs-target="#tables-nav" href="#">
                                     <span>Laporan</span>
                                 </a>
+                                <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
+                                    <li>
+                                        <a href="{{route('adminClassReport')}}">
+                                            <i class="bi bi-circle"></i><span>Class Attendence Report</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{{route('adminPrintActiveStudent')}}">
+                                            <i class="bi bi-circle"></i><span>Active Student Report</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
-                        @else
+                        @elseif(\Illuminate\Support\Facades\Auth::user()->role == 'teacher')
                             <li class="nav-item">
                                 <a class="nav-link collapsed" href="{{route('viewClass')}}">
                                     <span>Class</span>
                                 </a>
                             </li>
+                        @else
+                            <li class="nav-item">
+                                <a class="nav-link collapsed" href="{{route('financeTransaction')}}">
+                                    <span>Transaction</span>
+                                </a>
+                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-target="#tables-nav" href="#">
+                                <span>Laporan</span>
+                            </a>
+                            <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
+                                <li>
+                                    <a href="{{route('financeStockReport')}}">
+                                        <i class="bi bi-circle"></i><span>Stock Report</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     @endif
                 @endauth
 
@@ -229,13 +266,19 @@
 </aside><!-- End Sidebar-->
 
 <main id="main" class="main">
+    @if(Session()->has('msg'))
+        <div class="alert alert-success" role="alert">
+            {{session('msg')}}
+        </div>
+    @endif
     @yield('content')
 </main><!-- End #main -->
 
 <!-- ======= Footer ======= -->
 <footer id="footer" class="footer">
     <div class="copyright">
-        <strong><span>Ballet</span></strong>
+        <strong><span>
+En Pointe International Ballet Studio</span></strong>
     </div>
     <div class="credits">
         <!-- All the links in the footer should remain intact. -->

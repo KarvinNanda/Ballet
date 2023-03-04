@@ -9,6 +9,8 @@ class Banks extends Model
 {
     use HasFactory;
 
+    protected $fillable=['bank_name'];
+
     public function Rekening(){
         return $this->hasMany(Rekenings::class);
     }

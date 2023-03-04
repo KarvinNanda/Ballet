@@ -16,43 +16,63 @@
                 <form action="{{route('update',$transaction)}}" method="post">
                     @csrf
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Nama</label>
+                        <label  class="col-sm-2 col-form-label">Nama</label>
                         <div class="col-sm-10">
-                            {{$transaction->LongName}}
+                            <p class="form-control bg-success bg-opacity-10">{{$transaction->LongName}}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Jatuh Tempo</label>
+                        <label  class="col-sm-2 col-form-label">Jatuh Tempo</label>
                         <div class="col-sm-10">
-                            {{\Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y')}}
+                            <input type="date" class="form-control" name="inputJatuhTempo" value="{{$transaction->transaction_date}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputDOB" class="col-sm-2 col-form-label">Harga</label>
+                        <label class="col-sm-2 col-form-label">Kelas</label>
                         <div class="col-sm-10">
-{{--                            <input type="number" class="form-control" name="inputHarga" value="{{$transaction->ClassPrice}}">--}}
-                            {{$transaction->ClassPrice}}
+                            <p class="form-control bg-success bg-opacity-10">{{$transaction->ClassName}}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputDOB" class="col-sm-2 col-form-label">Diskon</label>
+                        <label  class="col-sm-2 col-form-label">Harga</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" name="inputDisc" value="{{$transaction->discount}}">
+                            <input type="number" class="form-control" name="inputHarga" value="{{$transaction->price}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Keterangan</label>
+                        <label  class="col-sm-2 col-form-label">Diskon</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" name="inputDisc" value="{{$transaction->discount == 0 ? 0:$transaction->discount}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Keterangan</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputDesc" value="{{$transaction->desc}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Status</label>
+                        <label  class="col-sm-2 col-form-label">Total</label>
+                        <div class="col-sm-10">
+                            <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->price - (($transaction->discount/100)*$transaction->price))}}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Tanggal Bayar</label>
+                        <div class="col-sm-10">
+                            <input type="date" class="form-control" name="inputTanggalBayar" value="{{$transaction->transaction_payment}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Status</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputStatus" value="{{$transaction->payment_status}}">
                         </div>

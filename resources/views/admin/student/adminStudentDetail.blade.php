@@ -13,136 +13,145 @@
                 <h5 class="card-title"></h5>
 
                 <!-- General Form Elements -->
-                <form action="{{route('adminStudentForm')}}" method="post">
-                    @csrf
-                    @foreach($details as $detail)
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">NIS</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" name="inputNis" value="{{$detail->nis}}" readonly>
+{{--                <form action="{{route('adminStudentForm')}}" method="post">--}}
+{{--                    @csrf--}}
+{{--                    @foreach($details as $detail)--}}
+                        <div class="row mb-3">
+                            <label for="inputName" class="col-sm-2 col-form-label">NIS</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->nis}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Long Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputLongName" value="{{$detail->LongName}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputName" class="col-sm-2 col-form-label">Long Name</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->LongName}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Nick Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputNickName" value="{{$detail->ShortName}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputName" class="col-sm-2 col-form-label">Nick Name</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->ShortName}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Age</label>
-                        <div class="col-sm-10">
-                            <input type="age" class="form-control" name="inputNickName" value="{{$detail->age}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputName" class="col-sm-2 col-form-label">Age</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->age}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputEmail" value="{{$detail->Email}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->Email}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputDOB" class="col-sm-2 col-form-label">DOB</label>
-                        <div class="col-sm-10">
-                            <input type="date" class="form-control" name="inputDate_of_Birth" value="{{$detail->dob}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputDOB" class="col-sm-2 col-form-label">DOB</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->dob}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" style="height: 100px" name="inputAddress" readonly>{{$detail->Address}}</textarea>
+                        <div class="row mb-3">
+                            <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->Address}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Parent Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputParentName" value="{{$detail->nama_orang_tua}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Parent Name</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->nama_orang_tua}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Bank Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputParentName" value="{{$detail->bank}}" readonly>
-                        </div>
-                    </div>
+                        @if(@$detail->bank)
+                            <div class="row mb-3">
+                                <label for="inputPhone" class="col-sm-2 col-form-label">Bank Name</label>
+                                <div class="col-sm-10">
+                                    <p class="form-control">{{$detail->bank}}</p>
+                                </div>
+                            </div>
+                        @endif
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Sender Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputSenderName" value="{{$detail->pengirim}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Sender Name</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->pengirim}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Rekening</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputRekening" value="{{$detail->rek}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Rekening</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->rek}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">City</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputCity" value="{{$detail->City}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">City</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->City}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Postal Code</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputPostalCode" value="{{$detail->kode_pos}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Postal Code</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->kode_pos}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">First Phone</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputPhone1" value="{{$detail->Phone1}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">First Phone</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->Phone1}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Second Phone</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputPhone2" value="{{$detail->Phone2}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Second Phone</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->Phone2}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Whatsapp</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputWhatsapp" value="{{$detail->Whatsapp}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Whatsapp</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->Whatsapp}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Instagram</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputInstagram" value="{{$detail->Instagram}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Instagram</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->Instagram}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Instagram</label>
-                        <div class="col-sm-10">
-                            <input type="date" class="form-control" name="inputInstagram" value="{{$detail->EnrollDate}}" readonly>
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Line</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->Line}}</p>
+                            </div>
                         </div>
-                    </div>
-                    @endforeach
-                </form><!-- End General Form Elements -->
+
+                        <div class="row mb-3">
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Enroll Date</label>
+                            <div class="col-sm-10">
+                                <p class="form-control">{{$detail->EnrollDate}}</p>
+                            </div>
+                        </div>
+{{--                    @endforeach--}}
+{{--                </form><!-- End General Form Elements -->--}}
 
             </div>
         </div>

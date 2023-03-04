@@ -92,21 +92,7 @@ class AdminClassScheduleController extends Controller
             $date->addDay(7);
         }
 
-
-//        return redirect()->back();
         return redirect()->route("adminClassView");
-    }
-
-
-    public function viewAbsen(){
-        $view = Schedule::find(1);
-        $class = DB::table('mapping_class_children')->join('students','students.id','mapping_class_children.student_id')
-        ->selectRaw('
-            students.nis as nis,
-            students.LongName as nama
-        ')->where('mapping_class_children.class_id','=',$view->class_id)
-        ->get();
-        return view('admin.class.absen',compact("view","class"));
     }
 
 
@@ -115,13 +101,5 @@ class AdminClassScheduleController extends Controller
         $classDelete = DB::table('schedules')->where('schedules.id',$id)->where('class_id',$classId);
         $classDelete->delete();
         return redirect()->route("adminClassView");
-    }
-
-    public function deleteTeacher(){
-
-    }
-
-    public function getAbsen(){
-        dd("asd");
     }
 }

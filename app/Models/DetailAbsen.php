@@ -16,6 +16,6 @@ class DetailAbsen extends Model
         return $this->belongsTo(Student::class);
     }
 
-    protected $fillable = [];
+    protected $fillable = ['header_absen_id','student_id','Description','Notes'];
 
 }

@@ -54,6 +54,7 @@ class AdminClassTransactionController extends Controller
         $class = new ClassTransaction();
         $class->ClassName = $req->inputName;
         $class->ClassPrice = $req->inputPrice;
+        $class->Status = 'non-aktif';
 
         $class->save();
 
@@ -133,7 +134,7 @@ class AdminClassTransactionController extends Controller
 
     public function levelUpStudent(Request $req){
         DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
-        return redirect('/admin/view/class');
+        return redirect()->route("adminClassView");
     }
 
     //addteacher

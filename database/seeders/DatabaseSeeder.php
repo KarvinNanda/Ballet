@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(StudentSeeder::class);
         $this->call(TransactionSeeder::class);
         $this->call(ScheduleSeeder::class);
+        $this->call(StockSeeder::class);
 
 
         DB::table('users')->insert([
@@ -73,9 +74,19 @@ class DatabaseSeeder extends Seeder
                 'phone' => '088281239283',
                 'email' => 'ana@gmail.com',
                 'password' => bcrypt('ana123'),
-            ]
+            ],
+
+            [
+                'name' => 'Felix',
+                'dob' => '2002-06-01',
+                'address' => 'Jl.kamboja',
+                'role' => 'finance',
+                'phone' => '019283746574',
+                'email' => 'felix@gmail.com',
+                'password' => bcrypt('felix123'),
+            ],
         ]);
-//        $this->call(MappingClassTeacherSeeder::class);
-//        $this->call(MappingClassChildSeeder::class);
+        $this->call(MappingClassTeacherSeeder::class);
+        $this->call(MappingClassChildSeeder::class);
     }
 }

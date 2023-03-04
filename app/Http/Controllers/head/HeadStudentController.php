@@ -18,9 +18,9 @@ class HeadStudentController extends Controller
 {
 
     public function index(){
+//        dd(now()->first());
         $students = DB::table('students')
             ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->join('banks','banks.id','rekenings.banks_id')
             ->selectRaw('
                 students.id as id,
                 students.Status as status,
@@ -30,10 +30,11 @@ class HeadStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim,
-                banks.bank_name as bank
+                rekenings.nama_pengirim as pengirim
             ')
             ->simplePaginate(5);
         return view('head.student.index',compact('students'));
@@ -68,7 +69,6 @@ class HeadStudentController extends Controller
             $curr = Carbon::now()->year;
             $students = DB::table('students')
                 ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-                ->join('banks','banks.id','rekenings.banks_id')
                 ->selectRaw('
                 students.id as id,
                 students.Status as status,
@@ -78,17 +78,17 @@ class HeadStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim,
-                banks.bank_name as bank
+                rekenings.nama_pengirim as pengirim
             ')
                 ->WhereYear('students.Dob',"=",$curr - $req->search)
                 ->simplePaginate(5);
         } else {
             $students = DB::table('students')
                 ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-                ->join('banks','banks.id','rekenings.banks_id')
                 ->selectRaw('
                 students.id as id,
                 students.Status as status,
@@ -98,10 +98,11 @@ class HeadStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim,
-                banks.bank_name as bank
+                rekenings.nama_pengirim as pengirim
             ')
                 ->where('students.LongName',"LIKE","%$req->search%")
                 ->orWhere('students.ShortName',"LIKE","%$req->search%")
@@ -120,7 +121,6 @@ class HeadStudentController extends Controller
     public function active(){
         $students = DB::table('students')
             ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->join('banks','banks.id','rekenings.banks_id')
             ->selectRaw('
                 students.id as id,
                 students.Status as status,
@@ -130,10 +130,11 @@ class HeadStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim,
-                banks.bank_name as bank
+                rekenings.nama_pengirim as pengirim
             ')
             ->where('students.status','=','aktif')
             ->simplePaginate(5);
@@ -143,7 +144,6 @@ class HeadStudentController extends Controller
     public function nonActive(){
         $students = DB::table('students')
             ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->join('banks','banks.id','rekenings.banks_id')
             ->selectRaw('
                 students.id as id,
                 students.Status as status,
@@ -153,10 +153,11 @@ class HeadStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim,
-                banks.bank_name as bank
+                rekenings.nama_pengirim as pengirim
             ')
             ->where('students.status','=','non-aktif')
             ->simplePaginate(5);
@@ -174,10 +175,7 @@ class HeadStudentController extends Controller
             'inputLongName' => 'required',
             'inputNickName' => 'required',
             'inputParentName' => 'required',
-            'inputBankName' => 'required',
-            'inputSenderName' => 'required',
             'inputCity' => 'required',
-            'inputInstagram' => 'required',
             'inputEmail' => 'required|email:filter',
             'inputDate_of_Birth' => 'required|date|before:tomorrow',
             'inputAddress' => 'required',
@@ -196,12 +194,8 @@ class HeadStudentController extends Controller
 
         $rekening = new Rekenings();
         $rekening->bank_rek = $req->inputRekening;
-        $rekening->nama_pengirim = $req->inputSenderName;
-        if($req->inputBankName == 'BCA'){
-            $rekening->banks_id = 1;
-        } else {
-            $rekening->banks_id = 2;
-        }
+        $rekening->nama_pengirim = '-';
+        $rekening->banks_id = null;
         $rekening->save();
 
         $student = new Student();
@@ -218,7 +212,8 @@ class HeadStudentController extends Controller
         $student->Phone1 = $req->inputPhone1;
         $student->Phone2 = $req->inputPhone2;
         $student->Whatsapp = $req->inputWhatsapp ;
-        $student->Instagram = '@'.$req->inputInstagram ;
+        $student->Instagram = $req->inputInstagram ?  '@'.$req->inputInstagram : '-';
+        $student->Line = $req->inputInstagram ?  $req->inputLine : '-';
         $student->Status = 'aktif';
         $student->EnrollDate  = Carbon::now();
 
@@ -237,5 +232,62 @@ class HeadStudentController extends Controller
         }
         $change->save();
         return redirect()->back();
+    }
+
+    public function detailStudent(Student $student){
+        $detail = DB::table('students')
+            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
+            ->join('banks','banks.id','rekenings.banks_id')
+            ->selectRaw('
+                students.id as id,
+                students.nis as nis,
+                students.Status as status,
+                students.LongName as LongName,
+                students.ShortName as ShortName,
+                students.Dob as dob,
+                students.EnrollDate as EnrollDate,
+                students.nama_orang_tua as nama_orang_tua,
+                students.Address as Address,
+                students.City as City,
+                students.kode_pos as kode_pos,
+                students.Phone1 as Phone1,
+                students.Phone2 as Phone2,
+                students.Whatsapp as Whatsapp,
+                students.Instagram as Instagram,
+                students.Line as Line,
+                students.Email as Email,
+                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                rekenings.bank_rek as rek,
+                rekenings.nama_pengirim as pengirim,
+                banks.bank_name as bank
+            ')->where('students.LongName',"LIKE",$student->LongName)->first();
+//        dd(is_null($detail));
+        if(is_null($detail)){
+            $detail = DB::table('students')
+                ->join('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->selectRaw('
+                students.id as id,
+                students.nis as nis,
+                students.Status as status,
+                students.LongName as LongName,
+                students.ShortName as ShortName,
+                students.Dob as dob,
+                students.EnrollDate as EnrollDate,
+                students.nama_orang_tua as nama_orang_tua,
+                students.Address as Address,
+                students.City as City,
+                students.kode_pos as kode_pos,
+                students.Phone1 as Phone1,
+                students.Phone2 as Phone2,
+                students.Whatsapp as Whatsapp,
+                students.Instagram as Instagram,
+                students.Line as Line,
+                students.Email as Email,
+                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                rekenings.bank_rek as rek,
+                rekenings.nama_pengirim as pengirim
+            ')->where('students.LongName',"LIKE",$student->LongName)->first();
+        }
+        return view('head.student.detail',compact('detail'));
     }
 }

@@ -1,10 +1,10 @@
 @extends('Master.master')
 
-@section('title','Add Class')
+@section('title','Add Transaction')
 
 @section('content')
     <div class="pagetitle">
-        <h1>Class Form</h1>
+        <h1>Transaction Form</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -53,19 +53,6 @@
                         </div>
                     </div>
 
-{{--                    <div class="row mb-3">--}}
-{{--                        <label for="inputName" class="col-sm-2 col-form-label">Discount</label>--}}
-{{--                        <div class="col-sm-10">--}}
-{{--                            <input type="number" class="form-control" name="Discount" placeholder="Discount">--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-
-{{--                    <div class="row mb-3">--}}
-{{--                        <label for="inputName" class="col-sm-2 col-form-label">Description</label>--}}
-{{--                        <div class="col-sm-10">--}}
-{{--                            <textarea type="input" class="form-control" name="Description" rows="4" cols="50"></textarea>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
 
                     <div class="justify-content-end d-flex">
                         <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">

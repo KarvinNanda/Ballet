@@ -80,7 +80,7 @@ class AdminTransactionController extends Controller
         $transaction->class_transactions_id = $req->class;
         $transaction->transaction_date = $req->dateTime;
         $transaction->transaction_payment = null;
-        $transaction->payment_status = "belum lunas";
+        $transaction->payment_status = "Unpaid";
         $transaction->discount = 0;
         $transaction->price = $req->Price;
         $transaction->desc = null;

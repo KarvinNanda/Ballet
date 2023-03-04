@@ -41,24 +41,19 @@
                             <th scope="col">Orang Tua</th>
                             <th scope="col">Rekening</th>
                             <th scope="col">Pengirim</th>
-                            <th scope="col">Bank</th>
-                            {{--                        <th scope="col">Alamat</th>--}}
                             <th scope="col">Phone</th>
-                            <th scope="col">Action</th>
-                            <th scope="col">Action</th>
-                            <th scope="col">Action</th>
+                            <th colspan="3" class="text-center" scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($students as $student)
                             <tr>
                                 <td>{{$student->name}}</td>
-                                <td>{{\Carbon\Carbon::parse($student->dob)->format('d M Y')}}</td>
+                                <td>{{\Carbon\Carbon::parse($student->dob)->format('d M')}}</td>
                                 <td>{{$student->age}}</td>
                                 <td>{{$student->ortu}}</td>
                                 <td>{{$student->rek}}</td>
                                 <td>{{$student->pengirim}}</td>
-                                <td>{{$student->bank}}</td>
                                 <td>{{$student->phone}}</td>
                                 <td>
                                     <form action="{{route('adminStudentChange',$student->id)}}" method="post">

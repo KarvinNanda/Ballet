@@ -36,6 +36,10 @@
                         <th scope="col">Nama Kelas</th>
                         <th scope="col">Harga Kelas</th>
                         <th scope="col">Action</th>
+                        <th scope="col">Detail</th>
+                        <th scope="col">Schedule Detail</th>
+                        <th scope="col">Level Up</th>
+                        <th scope="col">Reset</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -53,6 +57,40 @@
                                     @endif
                                 </form>
                             </td>
+                            @if($class->Status == 'aktif')
+                                <td>
+                                    <form action="{{route('headDetailClass')}}" method="post">
+                                        @csrf
+                                        <input type="hidden" value="{{$class->id}}" name="classId">
+                                        <button type="submit" class="btn btn-success">Detail</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{{route('headViewScheduleClass')}}" method="post">
+                                        @csrf
+                                        <input type="hidden" value="{{$class->id}}" name="classId">
+                                        <button type="submit" class="btn btn-success">Schedule</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{{route('headLevelUp')}}" method="post">
+                                        @csrf
+                                        <input type="hidden" value="{{$class->id}}" name="classId">
+                                        <button type="submit" class="btn btn-success">Level Up</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{{route('headResetClass',$class->id)}}" onclick="return confirm('Are you sure?')" method="get">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger">Reset Class</button>
+                                    </form>
+                                </td>
+                            @else
+                                <td>None</td>
+                                <td>None</td>
+                                <td>None</td>
+                                <td>None</td>
+                            @endif
                         </tr>
                     @endforeach
                     </tbody>

@@ -1,11 +1,11 @@
 @inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
-@section('title','Report')
+@section('title','Report Class Attendence')
 
 @section('content')
     <div class="pagetitle">
-        <h1>Report</h1>
+        <h1>Report Class Attendence</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -27,7 +27,7 @@
                                 <td>{{$item->class_name}}</td>
                                 <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
                                 <td>
-                                    <form action="{{route('headPrintReport',$item->header_id)}}" method="post">
+                                    <form action="{{route('headClassPrintReport',['header' => $item->header_id,'className' => $item->class_name])}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Report</button>
                                     </form>

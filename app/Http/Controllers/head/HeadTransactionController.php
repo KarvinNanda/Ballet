@@ -17,8 +17,46 @@ class HeadTransactionController extends Controller
         $transactions = Transaction::select('*')
             ->join('students','students.id','transactions.students_id')
             ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->selectRaw('
+                transactions.id,
+                transactions.transaction_date,
+                transactions.transaction_payment,
+                transactions.payment_status,
+                transactions.price,
+                transactions.discount,
+                students.LongName,
+                students.id as student_id
+            ')
             ->simplePaginate(5);
         return view('head.transaction.index',compact('transactions'));
+    }
+
+    public function sorting($column){
+        $transactions = Transaction::select('*')
+            ->join('students','students.id','transactions.students_id')
+            ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->selectRaw('
+                transactions.id,
+                transactions.transaction_date,
+                transactions.transaction_payment,
+                transactions.payment_status,
+                transactions.price,
+                transactions.discount,
+                students.LongName,
+                students.id as student_id
+            ')
+            ->orderBy($column)
+            ->simplePaginate(5);
+        return view('head.transaction.index',compact('transactions'));
+    }
+
+    public function detailTransaction(Transaction $transaction){
+        $detail = Transaction::select('*')
+            ->join('students','students.id','transactions.students_id')
+            ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->where('transactions.students_id',$transaction->students_id)
+            ->first();
+        return view('head.transaction.detail',compact('detail'));
     }
 
     public function search(Request $req){
@@ -64,7 +102,7 @@ class HeadTransactionController extends Controller
     public function addTransaction(){
         $students = Student::all();
         $class_transaction = ClassTransaction::all();
-        return view('admin.transaction.insert',compact('students','class_transaction'));
+        return view('head.transaction.insert',compact('students','class_transaction'));
     }
 
     public function insertTransaction(Request $req){
@@ -72,9 +110,7 @@ class HeadTransactionController extends Controller
             'nis' => 'required',
             'class' => 'required',
             'dateTime' => 'required',
-            'Price' => 'required',
-            'Discount' => 'required',
-            'Description' => 'required'
+            'Price' => 'required|numeric',
         ];
 
         $validate = Validator::make($req->all(),$rules);
@@ -83,16 +119,16 @@ class HeadTransactionController extends Controller
         }
 
         $transaction = new Transaction();
-        $transaction->student_id = $req->nis;
-        $transaction->class_transaction_id = $req->class;
+        $transaction->students_id = $req->nis;
+        $transaction->class_transactions_id = $req->class;
         $transaction->transaction_date = $req->dateTime;
-        $transaction->payment_status = "belum lunas";
+        $transaction->payment_status = "Unpaid";
         $transaction->discount = $req->Discount;
         $transaction->price = $req->Price;
         $transaction->desc = $req->Description;
 
         $transaction->save();
 
-        return redirect()->route("transaction");
+        return to_route("headTransactionPage");
     }
 }
