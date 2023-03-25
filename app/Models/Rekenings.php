@@ -10,7 +10,7 @@ class Rekenings extends Model
     use HasFactory;
 
     public function Bank(){
-        return $this->belongsTo(Banks::class);
+        return $this->belongsTo(Banks::class,'banks_id','id');
     }
 
     public function Student(){

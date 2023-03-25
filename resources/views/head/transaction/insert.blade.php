@@ -16,7 +16,7 @@
                 <form action="{{route('headAddTransaction')}}" method="post">
                     @csrf
                     <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">Nis</label>
+                        <label class="col-sm-2 col-form-label">NIS</label>
                         <div class="col-sm-10">
                             <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Nis - Name" name="nis">
                             <datalist id="datalistOptions">
@@ -40,7 +40,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">Transaction Date</label>
+                        <label class="col-sm-2 col-form-label">Due Date</label>
                         <div class="col-sm-10">
                             <input type="date" class="form-control" name="dateTime">
                         </div>
@@ -69,7 +69,7 @@
 
 
                     <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
+                        <button class="btn btn-success p-2 ps-5 pe-5 mb-3">
                             Submit
                         </button>
                     </div>

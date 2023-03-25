@@ -183,7 +183,7 @@
 
                             <li class="nav-item">
                                 <a class="nav-link" data-bs-target="#tables-nav" href="#">
-                                    <span>Laporan</span>
+                                    <span>Report</span>
                                 </a>
                                     <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
                                         <li>
@@ -218,7 +218,7 @@
 
                             <li class="nav-item">
                                 <a class="nav-link" data-bs-target="#tables-nav" href="#">
-                                    <span>Laporan</span>
+                                    <span>Report</span>
                                 </a>
                                 <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
                                     <li>
@@ -242,12 +242,12 @@
                         @else
                             <li class="nav-item">
                                 <a class="nav-link collapsed" href="{{route('financeTransaction')}}">
-                                    <span>Transaction</span>
+                                    <span>Transaksi</span>
                                 </a>
                             </li>
                         <li class="nav-item">
                             <a class="nav-link" data-bs-target="#tables-nav" href="#">
-                                <span>Laporan</span>
+                                <span>Report</span>
                             </a>
                             <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
                                 <li>

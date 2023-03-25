@@ -39,15 +39,16 @@ use App\Http\Controllers\head\HeadClassScheduleController;
 |
 */
 
+Route::get('/',function (){
+    return to_route('login');
+});
+
 //login
 Route::get('/login', [LoginController::class,'index'])->name('login');
 Route::post('/login', [LoginController::class,'doLogin'])->name('do-login');
-Route::get('/logout', [LoginController::class,'logout'])->name('logout');
-
-
 
 //admin
-Route::prefix('admin')->group(function(){
+Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/', [AdminController::class,'index'])->name('admin');
     Route::post('/class/search', [AdminClassTransactionController::class,'search'])->name('adminSearchClass');
     Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
@@ -115,7 +116,7 @@ Route::prefix('admin')->group(function(){
 });
 
 //head
-Route::prefix('head')->group(function(){
+Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/', [HeadController::class,'index'])->name('head');
 
     Route::get('/class', [HeadClassController::class,'index'])->name('headClassPage');
@@ -137,13 +138,13 @@ Route::prefix('head')->group(function(){
     Route::get('/delete/StudentClass/{student}/{class}',[HeadClassController::class,'deleteStudent'])->name("headClassDeleteStudent");
     Route::post('/add/teacher/class', [HeadClassController::class,'addTeacher'])->name('headAddTeacherClass');
     Route::post('/add/student/class', [HeadClassController::class,'addStudent'])->name('headAddStudentClass');
-    Route::get('/reset/class/{id}',[HeadClassController::class,'resetClass'])->name('headResetClass'); // baru
+    Route::get('/reset/class/{id}',[HeadClassController::class,'resetClass'])->name('headResetClass');
 
     Route::post('/view/schedule/class', [HeadClassScheduleController::class,'viewSchedule'])->name('headViewScheduleClass');
-    Route::get('/delete/Schedule/class/{id}/{classId}',[HeadClassScheduleController::class,'deleteScheduleClass'])->name('headDeleteSchedule'); // baru
+    Route::get('/delete/Schedule/class/{id}/{classId}',[HeadClassScheduleController::class,'deleteScheduleClass'])->name('headDeleteSchedule');
     Route::post('/view/add/schedule/class',[HeadClassScheduleController::class,'viewaddScheduleClass'])->name('headViewaddScheduleClass');
     Route::post('/view/update/schedule/class',[HeadClassScheduleController::class,'viewUpdateScheduleClass'])->name('headViewUpdateScheduleClass');
-    Route::post('/add/MultipleSchedule/class',[HeadClassScheduleController::class,'addMultipleSchedule'])->name('headAddMultipleScheduleClass');// baru
+    Route::post('/add/MultipleSchedule/class',[HeadClassScheduleController::class,'addMultipleSchedule'])->name('headAddMultipleScheduleClass');
     Route::post('/add/schedule/class',[HeadClassScheduleController::class,'addSchedule'])->name('headAddScheduleClass');
     Route::post('/update/schedule/class',[HeadClassScheduleController::class,'updateSchedule'])->name('headUpdateScheduleClass');
     Route::post('/view/addMultipleSchedule/class',[HeadClassScheduleController::class,'viewAddMultipleScheduleClass'])->name('headViewaddMultipleScheduleClass');// baru
@@ -204,7 +205,7 @@ Route::prefix('head')->group(function(){
 });
 
 //teacher
-Route::prefix('teacher')->group(function(){
+Route::prefix('teacher')->middleware(['teacher'])->group(function(){
     Route::get('/', [TeacherController::class,'index'])->name('teacher');
     Route::get('/view/class', [TeacherClassController::class,'index'])->name('viewClass');
     Route::post('/view/class/{class:ClassName}', [TeacherClassController::class,'viewDetail'])->name('viewDetail');
@@ -213,7 +214,7 @@ Route::prefix('teacher')->group(function(){
 });
 
 //finance
-Route::prefix('finance')->group(function(){
+Route::prefix('finance')->middleware(['finance'])->group(function(){
     Route::get('/', [FinanceController::class,'index'])->name('finance');
 
     Route::get('/transaction/sorting/{column}', [FinanceTransactionController::class,'sorting'])->name('financeTransactionSorting');
@@ -231,18 +232,21 @@ Route::prefix('finance')->group(function(){
     Route::post('/report/stock/{report_stock}',[FinanceStockController::class,'printStock'])->name('financeStockPrintReport');
 });
 
-//profile
-Route::get('/profile',[ProfileController::class,'changeProfilePage'])->name('change-profile-page');
-Route::post('/profile/{user}',[ProfileController::class,'changeProfile'])->name('change-profile');
+Route::middleware(['authLogin'])->group(function(){
+    Route::get('/logout', [LoginController::class,'logout'])->name('logout');
 
-Route::get('/password',[ProfileController::class,'changePasswordPage'])->name('change-password-page');
-Route::post('/password/{user}',[ProfileController::class,'changePassword'])->name('change-password');
+    //profile
+    Route::get('/profile',[ProfileController::class,'changeProfilePage'])->name('change-profile-page');
+    Route::post('/profile/{user}',[ProfileController::class,'changeProfile'])->name('change-profile');
+
+    Route::get('/password',[ProfileController::class,'changePasswordPage'])->name('change-password-page');
+    Route::post('/password/{user}',[ProfileController::class,'changePassword'])->name('change-password');
 
 //forgot password
-Route::get('/forgot/password',[ForgotPasswordController::class,'index'])->name('email-page');
-Route::post('/forgot/password',[ForgotPasswordController::class,'checkEmail'])->name('check-email');
-Route::get('/expired',[ForgotPasswordController::class,'index'])->name('expired-page');
+    Route::get('/forgot/password',[ForgotPasswordController::class,'index'])->name('email-page');
+    Route::post('/forgot/password',[ForgotPasswordController::class,'checkEmail'])->name('check-email');
+    Route::get('/expired',[ForgotPasswordController::class,'index'])->name('expired-page');
 
-
-Route::get('/reset/password/{token}',[ForgotPasswordController::class,'resetPasswordPage'])->name('reset-password-page');
-Route::post('/reset/password/{token}',[ForgotPasswordController::class,'resetPassword'])->name('reset-password');
+    Route::get('/reset/password/{token}',[ForgotPasswordController::class,'resetPasswordPage'])->name('reset-password-page');
+    Route::post('/reset/password/{token}',[ForgotPasswordController::class,'resetPassword'])->name('reset-password');
+});

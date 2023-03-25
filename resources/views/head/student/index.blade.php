@@ -13,11 +13,11 @@
         <div class="card">
             <div class="dropdown mt-3 ms-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Pilih
+                    Choose
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{route('activeStudentPage')}}">Aktif</a></li>
-                    <li><a class="dropdown-item" href="{{route('nonactiveStudentPage')}}">Non-Aktif</a></li>
+                    <li><a class="dropdown-item" href="{{route('activeStudentPage')}}">Active</a></li>
+                    <li><a class="dropdown-item" href="{{route('nonactiveStudentPage')}}">Non-Active</a></li>
                 </ul>
             </div>
             <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
@@ -25,7 +25,7 @@
                     @csrf
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
-                <a href="{{route('headStudentAddPage')}}"><button class="btn btn-success me-3 mb-3"> Add Student</button></a>
+                <a href="{{route('headStudentAddPage')}}"><button class="btn btn-success me-3 mb-3">Add Student</button></a>
             </div>
 
             <div class="card-body">
@@ -36,12 +36,12 @@
                     <div class="container">
                     <thead>
                     <tr>
-                        <th scope="col"><a href="{{route("sortingStudent","name")}}">Nama</a></th>
-                        <th scope="col"><a href="{{route("sortingStudent","dob")}}">Tanggal Lahir</a> </th>
-                        <th scope="col"><a href="{{route("sortingStudent","age")}}">Umur</a> </th>
-                        <th scope="col">Orang Tua</th>
-                        <th scope="col">Rekening</th>
-                        <th scope="col">Pengirim</th>
+                        <th scope="col"><a href="{{route("sortingStudent","name")}}">Name</a></th>
+                        <th scope="col"><a href="{{route("sortingStudent","dob")}}">Date of Birth</a> </th>
+                        <th scope="col"><a href="{{route("sortingStudent","age")}}">Age</a> </th>
+                        <th scope="col">Parent</th>
+                        <th scope="col">Bank Account</th>
+                        <th scope="col">Sender</th>
                         <th scope="col">Phone</th>
                         <th colspan="2" class="text-center" scope="col">Action</th>
                     </tr>

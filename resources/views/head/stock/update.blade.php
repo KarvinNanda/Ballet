@@ -16,7 +16,7 @@
                 <form action="{{route('StockUpdate',$stock)}}" method="post">
                     @csrf
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Nama</label>
+                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputName" value="{{$stock->name}}">
                         </div>
@@ -37,7 +37,7 @@
                     </div>
 
                     <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
+                        <button class="btn btn-warning p-2 ps-5 pe-5 mb-3">
                             Submit
                         </button>
                     </div>

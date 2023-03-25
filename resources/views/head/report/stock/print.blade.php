@@ -24,7 +24,7 @@
 <div class="container">
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Laporan Stock Tanggal {{$carbon::parse($date)->format('d M Y')}}</h2>
+            <h2>Stock Report Date {{$carbon::parse($date)->format('d M Y')}}</h2>
         </div>
 
         <div class="col text-center">
@@ -33,10 +33,10 @@
                 <tr>
                     <th>Name</th>
                     <th>Size</th>
-                    <th>Quantity Awal</th>
-                    <th>Masuk</th>
-                    <th>Keluar</th>
-                    <th>Quantity Akhir</th>
+                    <th>First Quantity</th>
+                    <th>IN</th>
+                    <th>OUT</th>
+                    <th>Last Quantity</th>
                 </tr>
                 </thead>
                 <tbody>

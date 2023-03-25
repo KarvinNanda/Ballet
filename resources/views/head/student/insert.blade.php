@@ -122,7 +122,7 @@
                     </div>
 
                     <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
+                        <button class="btn btn-success p-2 ps-5 pe-5 mb-3">
                             Submit
                         </button>
                     </div>

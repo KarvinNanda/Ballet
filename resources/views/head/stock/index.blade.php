@@ -24,7 +24,7 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
+                            <th scope="col">Name</th>
                             <th scope="col">Size</th>
                             <th scope="col">Quantity</th>
                             <th scope="col">Update</th>

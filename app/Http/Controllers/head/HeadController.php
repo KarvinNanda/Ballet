@@ -4,10 +4,6 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banks;
-use App\Models\ClassTransaction;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class HeadController extends Controller

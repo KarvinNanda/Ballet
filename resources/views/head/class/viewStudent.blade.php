@@ -1,11 +1,11 @@
 @extends('Master.master')
 
-@section('title','Teacher List')
+@section('title','Student List')
 
 @section('content')
 
     <div class="pagetitle">
-        <h1>Students Tables</h1>
+        <h1>Student Tables</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -17,9 +17,9 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
-                            <th scope="col">Tanggal Lahir</th>
-                            <th scope="col">Alamat</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Date of Birth</th>
+                            <th scope="col">Address</th>
                             <th scope="col">Phone</th>
                             <th scope="col">Email</th>
                             <th scope="col">Action</th>

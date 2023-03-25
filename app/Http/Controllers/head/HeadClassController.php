@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
-use App\Mail\SendingEmail;
 use App\Models\ClassTransaction;
 use App\Models\DetailAbsen;
 use App\Models\HeaderAbsen;
@@ -11,11 +10,8 @@ use App\Models\MappingClassChild;
 use App\Models\MappingClassTeacher;
 use App\Models\Schedule;
 use App\Models\Student;
-use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class HeadClassController extends Controller
@@ -127,7 +123,7 @@ class HeadClassController extends Controller
             })
 
             ->simplePaginate(5);
-        return view('admin.class.viewTeacher',compact('teachers','class_id'));
+        return view('head.class.viewTeacher',compact('teachers','class_id'));
     }
 
     public function addTeacher(Request $req){
@@ -135,7 +131,7 @@ class HeadClassController extends Controller
         $mappingTeacher->user_id = $req->teacherId;
         $mappingTeacher->class_id = $req->classId;
         $mappingTeacher->Save();
-        return redirect()->route("adminClassView");
+        return redirect()->route("headClassPage");
     }
 
     public function viewaddStudent(Request $req){

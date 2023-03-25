@@ -15,7 +15,6 @@
                     @csrf
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
-                <a href=""><button class="btn btn-success me-3 mb-3"> Add Stock</button></a>
             </div>
             <div class="card-body">
 
@@ -24,7 +23,7 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
+                            <th scope="col">Name</th>
                             <th scope="col">Size</th>
                             <th scope="col">Quantity</th>
                         </tr>

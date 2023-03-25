@@ -4,8 +4,6 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Models\Stock;
-use App\Models\Transaction;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
