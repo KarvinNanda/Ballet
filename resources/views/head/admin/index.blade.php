@@ -24,9 +24,9 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">Nama</th>
-                        <th scope="col">Tanggal Lahir</th>
-                        <th scope="col">Alamat</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Date of Birth</th>
+                        <th scope="col">Address</th>
                         <th scope="col">Phone</th>
                         <th scope="col">Email</th>
                         <th scope="col">Action</th>

@@ -23,12 +23,12 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
-                            <th scope="col">Jatuh Tempo</th>
-                            <th scope="col"><a href="{{route('financeTransactionSorting','price')}}">Harga</a></th>
-                            <th scope="col">Diskon</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Due Date</th>
+                            <th scope="col"><a href="{{route('financeTransactionSorting','price')}}">Price</a></th>
+                            <th scope="col">Discount</th>
                             <th scope="col">Total</th>
-                            <th scope="col">Tanggal Bayar</th>
+                            <th scope="col">Payment Date</th>
                             <th scope="col"><a href="{{route('financeTransactionSorting','payment_status')}}">Status</a></th>
                             <th scope="col">Action</th>
                         </tr>

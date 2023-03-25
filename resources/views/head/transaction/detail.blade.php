@@ -64,6 +64,27 @@
                 </div>
 
                 <div class="row mb-3">
+                    <label  class="col-sm-2 col-form-label">Rekening</label>
+                    <div class="col-sm-10">
+                        <p class="form-control bg-success bg-opacity-10">{{$detail->bank_rek}}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label  class="col-sm-2 col-form-label">Bank Name</label>
+                    <div class="col-sm-10">
+                        <p class="form-control bg-success bg-opacity-10">{{@$data->Bank  ? $data->Bank->bank_name : ''}}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <label  class="col-sm-2 col-form-label">Sender Name</label>
+                    <div class="col-sm-10">
+                        <p class="form-control bg-success bg-opacity-10">{{@$data ? $data->nama_pengirim : ''}}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
                     <label for="inputDOB" class="col-sm-2 col-form-label">Tanggal Bayar</label>
                     <div class="col-sm-10">
                         <p class="form-control bg-success bg-opacity-10">{{now()->toDateString()}}</p>

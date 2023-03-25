@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\finance;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banks;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class FinanceTransactionController extends Controller
@@ -57,12 +59,24 @@ class FinanceTransactionController extends Controller
     public function submitPaidTransaction(Transaction $transaction,Request $req){
         $rules = [
             'datePaid' => 'required',
+            'inputBankName' => 'required',
+            'inputSenderName' => 'required'
         ];
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
             return redirect()->back()->withErrors($validate);
         }
+
+        $banks = Banks::updateOrCreate([
+            'bank_name' => $req->inputBankName
+        ]);
+
+        DB::table('rekenings')->where('bank_rek',$transaction->Students->bank_rek)->update([
+            'banks_id' => $banks->id,
+            'nama_pengirim' => $req->inputSenderName
+        ]);
+
         $transaction = Transaction::find($transaction->id);
         $transaction->transaction_payment = $req->datePaid;
         $transaction->payment_status = "Paid";

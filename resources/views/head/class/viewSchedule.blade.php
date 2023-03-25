@@ -1,7 +1,7 @@
 @inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
-@section('title','Teacher List')
+@section('title','Schedule List')
 
 @section('content')
 
@@ -32,9 +32,9 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama Kelas</th>
-                            <th scope="col">Tanggal</th>
-                            <th scope="col">Waktu</th>
+                            <th scope="col">Class Name</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Time</th>
                             <th scope="col">Update</th>
                             <th scope="col">Delete</th>
                             <th scope="col">Attendence</th>
@@ -58,19 +58,19 @@
                                     <form action="{{route('headViewUpdateScheduleClass')}}" method="post">
                                         @csrf
                                         <input type="hidden" value="{{$c->id}}" name="scheduleId">
-                                        <button class="btn btn-success"> Update Schedule</button>
+                                        <button class="btn btn-warning"> Update Schedule</button>
                                     </form>
                                 </td>
                                 <td>
                                     <form action="{{route("headDeleteSchedule",['id'=>$c->id,'classId'=>$classId])}}" method="get">
                                         @csrf
-                                        <button type="submit" class="btn btn-success">Delete Schedule</button>
+                                        <button type="submit" class="btn btn-danger">Delete Schedule</button>
                                     </form>
                                 </td>
                                 <td>
                                     <form action="{{route('headViewAbsen',$c->id)}}" method="post">
                                         @csrf
-                                        <button type="submit" class="btn btn-success">Attendence</button>
+                                        <button type="submit" class="btn btn-info">Attendence</button>
                                     </form>
                                 </td>
                             </tr>

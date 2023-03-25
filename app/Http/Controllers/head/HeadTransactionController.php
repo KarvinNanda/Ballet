@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banks;
 use App\Models\ClassTransaction;
+use App\Models\Rekenings;
 use App\Models\Student;
 use App\Models\Transaction;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
@@ -56,7 +58,8 @@ class HeadTransactionController extends Controller
             ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
             ->where('transactions.students_id',$transaction->students_id)
             ->first();
-        return view('head.transaction.detail',compact('detail'));
+        $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
+        return view('head.transaction.detail',compact('detail','data'));
     }
 
     public function search(Request $req){
@@ -69,20 +72,18 @@ class HeadTransactionController extends Controller
     }
 
     public function updatePage($trans){
-
         $transaction = Transaction::select('*')
             ->join('students','students.id','transactions.students_id')
             ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
             ->where('transactions.id',$trans)
             ->first();
-
-        return view('head.transaction.update',compact('transaction'));
+        $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
+        return view('head.transaction.update',compact('transaction','data'));
     }
 
     public function update(Request $req,Transaction $transaction){
         $rules=[
-          'inputDisc' => 'required|numeric|min:0|max:100',
-          'inputDesc' => 'required',
+          'inputDisc' => 'numeric|min:0|max:100',
           'inputStatus' => 'required',
         ];
 
@@ -91,6 +92,15 @@ class HeadTransactionController extends Controller
         if($validate->fails()){
             return redirect()->back()->withErrors($validate);
         }
+
+        $banks = Banks::updateOrCreate([
+            'bank_name' => $req->inputBankName
+        ]);
+
+        DB::table('rekenings')->where('bank_rek',$transaction->Students->bank_rek)->update([
+            'banks_id' => $banks->id,
+            'nama_pengirim' => $req->inputSenderName
+        ]);
 
         $trans = Transaction::find($transaction->id);
         $trans->discount = $req->inputDisc;

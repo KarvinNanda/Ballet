@@ -1,17 +1,17 @@
 @extends('Master.master')
 
-@section('title','Teacher List')
+@section('title','Detail Class')
 
 @section('content')
 
     <div class="pagetitle">
-        <h1>Teacher Tables</h1>
+        <h1>Detail Class</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                    <a href="{{route('headViewaddTeacherClass',$class_id)}}"><button class="btn btn-success me-5 mt-2 mb-2" type="Submit"> Add Teacher</button></a>
+                    <a href="{{route('headViewaddTeacherClass',$class_id)}}"><button class="btn btn-info me-5 mt-2 mb-2" type="Submit">Add Teacher</button></a>
             </div>
             <div class="card-body">
 
@@ -20,7 +20,7 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
+                            <th scope="col">Name</th>
                             <th scope="col">DOB</th>
                             <th scope="col">Address</th>
                             <th scope="col">Email</th>
@@ -68,7 +68,7 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <a href="{{route('headViewaddStudentClass',$class_id)}}"><button class="btn btn-success me-5 mt-2 mb-2" type="Submit"> Add Student</button></a>
+                <a href="{{route('headViewaddStudentClass',$class_id)}}"><button class="btn btn-info me-5 mt-2 mb-2" type="Submit"> Add Student</button></a>
             </div>
             <div class="card-body">
 

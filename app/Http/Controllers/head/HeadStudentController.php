@@ -3,22 +3,17 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
-use App\Models\Banks;
-use App\Models\ClassTransaction;
 use App\Models\Rekenings;
 use App\Models\Student;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class HeadStudentController extends Controller
 {
 
     public function index(){
-//        dd(now()->first());
         $students = DB::table('students')
             ->join('rekenings','students.bank_rek','rekenings.bank_rek')
             ->selectRaw('

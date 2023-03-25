@@ -13,45 +13,45 @@
                 <h5 class="card-title"></h5>
 
                 <!-- General Form Elements -->
-                <form action="{{route('update',$transaction)}}" method="post">
+                <form action="{{route('update',$transaction->id)}}" method="post">
                     @csrf
                     <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Nama</label>
+                        <label  class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">
                             <p class="form-control bg-success bg-opacity-10">{{$transaction->LongName}}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Jatuh Tempo</label>
+                        <label  class="col-sm-2 col-form-label">Due Date</label>
                         <div class="col-sm-10">
                             <input type="date" class="form-control" name="inputJatuhTempo" value="{{$transaction->transaction_date}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">Kelas</label>
+                        <label class="col-sm-2 col-form-label">Class</label>
                         <div class="col-sm-10">
                             <p class="form-control bg-success bg-opacity-10">{{$transaction->ClassName}}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Harga</label>
+                        <label  class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
                             <input type="number" class="form-control" name="inputHarga" value="{{$transaction->price}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Diskon</label>
+                        <label  class="col-sm-2 col-form-label">Discount</label>
                         <div class="col-sm-10">
                             <input type="number" class="form-control" name="inputDisc" value="{{$transaction->discount == 0 ? 0:$transaction->discount}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Keterangan</label>
+                        <label  class="col-sm-2 col-form-label">Description</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputDesc" value="{{$transaction->desc}}">
                         </div>
@@ -65,7 +65,28 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Tanggal Bayar</label>
+                        <label  class="col-sm-2 col-form-label">Bank Account</label>
+                        <div class="col-sm-10">
+                            <p class="form-control bg-success bg-opacity-10">{{$transaction->bank_rek}}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Bank Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="inputBankName" value="{{@$data->Bank  ? $data->Bank->bank_name : ''}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Sender Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="inputSenderName" value="{{$data->nama_pengirim == '-' ? '' : $data->nama_pengirim}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Payment Date</label>
                         <div class="col-sm-10">
                             <input type="date" class="form-control" name="inputTanggalBayar" value="{{$transaction->transaction_payment}}">
                         </div>
@@ -79,7 +100,7 @@
                     </div>
 
                     <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
+                        <button class="btn btn-warning p-2 ps-5 pe-5 mb-3">
                             Submit
                         </button>
                     </div>

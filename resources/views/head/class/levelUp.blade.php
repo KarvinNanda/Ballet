@@ -1,6 +1,7 @@
+@inject('carbon','Carbon\Carbon')
 @extends('Master.master')
 
-@section('title','Teacher List')
+@section('title','Level Up')
 
 @section('content')
     <form action="{{route('headLevelUpStudent')}}" method="post">
@@ -9,7 +10,7 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-               <button class="btn btn-success me-5 mt-2 mb-2" type="Submit">
+               <button class="btn btn-info me-5 mt-2 mb-2" type="Submit">
                        Level Up
                </button>
             </div>
@@ -21,19 +22,18 @@
                         <thead>
                         <tr>
                             <th scope="col">Name</th>
-                            <th scope="col">Email</th>
+                            <th scope="col">Age</th>
                         </tr>
                         </thead>
                         <tbody>
                         @if($students->isEmpty())
                             <td>No Data</td>
                             <td>No Data</td>
-                            <td>No Data</td>
                         @else
                             @foreach($students as $student)
                                 <tr>
                                     <td>{{$student->studentName}}</td>
-                                    <td>{{$student->studentEmail}}</td>
+                                    <td>{{ now()->setTimezone('GMT+7')->format('Y') - $carbon::parse($student->studentDOB)->format('Y') }}</td>
                                 </tr>
                             @endforeach
                         @endif

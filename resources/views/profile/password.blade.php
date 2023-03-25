@@ -30,14 +30,14 @@
                                     @csrf
 
                                     <div class="row mb-3">
-                                        <label for="newPassword" class="col-md-4 col-lg-3 col-form-label">New Password</label>
+                                        <label class="col-md-4 col-lg-3 col-form-label">New Password</label>
                                         <div class="col-md-8 col-lg-9">
                                             <input name="new_password" type="password" class="form-control" id="newPassword">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
-                                        <label for="renewPassword" class="col-md-4 col-lg-3 col-form-label">Confirm Password</label>
+                                        <label class="col-md-4 col-lg-3 col-form-label">Confirm Password</label>
                                         <div class="col-md-8 col-lg-9">
                                             <input name="confirm_password" type="password" class="form-control" id="renewPassword">
                                         </div>

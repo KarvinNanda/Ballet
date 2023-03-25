@@ -33,10 +33,10 @@
                 <tr>
                     <th>Name</th>
                     <th>Size</th>
-                    <th>Quantity Awal</th>
-                    <th>Masuk</th>
-                    <th>Keluar</th>
-                    <th>Quantity Akhir</th>
+                    <th>First Quantity</th>
+                    <th>IN</th>
+                    <th>OUT</th>
+                    <th>Last Quantity</th>
                 </tr>
                 </thead>
                 <tbody>

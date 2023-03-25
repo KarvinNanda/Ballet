@@ -24,8 +24,8 @@
 <div class="container">
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Laporan Tanggal {{$carbon::parse($report[0]->date)->format('d M Y')}}</h2>
-            <h2>Kelas {{$report[0]->class_name}}</h2>
+            <h2>Report Date {{$carbon::parse($report[0]->date)->format('d M Y')}}</h2>
+            <h2>Class {{$report[0]->class_name}}</h2>
         </div>
 
         <div class="col text-center">

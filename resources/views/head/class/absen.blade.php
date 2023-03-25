@@ -1,11 +1,11 @@
 @extends('Master.master')
 
-@section('title','Class List')
+@section('title','Attendence')
 
 @section('content')
 
     <div class="pagetitle">
-        <h1>Class Tables</h1>
+        <h1>Attendence</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -21,10 +21,10 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">Nis</th>
-                        <th scope="col">Nama</th>
+                        <th scope="col">NIS</th>
+                        <th scope="col">Name</th>
                         <th scope="col">Action</th>
-                        <th scope="col">Keterangan</th>
+                        <th scope="col">Description</th>
                         <th scope="col">Notes</th>
 
                     </tr>
@@ -79,7 +79,7 @@
                 </table>
             </div>
                     <div class=" mt-3 mb-3 w-100 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-success me-5 mt-2 mb-2">Submit</button>
+                        <button type="submit" class="btn btn-warning me-5 mt-2 mb-2">Submit</button>
                     </div>
             </form>
         </div>

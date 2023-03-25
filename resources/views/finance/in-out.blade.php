@@ -16,31 +16,30 @@
                 <form action="{{route('makeReport',[$stock,$type])}}" method="post">
                     @csrf
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
+                        <label class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">
                             <p class="form-control bg-success bg-opacity-10">{{$stock->name}}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Size</label>
+                        <label class="col-sm-2 col-form-label">Size</label>
                         <div class="col-sm-10">
                             <p class="form-control bg-success bg-opacity-10">{{$stock->size}}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Quantity</label>
+                        <label class="col-sm-2 col-form-label">Quantity</label>
                         <div class="col-sm-10">
                             <p class="form-control bg-success bg-opacity-10">{{$stock->quantity}}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">{{$type == 'in' ? 'IN' : 'OUT'}}</label>
+                        <label class="col-sm-2 col-form-label">{{$type == 'in' ? 'IN' : 'OUT'}}</label>
                         <div class="col-sm-10">
                             <input type="number" name="in_out" class="form-control">
-{{--                            <p class="form-control">{{$stock->quantity}}</p>--}}
                         </div>
                     </div>
 

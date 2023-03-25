@@ -1,10 +1,10 @@
 @extends('Master.master')
 
-@section('title','Add Class')
+@section('title','Update Schdule')
 
 @section('content')
     <div class="pagetitle">
-        <h1>Class Form</h1>
+        <h1>Update Schdule</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -23,7 +23,7 @@
                     </div>
 
                     <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
+                        <button class="btn btn-warning p-2 ps-5 pe-5 mb-3">
                             Submit
                         </button>
                     </div>

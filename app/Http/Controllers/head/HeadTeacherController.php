@@ -4,15 +4,10 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendingEmail;
-use App\Models\DetailAbsen;
-use App\Models\HeaderAbsen;
-use App\Models\Schedule;
-use App\Models\Student;
 use App\Models\Teacher;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
@@ -57,7 +52,7 @@ class HeadTeacherController extends Controller
             'password' => 'ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY')
         ];
 
-        Mail::to('bsena692@gmail.com')->send(new SendingEmail($credential));
+        Mail::to($user->email)->send(new SendingEmail($credential));
 
         return redirect()->route('headTeacherPage');
     }

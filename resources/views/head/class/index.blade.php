@@ -11,11 +11,11 @@
         <div class="card">
             <div class="dropdown mt-3 ms-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Pilih
+                    Choose
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{route('activeClassPage')}}">Aktif</a></li>
-                    <li><a class="dropdown-item" href="{{route('nonactiveClassPage')}}">Non-Aktif</a></li>
+                    <li><a class="dropdown-item" href="{{route('activeClassPage')}}">Active</a></li>
+                    <li><a class="dropdown-item" href="{{route('nonactiveClassPage')}}">Non-Active</a></li>
                 </ul>
             </div>
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
@@ -33,8 +33,8 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">Nama Kelas</th>
-                        <th scope="col">Harga Kelas</th>
+                        <th scope="col">Class Name</th>
+                        <th scope="col">Price</th>
                         <th scope="col">Action</th>
                         <th scope="col">Detail</th>
                         <th scope="col">Schedule Detail</th>
@@ -51,9 +51,9 @@
                                 <form action="{{route('changeStatusClass',$class)}}" method="post">
                                     @csrf
                                     @if($class->Status == 'aktif')
-                                        <button type="submit" class="btn btn-danger">Deactive</button>
+                                        <button type="submit" class="btn btn-primary">Deactive</button>
                                     @else
-                                        <button type="submit" class="btn btn-danger">Active</button>
+                                        <button type="submit" class="btn btn-primary">Active</button>
                                     @endif
                                 </form>
                             </td>
@@ -62,21 +62,21 @@
                                     <form action="{{route('headDetailClass')}}" method="post">
                                         @csrf
                                         <input type="hidden" value="{{$class->id}}" name="classId">
-                                        <button type="submit" class="btn btn-success">Detail</button>
+                                        <button type="submit" class="btn btn-secondary">Detail</button>
                                     </form>
                                 </td>
                                 <td>
                                     <form action="{{route('headViewScheduleClass')}}" method="post">
                                         @csrf
                                         <input type="hidden" value="{{$class->id}}" name="classId">
-                                        <button type="submit" class="btn btn-success">Schedule</button>
+                                        <button type="submit" class="btn btn-info">Schedule</button>
                                     </form>
                                 </td>
                                 <td>
                                     <form action="{{route('headLevelUp')}}" method="post">
                                         @csrf
                                         <input type="hidden" value="{{$class->id}}" name="classId">
-                                        <button type="submit" class="btn btn-success">Level Up</button>
+                                        <button type="submit" class="btn btn-info">Level Up</button>
                                     </form>
                                 </td>
                                 <td>
@@ -86,6 +86,9 @@
                                     </form>
                                 </td>
                             @else
+                                <td>None</td>
+                                <td>None</td>
+                                <td>None</td>
                                 <td>None</td>
                                 <td>None</td>
                                 <td>None</td>
