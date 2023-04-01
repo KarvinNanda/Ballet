@@ -24,13 +24,13 @@
                         <thead>
                         <tr>
                             <th scope="col">No</th>
-                            <th scope="col">Nama</th>
-                            <th scope="col">Jatuh Tempo</th>
-                            <th scope="col">Tanggal Bayar</th>
-                            <th scope="col"><a href="{{route("adminTransactionSorting","price")}}">Harga</a></th>
-                            <th scope="col">Diskon</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Due Date</th>
+                            <th scope="col">Payment Date</th>
+                            <th scope="col"><a href="{{route("adminTransactionSorting","price")}}">Price</a></th>
+                            <th scope="col">Discount</th>
                             <th scope="col">Total</th>
-                            <th scope="col">Keterangan</th>
+                            <th scope="col">Description</th>
                             <th scope="col"><a href="{{route("adminTransactionSorting","payment_status")}}">Status</a></th>
                         </tr>
                         </thead>

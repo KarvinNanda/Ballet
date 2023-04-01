@@ -41,8 +41,8 @@ class AdminStudentController extends Controller
 
     public function adminStudentViewSorting($value){
         $students = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->join('banks','banks.id','rekenings.banks_id')
+            ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+            ->leftJoin('banks','banks.id','rekenings.banks_id')
             ->selectRaw('
                 students.id as id,
                 students.Status as status,
@@ -67,10 +67,7 @@ class AdminStudentController extends Controller
             'inputLongName' => 'required',
             'inputNickName' => 'required',
             'inputParentName' => 'required',
-            'inputBankName' => 'required',
-            'inputSenderName' => 'required',
             'inputCity' => 'required',
-            'inputInstagram' => 'required',
             'inputEmail' => 'required|email:filter',
             'inputDate_of_Birth' => 'required|date|before:tomorrow',
             'inputAddress' => 'required',
@@ -89,13 +86,8 @@ class AdminStudentController extends Controller
 
         $rekening = new Rekenings();
         $rekening->bank_rek = $req->inputRekening;
-        $rekening->nama_pengirim = $req->inputSenderName;
-        if($req->inputBankName == 'BCA'){
-            $rekening->banks_id = 1;
-        } else {
-            $rekening->banks_id = 2;
-        }
-
+        $rekening->nama_pengirim = '-';
+        $rekening->banks_id = null;
         $rekening->save();
 
         $student = new Student();
@@ -112,7 +104,8 @@ class AdminStudentController extends Controller
         $student->Phone1 = $req->inputPhone1;
         $student->Phone2 = $req->inputPhone2;
         $student->Whatsapp = $req->inputWhatsapp ;
-        $student->Instagram = '@'.$req->inputInstagram ;
+        $student->Instagram = $req->inputInstagram ?  '@'.$req->inputInstagram : '-';
+        $student->Line = $req->inputInstagram ?  $req->inputLine : '-';
         $student->Status = 'aktif';
         $student->EnrollDate  = Carbon::now();
 

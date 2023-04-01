@@ -17,10 +17,10 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
-                            <th scope="col">Tanggal Lahir</th>
-                            <th scope="col">Alamat</th>
-                            <th scope="col">Phone</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">DOB</th>
+                            <th scope="col">Age</th>
+                            <th scope="col">Parent</th>
                             <th scope="col">Email</th>
                             <th scope="col">Action</th>
                         </tr>

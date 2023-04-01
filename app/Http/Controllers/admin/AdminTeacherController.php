@@ -77,7 +77,7 @@ class AdminTeacherController extends Controller
             'password' => 'ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY')
         ];
 
-        Mail::to('bsena692@gmail.com')->send(new SendingEmail($credential));
+        // Mail::to('bsena692@gmail.com')->send(new SendingEmail($credential));
         return redirect()->route("adminTeacherView");
     }
     /**

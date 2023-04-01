@@ -23,11 +23,9 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
+                            <th scope="col">Name</th>
                             <th scope="col">Size</th>
                             <th scope="col">Quantity</th>
-                            <th scope="col">Update</th>
-                            <th scope="col">Delete</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -36,19 +34,6 @@
                                 <td>{{$stock->name}}</td>
                                 <td>{{$stock->size}}</td>
                                 <td>{{$stock->quantity}}</td>
-                                <td>
-                                    <form action="{{route('headStockUpdatePage',$stock)}}" method="get">
-                                        <button type="submit" class="btn btn-warning">Update</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    <form action="{{route('stockDelete',$stock)}}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
-                                </td>
-
-
                             </tr>
                         @endforeach
                         </tbody>

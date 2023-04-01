@@ -34,7 +34,7 @@
                                 <td>
                                     <form action="{{route('viewDetail',$item->class)}}" method="post">
                                         @csrf
-                                        <button type="submit" class="btn btn-success">View</button>
+                                        <button type="submit" class="btn btn-info">View</button>
                                     </form>
                                 </td>
                             </tr>
