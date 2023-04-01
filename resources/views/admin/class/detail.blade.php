@@ -5,7 +5,7 @@
 @section('content')
 
     <div class="pagetitle">
-        <h1>Teacher Tables</h1>
+        <h1>Detail Class</h1>
     </div><!-- End Page Title -->
 
     <section class="section">

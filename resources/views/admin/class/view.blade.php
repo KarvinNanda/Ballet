@@ -11,7 +11,7 @@
         <div class="card">
             <div class="dropdown mt-3 ms-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Choice
+                    Choose
                 </button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="{{route('adminActiveClassPage')}}">Active</a></li>
@@ -34,7 +34,7 @@
                     <thead>
                     <tr>
                         <th scope="col">Class Name</th>
-                        <th scope="col">Class Price</th>
+                        <th scope="col">Price</th>
                         <th scope="col">Action</th>
                         <th scope="col">Detail</th>
                         <th scope="col">Schedule Detail</th>

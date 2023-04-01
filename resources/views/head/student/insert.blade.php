@@ -17,105 +17,105 @@
                     @csrf
 
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">NIS</label>
+                        <label  class="col-sm-2 col-form-label">NIS</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputNis">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Long Name</label>
+                        <label  class="col-sm-2 col-form-label">Long Name</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputLongName">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Nick Name</label>
+                        <label  class="col-sm-2 col-form-label">Nick Name</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputNickName">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
+                        <label  class="col-sm-2 col-form-label">Email</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputEmail">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputDOB" class="col-sm-2 col-form-label">DOB</label>
+                        <label  class="col-sm-2 col-form-label">DOB</label>
                         <div class="col-sm-10">
                             <input type="date" class="form-control" name="inputDate_of_Birth">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
+                        <label  class="col-sm-2 col-form-label">Address</label>
                         <div class="col-sm-10">
                             <textarea class="form-control" style="height: 100px" name="inputAddress"></textarea>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Parent Name</label>
+                        <label  class="col-sm-2 col-form-label">Parent Name</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputParentName">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Rekening</label>
+                        <label class="col-sm-2 col-form-label ">Account Number</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputRekening">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">City</label>
+                        <label  class="col-sm-2 col-form-label">City</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputCity">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Postal Code</label>
+                        <label  class="col-sm-2 col-form-label">Postal Code</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputPostalCode">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">First Phone</label>
+                        <label  class="col-sm-2 col-form-label">First Phone</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputPhone1">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Second Phone</label>
+                        <label  class="col-sm-2 col-form-label">Second Phone</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputPhone2">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Whatsapp</label>
+                        <label  class="col-sm-2 col-form-label">Whatsapp</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputWhatsapp">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Instagram</label>
+                        <label  class="col-sm-2 col-form-label">Instagram</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputInstagram">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Line</label>
+                        <label  class="col-sm-2 col-form-label">Line</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputLine">
                         </div>

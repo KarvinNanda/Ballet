@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassTransaction;
+use App\Models\Rekenings;
 use App\Models\Student;
 use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Model;
@@ -25,11 +26,10 @@ class AdminTransactionController extends Controller
                    transactions.price as price,
                    transactions.discount as discount,
                    transactions.desc as description,
-                   transactions.payment_status as payment_status
-
+                   transactions.payment_status as payment_status,
+                    students.id as student_id
             ')
             ->simplePaginate(5);
-//        dd($transactions);
         return view('admin.transaction.index',compact('transactions'));
     }
 
@@ -64,26 +64,22 @@ class AdminTransactionController extends Controller
             'nis' => 'required',
             'class' => 'required',
             'dateTime' => 'required',
-            'Price' => 'required',
-//            'Discount' => 'required',
-//            'Description' => 'required'
+            'Price' => 'required|numeric',
         ];
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
             return redirect()->back()->withErrors($validate);
         }
-//        dd($req->nis);
+
         $transaction = new Transaction();
-        $student = Student::where('nis',$req->nis)->get();
-        $transaction->students_id = $student[0]->id;
+        $transaction->students_id = $req->nis;
         $transaction->class_transactions_id = $req->class;
         $transaction->transaction_date = $req->dateTime;
-        $transaction->transaction_payment = null;
         $transaction->payment_status = "Unpaid";
-        $transaction->discount = 0;
+        $transaction->discount = @$req->Discount ? $req->Discount : 0;
         $transaction->price = $req->Price;
-        $transaction->desc = null;
+        $transaction->desc = @$req->Description ? $req->Description : '-';
 
         $transaction->save();
 
@@ -102,6 +98,16 @@ class AdminTransactionController extends Controller
 
     public function viewPaidTransaction($transactionId){
         return view('admin.transaction.paid',compact('transactionId'));
+    }
+
+    public function detailTransaction(Transaction $transaction){
+        $detail = Transaction::select('*')
+            ->join('students','students.id','transactions.students_id')
+            ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->where('transactions.students_id',$transaction->students_id)
+            ->first();
+        $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
+        return view('admin.transaction.detail',compact('detail','data'));
     }
 
     public function submitPaidTransaction($transactionId,Request $req){

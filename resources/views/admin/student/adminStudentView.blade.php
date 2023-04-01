@@ -12,7 +12,7 @@
         <div class="card">
             <div class="dropdown mt-3 ms-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Choice
+                    Choose
                 </button>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="{{route('adminStudentActive')}}">Active</a></li>
@@ -35,7 +35,7 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
+                            <th scope="col"><a href="{{route("adminStudentViewSorting","name")}}">Name</a></th>
                             <th scope="col"><a href="{{route("adminStudentViewSorting","dob")}}">DOB</a></th>
                             <th scope="col"><a href="{{route("adminStudentViewSorting","age")}}">Age</a></th>
                             <th scope="col">Parent</th>
@@ -59,20 +59,20 @@
                                     <form action="{{route('adminStudentChange',$student->id)}}" method="post">
                                         @csrf
                                         @if($student->status == 'aktif')
-                                            <button type="submit" class="btn btn-danger">Deactive</button>
+                                            <button type="submit" class="btn btn-primary">Deactive</button>
                                         @else
-                                            <button type="submit" class="btn btn-danger">Active</button>
+                                            <button type="submit" class="btn btn-primary">Active</button>
                                         @endif
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="{{route('adminStudentDelete',$student->id)}}" method="get">
+                                    <form action="{{route('adminStudentDelete',$student->id)}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="{{route('adminStudentDetail',$student->id)}}" method="get">
+                                    <form action="{{route('adminStudentDetail',$student->id)}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-secondary">Detail</button>
                                     </form>

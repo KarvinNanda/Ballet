@@ -69,7 +69,7 @@
                                     <form action="{{route('headViewScheduleClass')}}" method="post">
                                         @csrf
                                         <input type="hidden" value="{{$class->id}}" name="classId">
-                                        <button type="submit" class="btn btn-info">Schedule</button>
+                                        <button type="submit" class="btn btn-secondary">Schedule</button>
                                     </form>
                                 </td>
                                 <td>
@@ -86,9 +86,6 @@
                                     </form>
                                 </td>
                             @else
-                                <td>None</td>
-                                <td>None</td>
-                                <td>None</td>
                                 <td>None</td>
                                 <td>None</td>
                                 <td>None</td>

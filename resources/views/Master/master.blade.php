@@ -177,7 +177,7 @@
 
                         <li class="nav-item">
                             <a class="nav-link collapsed" href="{{route('headTransactionPage')}}">
-                                <span>Transaksi</span>
+                                <span>Transaction</span>
                             </a>
                         </li>
 

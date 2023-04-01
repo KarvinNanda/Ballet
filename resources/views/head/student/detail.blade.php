@@ -85,7 +85,7 @@
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Rekening</label>
+                    <label for="inputPhone" class="col-sm-2 col-form-label">Account Number</label>
                     <div class="col-sm-10">
                         <p class="form-control bg-success bg-opacity-10">{{$detail->rek}}</p>
                     </div>

@@ -31,7 +31,7 @@
                             <th scope="col">Total</th>
                             <th scope="col">Payment Date</th>
                             <th scope="col"><a href="{{route('headTransactionSorting','payment_status')}}">Status</a></th>
-                            <th colspan="2" class="text-center" scope="col">Update</th>
+                            <th colspan="2" class="text-center" scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody>

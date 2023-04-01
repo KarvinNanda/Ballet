@@ -121,7 +121,13 @@ class AdminClassTransactionController extends Controller
     }
 
     public function levelUpStudent(Request $req){
-        DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
+        $check = ClassTransaction::where('id',$req->class_id+1)->first();
+        if($check->Status == 'non-aktif'){
+            ClassTransaction::where('id',$check->id)->update(['status' => 'aktif']);
+            DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
+        } else{
+            DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
+        }
         return redirect()->route("adminClassView");
     }
 
