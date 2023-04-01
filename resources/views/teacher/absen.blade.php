@@ -22,9 +22,9 @@
                     <thead>
                     <tr>
                         <th scope="col">Nis</th>
-                        <th scope="col">Nama</th>
-                        <th scope="col">Action</th>
-                        <th scope="col">Keterangan</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Attend</th>
+                        <th scope="col">Description</th>
                         <th scope="col">Notes</th>
 
                     </tr>
@@ -50,9 +50,9 @@
                                     @if(!@$detail)
                                     <select value="" name="keterangan[]" class="form-select">
                                         <option selected>Select...</option>
-                                        <option value="Absen">Absen</option>
-                                        <option value="Ijin">Ijin</option>
-                                        <option value="Sakit">Sakit</option>
+                                        <option value="Absent">Absent</option>
+                                        <option value="Permission">Permission</option>
+                                        <option value="Sick">Sick</option>
                                     </select>
                                     @else
                                         <select value="" name="keterangan[]" class="form-select" disabled>

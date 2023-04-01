@@ -12,11 +12,11 @@
         <div class="card">
             <div class="dropdown mt-3 ms-3">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Pilih
+                    Choice
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{route('adminStudentActive')}}">Aktif</a></li>
-                    <li><a class="dropdown-item" href="{{route('adminStudentNonActive')}}">Non-Aktif</a></li>
+                    <li><a class="dropdown-item" href="{{route('adminStudentActive')}}">Active</a></li>
+                    <li><a class="dropdown-item" href="{{route('adminStudentNonActive')}}">Non-Active</a></li>
                 </ul>
             </div>
             <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
@@ -36,11 +36,11 @@
                         <thead>
                         <tr>
                             <th scope="col">Nama</th>
-                            <th scope="col"><a href="{{route("adminStudentViewSorting","dob")}}">Tanggal Lahir</a></th>
-                            <th scope="col"><a href="{{route("adminStudentViewSorting","age")}}">Umur</a></th>
-                            <th scope="col">Orang Tua</th>
-                            <th scope="col">Rekening</th>
-                            <th scope="col">Pengirim</th>
+                            <th scope="col"><a href="{{route("adminStudentViewSorting","dob")}}">DOB</a></th>
+                            <th scope="col"><a href="{{route("adminStudentViewSorting","age")}}">Age</a></th>
+                            <th scope="col">Parent</th>
+                            <th scope="col">Account Number</th>
+                            <th scope="col">Sender</th>
                             <th scope="col">Phone</th>
                             <th colspan="3" class="text-center" scope="col">Action</th>
                         </tr>
@@ -74,7 +74,7 @@
                                 <td>
                                     <form action="{{route('adminStudentDetail',$student->id)}}" method="get">
                                         @csrf
-                                        <button type="submit" class="btn btn-danger">Detail</button>
+                                        <button type="submit" class="btn btn-secondary">Detail</button>
                                     </form>
                                 </td>
                             </tr>

@@ -64,11 +64,17 @@ class TeacherController extends Controller
             $detail = new DetailAbsen();
             $detail->header_absen_id = $header_id->id;
             $detail->student_id = $students[$i]->id;
-            $detail->Notes = $req->keterangan[$i] == "Ijin" ? $req->notes[$i] : '';
+            $detail->Notes = $req->keterangan[$i] == "Permission" ? $req->notes[$i] : '';
             if($req->check[$i] == "on"){
-                $detail->Description = "Masuk";
+                $detail->Description = "Attend";
             }else{
-                $detail->Description = $req->keterangan[$i];
+                if($req->keterangan[$i]=="Select...")
+                {
+                    $detail->Description = "Absent";
+                }
+                else{
+                    $detail->Description = $req->keterangan[$i];
+                }
             }
             $detail->save();
         }

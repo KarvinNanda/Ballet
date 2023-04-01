@@ -81,7 +81,7 @@
                                         <button class="btn btn-primary w-100" type="submit">Login</button>
                                     </div>
                                     <div class="col-12 text-center">
-                                        <u><a href="{{route('email-page')}}">Lupa Password</a></u>
+                                        <u><a href="{{route('email-page')}}">Forget Password</a></u>
                                     </div>
                                 </form>
 

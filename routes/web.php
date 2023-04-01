@@ -67,6 +67,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/delete/StudentClass/{student}/{class}',[AdminClassTransactionController::class,'deleteStudent'])->name("classDeleteStudent");
     Route::get('/class/add', [AdminClassTransactionController::class,'insertPage'])->name('adminClassAddPage');
     Route::post('/class/add', [AdminClassTransactionController::class,'insert'])->name('adminClassAdd');
+    Route::post('/class/non/active/{class}', [AdminClassTransactionController::class,'ChangeStatus'])->name('changeStatusClassAdmin');
 
     Route::post('/view/schedule/class', [AdminClassScheduleController::class,'viewSchedule'])->name('viewScheduleClass');
     Route::get('/delete/Schedule/class/{id}/{classId}',[AdminClassScheduleController::class,'deleteScheduleClass'])->name('deleteSchedule'); // baru

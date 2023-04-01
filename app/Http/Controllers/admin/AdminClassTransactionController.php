@@ -60,18 +60,6 @@ class AdminClassTransactionController extends Controller
 
         return redirect()->route('adminClassView');
     }
-
-    public function ChangeStatus(ClassTransaction $class){
-        $change = ClassTransaction::find($class->id);
-        if($change->Status == 'aktif'){
-            $change->Status = 'non-aktif';
-        } else {
-            $change->Status = 'aktif';
-        }
-        $change->save();
-        return redirect()->back();
-    }
-
     //detail
     public function detailClass(Request $req){
 //        $teachers = MappingClassTeacher::where('class_id',$req->classId)->simplePaginate(5);
@@ -135,6 +123,17 @@ class AdminClassTransactionController extends Controller
     public function levelUpStudent(Request $req){
         DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
         return redirect()->route("adminClassView");
+    }
+
+    public function ChangeStatus(ClassTransaction $class){
+        $change = ClassTransaction::find($class->id);
+        if($change->Status == 'aktif'){
+            $change->Status = 'non-aktif';
+        } else {
+            $change->Status = 'aktif';
+        }
+        $change->save();
+        return redirect()->back();
     }
 
     //addteacher

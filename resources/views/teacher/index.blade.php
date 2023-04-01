@@ -37,7 +37,7 @@
                                             && $carbon::now()->setTimezone('GMT+7')->toDateString() == $carbon::parse($item->date)->toDateString()))
                                         <form action="{{route('viewAbsen',$item->id)}}" method="post">
                                             @csrf
-                                            <button type="submit" class="btn btn-success">Attendence</button>
+                                            <button type="submit" class="btn btn-info">Attendence</button>
                                         </form>
                                     @else
                                         <p class="text-danger">None</p>

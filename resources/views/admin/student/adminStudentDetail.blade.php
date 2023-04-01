@@ -89,7 +89,7 @@
                         </div>
 
                         <div class="row mb-3">
-                            <label for="inputPhone" class="col-sm-2 col-form-label">Rekening</label>
+                            <label for="inputPhone" class="col-sm-2 col-form-label">Account Number</label>
                             <div class="col-sm-10">
                                 <p class="form-control">{{$detail->rek}}</p>
                             </div>
@@ -140,7 +140,8 @@
                         <div class="row mb-3">
                             <label for="inputPhone" class="col-sm-2 col-form-label">Line</label>
                             <div class="col-sm-10">
-                                <p class="form-control">{{$detail->Line}}</p>
+                                <p class="form-control">{{@$detail->Line ? $detail->Line : 
+                                '-'}}</p>
                             </div>
                         </div>
 

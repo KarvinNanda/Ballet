@@ -21,8 +21,8 @@
                         <thead>
                         <tr>
                             <th scope="col">Nama</th>
-                            <th scope="col">Tanggal Lahir</th>
-                            <th scope="col">Umur</th>
+                            <th scope="col">DOB</th>
+                            <th scope="col">Age</th>
                         </tr>
                         </thead>
                         <tbody>

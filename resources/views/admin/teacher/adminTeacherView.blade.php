@@ -24,9 +24,9 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
-                            <th scope="col">Tanggal Lahir</th>
-                            <th scope="col">Alamat</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">DOB</th>
+                            <th scope="col">Address</th>
                             <th scope="col">Phone</th>
                             <th scope="col">Email</th>
                             <th scope="col">Action</th>
@@ -50,7 +50,7 @@
                                 <td>
                                     <form action="{{route('adminTeacherDetail',$teacher)}}" method="post">
                                         @csrf
-                                        <button type="submit" class="btn btn-danger">Detail</button>
+                                        <button type="submit" class="btn btn-secondary">Detail</button>
                                     </form>
                                 </td>
                             </tr>

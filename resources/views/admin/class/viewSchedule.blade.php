@@ -44,6 +44,8 @@
                             <td>No Data</td>
                             <td>No Data</td>
                             <td>No Data</td>
+                            <td>No Data</td>
+                            <td>No Data</td>
                         @else
                             @foreach($class as $c)
                             <tr>
