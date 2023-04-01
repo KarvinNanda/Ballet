@@ -133,9 +133,9 @@ class HeadTransactionController extends Controller
         $transaction->class_transactions_id = $req->class;
         $transaction->transaction_date = $req->dateTime;
         $transaction->payment_status = "Unpaid";
-        $transaction->discount = $req->Discount;
+        $transaction->discount = @$req->Discount ? $req->Discount : 0;
         $transaction->price = $req->Price;
-        $transaction->desc = $req->Description;
+        $transaction->desc = @$req->Description ? $req->Description : '-';
 
         $transaction->save();
 

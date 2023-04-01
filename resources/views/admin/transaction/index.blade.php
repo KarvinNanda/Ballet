@@ -23,30 +23,21 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">No</th>
                             <th scope="col">Name</th>
                             <th scope="col">Due Date</th>
-                            <th scope="col">Payment Date</th>
-                            <th scope="col"><a href="{{route("adminTransactionSorting","price")}}">Price</a></th>
+                            <th scope="col"><a href="{{route('adminTransactionSorting','price')}}">Price</a></th>
                             <th scope="col">Discount</th>
                             <th scope="col">Total</th>
-                            <th scope="col">Description</th>
-                            <th scope="col"><a href="{{route("adminTransactionSorting","payment_status")}}">Status</a></th>
+                            <th scope="col">Payment Date</th>
+                            <th scope="col"><a href="{{route('adminTransactionSorting','payment_status')}}">Status</a></th>
+                            <th colspan="2" class="text-center" scope="col">Detail</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($transactions as $transaction)
                             <tr>
-                                <td>{{$transaction->id}}</td>
                                 <td>{{$transaction->LongName}}</td>
                                 <td>{{\Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y')}}</td>
-
-                                @if($transaction->transaction_payment == null)
-                                    <td>Waiting for Payment</td>
-                                @else
-                                <td>{{\Carbon\Carbon::parse($transaction->transaction_payment)->format('d M Y')}}</td>
-                                @endif
-
                                 <td>Rp.{{number_format($transaction->price)}}</td>
                                 <td>{{$transaction->discount}}%</td>
                                 @if($transaction->discount != 0)
@@ -55,19 +46,23 @@
                                     <td>Rp.{{number_format($transaction->price)}}</td>
                                 @endif
 
-                                @if($transaction->description == null)
-                                    <td>-</td>
+                                @if($transaction->transaction_payment == null)
+                                    <td>Waiting for Payment</td>
                                 @else
-                                    <td>{{$transaction->description}}</td>
+                                <td>{{\Carbon\Carbon::parse($transaction->transaction_payment)->format('d M Y')}}</td>
                                 @endif
-
-
 
                                 @if($transaction->payment_status == "lunas")
                                 <td class="text-success font-weight-bold">{{$transaction->payment_status}}</td>
                                 @else
                                     <td class="text-danger font-weight-bold">{{$transaction->payment_status}}</td>
                                 @endif
+                                <td>
+                                    <form action="{{route('adminDetailTransaction',$transaction->student_id)}}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-secondary">Detail</button>
+                                    </form>
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

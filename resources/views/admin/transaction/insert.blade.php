@@ -16,18 +16,18 @@
                 <form action="{{route('insertTransaction')}}" method="post">
                     @csrf
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Nis</label>
+                        <label class="col-sm-2 col-form-label">NIS</label>
                         <div class="col-sm-10">
                             <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Nis - Name" name="nis">
-                                <datalist id="datalistOptions">
+                            <datalist id="datalistOptions">
                                 @foreach($students as $s)
-                                    <option value="{{$s->nis}}">{{$s->nis}} - {{$s->LongName}}</option>
+                                    <option value="{{$s->id}}">{{$s->nis}} - {{$s->LongName}}</option>
                                 @endforeach
-                                </datalist>
+                            </datalist>
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Class</label>
+                        <label class="col-sm-2 col-form-label">Class</label>
                         <div class="col-sm-10">
 
                             <input class="form-control" list="datalistClass" id="exampleDataList" placeholder="Class" name="class">
@@ -40,16 +40,30 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Date&Time</label>
+                        <label class="col-sm-2 col-form-label">Due Date</label>
                         <div class="col-sm-10">
                             <input type="date" class="form-control" name="dateTime">
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Price</label>
+                        <label class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="Price" placeholder="Price">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Discount</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="Discount" placeholder="Discount">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label">Description</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="Description" placeholder="Description">
                         </div>
                     </div>
 

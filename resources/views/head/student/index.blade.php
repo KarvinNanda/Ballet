@@ -37,13 +37,13 @@
                     <thead>
                     <tr>
                         <th scope="col"><a href="{{route("sortingStudent","name")}}">Name</a></th>
-                        <th scope="col"><a href="{{route("sortingStudent","dob")}}">Date of Birth</a> </th>
+                        <th scope="col"><a href="{{route("sortingStudent","dob")}}">DOB</a> </th>
                         <th scope="col"><a href="{{route("sortingStudent","age")}}">Age</a> </th>
                         <th scope="col">Parent</th>
-                        <th scope="col">Bank Account</th>
+                        <th scope="col">Account Number</th>
                         <th scope="col">Sender</th>
                         <th scope="col">Phone</th>
-                        <th colspan="2" class="text-center" scope="col">Action</th>
+                        <th colspan="3" class="text-center" scope="col">Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -64,6 +64,12 @@
                                     @else
                                         <button type="submit" class="btn btn-primary">Active</button>
                                     @endif
+                                </form>
+                            </td>
+                            <td>
+                                <form action="{{route('deleteStudent',$student->id)}}" method="post">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">Delete</button>
                                 </form>
                             </td>
                             <td>

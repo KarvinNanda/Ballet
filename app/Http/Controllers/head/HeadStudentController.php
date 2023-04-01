@@ -22,17 +22,19 @@ class HeadStudentController extends Controller
                 students.LongName as name,
                 students.Dob as dob,
                 students.nama_orang_tua as ortu,
-                students.Address as alamat,
                 students.Phone1 as phone,
-                students.Email as email,
-                students.Line as line,
-                students.Instagram as instagram,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
             ->simplePaginate(5);
         return view('head.student.index',compact('students'));
+    }
+
+    public function deleteStudent($studentId){
+        $change = Student::find($studentId);
+        $change->delete();
+        return redirect()->route("headStudentPage");
     }
 
     public function sorting($value){

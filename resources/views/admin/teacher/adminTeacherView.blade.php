@@ -30,7 +30,6 @@
                             <th scope="col">Phone</th>
                             <th scope="col">Email</th>
                             <th scope="col">Action</th>
-                            <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -47,12 +46,12 @@
                                         <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
-                                <td>
-                                    <form action="{{route('adminTeacherDetail',$teacher)}}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-secondary">Detail</button>
-                                    </form>
-                                </td>
+{{--                                <td>--}}
+{{--                                    <form action="{{route('adminTeacherDetail',$teacher)}}" method="post">--}}
+{{--                                        @csrf--}}
+{{--                                        <button type="submit" class="btn btn-secondary">Detail</button>--}}
+{{--                                    </form>--}}
+{{--                                </td>--}}
                             </tr>
                         @endforeach
                         </tbody>

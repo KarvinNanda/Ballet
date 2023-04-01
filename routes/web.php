@@ -86,8 +86,8 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::post('/student/change/{student}', [AdminStudentController::class,'ChangeNonactive'])->name('adminStudentChange');
     Route::get('/student/active', [AdminStudentController::class,'active'])->name('adminStudentActive');
     Route::get('/student/non/active', [AdminStudentController::class,'nonActive'])->name('adminStudentNonActive');
-    Route::get('/student/delete/{studentId}', [AdminStudentController::class,'deleteStudent'])->name('adminStudentDelete');
-    Route::get('/student/detail/{studentId}', [AdminStudentController::class,'detailStudent'])->name('adminStudentDetail');
+    Route::post('/student/delete/{studentId}', [AdminStudentController::class,'deleteStudent'])->name('adminStudentDelete');
+    Route::post('/student/detail/{studentId}', [AdminStudentController::class,'detailStudent'])->name('adminStudentDetail');
 
     Route::get('/teacher/view', [AdminTeacherController::class,'adminTeacherView'])->name('adminTeacherView');
     Route::get('/teacher/form', [AdminTeacherController::class,'adminTeacherForm'])->name('adminTeacherForm');
@@ -107,6 +107,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::post('/transaction/search', [AdminTransactionController::class,'searchTransaction'])->name('adminSearchTransaction');
     Route::get('/transaction/view/paid/{transactionId}', [AdminTransactionController::class,'viewPaidTransaction'])->name('adminPaidTransaction');
     Route::post('/transaction/submit/paid/{transactionId}', [AdminTransactionController::class,'submitPaidTransaction'])->name('adminSubmitPaidTransaction');
+    Route::post('/transaction/detail/{transaction:students_id}', [AdminTransactionController::class,'detailTransaction'])->name('adminDetailTransaction');
 
     Route::get('/transaction/sorting/{value}', [AdminTransactionController::class,'adminTransactionSorting'])->name('adminTransactionSorting');
 
@@ -158,6 +159,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/student/add', [HeadStudentController::class,'insert'])->name('StudentAdd');
     Route::post('/student/search', [HeadStudentController::class,'search'])->name('searchStudent');
     Route::post('/student/detail/{student:LongName}', [HeadStudentController::class,'detailStudent'])->name('detailStudent');
+    Route::post('/student/delete/{student}', [HeadStudentController::class,'deleteStudent'])->name('deleteStudent');
     Route::get('/student/sorting/{value}', [HeadStudentController::class,'sorting'])->name('sortingStudent');
 
     Route::get('/teacher', [HeadTeacherController::class,'index'])->name('headTeacherPage');
