@@ -220,11 +220,11 @@ class HeadClassController extends Controller
     }
 
     public function getAbsen(Request $req, Schedule $schedule){
-        HeaderAbsen::updateOrCreate([
+        $header_id = HeaderAbsen::updateOrCreate([
             'schedules_id' => $schedule->id,
         ]);
 
-        $header_id = DB::table("header_absens")->orderBy('id','desc')->first();
+//        $header_id = DB::table("header_absens")->orderBy('id','desc')->first();
 
         $students = Student::whereIn('nis',$req->nis)->get();
         for($i = 0;$i < count($req->nis);$i++){

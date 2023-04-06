@@ -32,7 +32,7 @@
                                 <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($item->date)->format('H:i:s')}}</td>
                                 <td>
-                                    @if($carbon::parse($item->date)->toDateString()<$carbon::now()->setTimezone('GMT+7')->toDateString() ||
+                                    @if($carbon::parse($item->date)->toDateString() < $carbon::now()->setTimezone('GMT+7')->toDateString() ||
                                             ($carbon::now()->setTimezone('GMT+7')->toDateTimeString() > $carbon::parse($item->date)->toDateTimeString()
                                             && $carbon::now()->setTimezone('GMT+7')->toDateString() == $carbon::parse($item->date)->toDateString()))
                                         <form action="{{route('viewAbsen',$item->id)}}" method="post">

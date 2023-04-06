@@ -27,7 +27,7 @@ class AdminTransactionController extends Controller
                    transactions.discount as discount,
                    transactions.desc as description,
                    transactions.payment_status as payment_status,
-                    students.id as student_id
+                   students.id as student_id
             ')
             ->simplePaginate(5);
         return view('admin.transaction.index',compact('transactions'));
@@ -45,8 +45,8 @@ class AdminTransactionController extends Controller
                    transactions.price as price,
                    transactions.discount as discount,
                    transactions.desc as description,
-                   transactions.payment_status as payment_status
-
+                   transactions.payment_status as payment_status,
+                   students.id as student_id
             ')->orderBy($value)
             ->simplePaginate(5);
 //        dd($transactions);
