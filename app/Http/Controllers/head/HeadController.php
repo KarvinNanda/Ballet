@@ -4,14 +4,12 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banks;
+use App\Models\HeaderAbsen;
 use Illuminate\Support\Facades\DB;
 
 class HeadController extends Controller
 {
     public function index(){
-        Banks::updateOrCreate([
-            'bank_name' => 'Mandiri'
-        ]);
         $data = DB::table('class_transactions')
             ->join('schedules','class_transactions.id','schedules.class_id')
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')

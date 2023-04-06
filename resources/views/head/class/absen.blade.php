@@ -51,15 +51,22 @@
                                 <td >
                                     <select value="" name="keterangan[]" class="form-select">
                                         <option selected value="{{$detail[$loop->iteration-1]->Description}}">{{@$detail[$loop->iteration-1]->Description ? $detail[$loop->iteration-1]->Description : 'Select...'}}</option>
-                                        @if($detail[$loop->iteration-1]->Description == 'Absen')
-                                            <option value="Ijin">Ijin</option>
-                                            <option value="Sakit">Sakit</option>
-                                        @elseif($detail[$loop->iteration-1]->Description == 'Ijin')
-                                            <option value="Absen">Absen</option>
-                                            <option value="Sakit">Sakit</option>
-                                        @elseif($detail[$loop->iteration-1]->Description == 'Sakit')
-                                            <option value="Absen">Absen</option>
-                                            <option value="Ijin">Ijin</option>
+                                        @if($detail[$loop->iteration-1]->Description == 'Absent')
+                                            <option value="Attend">Attend</option>
+                                            <option value="Permission">Permission</option>
+                                            <option value="Sick">Sick</option>
+                                        @elseif($detail[$loop->iteration-1]->Description == 'Permission')
+                                            <option value="Attend">Attend</option>
+                                            <option value="Absent">Absent</option>
+                                            <option value="Sick">Sick</option>
+                                        @elseif($detail[$loop->iteration-1]->Description == 'Sick')
+                                            <option value="Attend">Attend</option>
+                                            <option value="Absent">Absent</option>
+                                            <option value="Permission">Permission</option>
+                                        @else
+                                            <option value="Absent">Absent</option>
+                                            <option value="Permission">Permission</option>
+                                            <option value="Sick">Sick</option>
                                         @endif
                                     </select>
                                 </td>

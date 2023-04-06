@@ -12,19 +12,16 @@ class TeacherClassController extends Controller
 {
     public function index(){
         $data = DB::table('class_transactions')
-            ->join('schedules','class_transactions.id','schedules.class_id')
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
             ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
             ->selectRaw('
                 class_transactions.ClassName as class,
-                schedules.date,
                 COUNT(mapping_class_children.class_id) as students
             ')
             ->where('mapping_class_teachers.user_id',Auth::user()->id)
-            ->groupBy(['class','schedules.date'])
-            ->groupBy('class')
-            ->orderBy('schedules.date')
-            ->get();
+            ->groupBy(['class'])
+            ->get()
+            ->groupBy('class');
         return view('teacher.class.index',compact('data'));
     }
 
@@ -38,6 +35,7 @@ class TeacherClassController extends Controller
                 students.dob as student_dob
             ')
             ->where('mapping_class_children.class_id',$class->id)
+            ->where('class_transactions.ClassName',$class->ClassName)
             ->get();
         return view('teacher.class.detail',compact('data'));
     }
