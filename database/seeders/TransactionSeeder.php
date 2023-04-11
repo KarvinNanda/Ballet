@@ -30,7 +30,7 @@ class TransactionSeeder extends Seeder
 
             [
                 'students_id' => 2,
-                'class_transactions_id' => 5,
+                'class_transactions_id' => 1,
                 'transaction_date' => '2022-11-14',
                 'transaction_payment' => null,
                 'payment_status' => 'Unpaid',

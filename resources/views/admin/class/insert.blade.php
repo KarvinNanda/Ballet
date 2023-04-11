@@ -21,11 +21,14 @@
                             <input type="text" class="form-control" name="inputName">
                         </div>
                     </div>
-
                     <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Price</label>
+                        <label for="inputEmail" class="col-sm-2 col-form-label">Type</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputPrice">
+                            <select class="form-select" name="inputType">
+                                @foreach ($types as $type)
+                                    <option value="{{ $type->id }}">{{ $type->class_name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 

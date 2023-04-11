@@ -24,5 +24,10 @@ class ClassTransaction extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    public function Type()
+    {
+        return $this->belongsTo(ClassType::class, 'class_type_id');
+    }
+
     protected $fillable = [];
 }

@@ -21,7 +21,7 @@ class TeacherController extends Controller
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
             ->selectRaw('
                 schedules.id as id,
-                class_transactions.ClassName as class,
+                class_transactions.class_name as class,
                 schedules.date
             ')
             ->where('mapping_class_teachers.user_id',Auth::user()->id)

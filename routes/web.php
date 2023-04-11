@@ -211,7 +211,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
 Route::prefix('teacher')->middleware(['teacher'])->group(function(){
     Route::get('/', [TeacherController::class,'index'])->name('teacher');
     Route::get('/view/class', [TeacherClassController::class,'index'])->name('viewClass');
-    Route::post('/view/class/{class:ClassName}', [TeacherClassController::class,'viewDetail'])->name('viewDetail');
+    Route::post('/view/class/{class:class_name}', [TeacherClassController::class,'viewDetail'])->name('viewDetail');
     Route::post('/view/class/absen/{class}', [TeacherController::class,'viewAbsen'])->name('viewAbsen');
     Route::post('/view/class/getabsen/{schedule}', [TeacherController::class,'getAbsen'])->name('getAbsen');
 });

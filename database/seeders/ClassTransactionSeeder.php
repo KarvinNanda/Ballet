@@ -17,108 +17,16 @@ class ClassTransactionSeeder extends Seeder
     {
         DB::table('class_transactions')->insert([
             [
-                'ClassName' => 'Baby Class',
-                'ClassPrice' => 390000,
-                'Status' => 'aktif'
+                'class_name' => 'Baby Class 1',
+                'class_type_id' => 1,
+                'status'=>'aktif'
             ],
-
             [
-                'ClassName' => 'Pre School',
-                'ClassPrice' => 390000,
-                'Status' => 'aktif'
+                'class_name' => 'Baby Class 2',
+                'class_type_id' => 2,
+                'status'=>'non-aktif'
             ],
-
-            [
-                'ClassName' => 'Pre Primary',
-                'ClassPrice' => 400000,
-                'Status' => 'aktif'
-            ],
-
-            [
-                'ClassName' => 'Primary',
-                'ClassPrice' => 410000,
-                'Status' => 'aktif'
-            ],
-
-            [
-                'ClassName' => 'Grace 1',
-                'ClassPrice' => 420000,
-                'Status' => 'aktif'
-            ],
-
-            [
-                'ClassName' => 'Grace 2',
-                'ClassPrice' => 430000,
-                'Status' => 'aktif'
-            ],
-
-            [
-                'ClassName' => 'Grace 3',
-                'ClassPrice' => 440000,
-                'Status' => 'aktif'
-            ],
-
-            [
-                'ClassName' => 'Grace 4',
-                'ClassPrice' => 450000,
-                'Status' => 'aktif'
-            ],
-
-            [
-                'ClassName' => 'Grace 5',
-                'ClassPrice' => 460000,
-                'Status' => 'non-aktif'
-            ],
-
-            [
-                'ClassName' => 'Intermediate Foundation',
-                'ClassPrice' => 490000,
-                'Status' => 'non-aktif'
-            ],
-
-            [
-                'ClassName' => 'Intermediate',
-                'ClassPrice' => 535000,
-                'Status' => 'non-aktif'
-            ],
-
-            [
-                'ClassName' => 'Advance Foundation',
-                'ClassPrice' => 585000,
-                'Status' => 'non-aktif'
-            ],
-
-            [
-                'ClassName' => 'Advance 1',
-                'ClassPrice' => 615000,
-                'Status' => 'non-aktif'
-            ],
-
-            [
-                'ClassName' => 'Advance 2',
-                'ClassPrice' => 645000,
-                'Status' => 'non-aktif'
-            ],
-
-            [
-                'ClassName' => 'Intensive Class',
-                'ClassPrice' => 1200000,
-                'Status' => 'non-aktif'
-            ],
-
-            [
-                'ClassName' => 'Intensive Kids',
-                'ClassPrice' => 1200000,
-                'Status' => 'non-aktif'
-            ],
-
-            [
-                'ClassName' => 'Pointe Class',
-                'ClassPrice' => 25000,
-                'Status' => 'non-aktif'
-            ],
-
-
-        ]);
+            ]
+        );
     }
 }

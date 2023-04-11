@@ -16,7 +16,7 @@ class AdminReportController extends Controller
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->selectRaw('
                 schedules.date as date,
-                class_transactions.ClassName as class_name,
+                class_transactions.class_name as class_name,
                 header_absens.id as header_id
             ')
             ->orderBy('schedules.date')

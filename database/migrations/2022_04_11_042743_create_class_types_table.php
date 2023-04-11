@@ -13,11 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('class_transactions', function (Blueprint $table) {
+        Schema::create('class_types', function (Blueprint $table) {
             $table->id();
             $table->string('class_name');
-            $table->foreignId('class_type_id')->constrained();
-            $table->string('Status');
+            $table->integer('class_price');
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('class_transactions');
+        Schema::dropIfExists('class_type');
     }
 };

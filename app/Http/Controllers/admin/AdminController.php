@@ -13,7 +13,7 @@ class AdminController extends Controller
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
             ->join('users','mapping_class_teachers.user_id','users.id')
             ->selectRaw('
-                class_transactions.ClassName as class,
+                class_transactions.class_name as class,
                 schedules.date,
                 users.name as teacherName
             ')
