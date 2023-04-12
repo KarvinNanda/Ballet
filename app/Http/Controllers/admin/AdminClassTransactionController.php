@@ -39,13 +39,14 @@ class AdminClassTransactionController extends Controller
 
     public function insertPage(){
         $types = ClassType::all();
-        return view('admin.class.insert',compact('types'));
+        $users = User::all()->where('role','teacher');
+        return view('admin.class.insert',compact('types','users'));
     }
 
     public function insert(Request $req){
         $rules = [
-            'inputName' => 'required',
-            'inputType' => 'required'
+            'inputType' => 'required',
+            'inputTeacher' => 'required'
         ];
 
         $validate = Validator::make($req->all(),$rules);
@@ -54,11 +55,16 @@ class AdminClassTransactionController extends Controller
         }
 
         $class = new ClassTransaction();
-        $class->class_name = $req->inputName;
         $class->class_type_id = $req->inputType;
         $class->Status = 'aktif';
 
         $class->save();
+
+        $map = new MappingClassTeacher();
+        $map->class_id = $class->id;
+        $map->user_id = $req->inputTeacher;
+
+        $map->save();
 
         return redirect()->route('adminClassView');
     }

@@ -15,8 +15,6 @@ class HeadClassScheduleController extends Controller
         $class = DB::table('schedules')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->selectRaw('
-                class_transactions.ClassName as classname,
-                class_transactions.ClassName as classname,
                 schedules.date as date,
                 schedules.id as id
             ')->where('schedules.class_id',$req->classId)->orderBy("date")
@@ -42,7 +40,6 @@ class HeadClassScheduleController extends Controller
     }
 
     public function addSchedule(Request $req){
-        $classId=$req->class_id;
         $date = Carbon::parse($req->dateTime);
         $class_schedule = Schedule::where('class_id',$req->classId)->get();
         $bool = true;
@@ -58,7 +55,7 @@ class HeadClassScheduleController extends Controller
             }
         }
         if($bool==false){
-            return view('head.class.viewaddSchedule',compact('classId'));
+            return redirect()->route("adminClassView");
         }else{
             $schedule = new Schedule();
             $schedule->class_id = $req->classId;

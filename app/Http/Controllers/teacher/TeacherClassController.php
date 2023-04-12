@@ -14,8 +14,9 @@ class TeacherClassController extends Controller
         $data = DB::table('class_transactions')
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
             ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+            ->join('class_types','class_transactions.class_type_id','class_types.id')
             ->selectRaw('
-                class_transactions.class_name as class,
+                class_types.class_name as class,
                 COUNT(mapping_class_children.class_id) as students
             ')
             ->where('mapping_class_teachers.user_id',Auth::user()->id)

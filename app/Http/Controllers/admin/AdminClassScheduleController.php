@@ -20,7 +20,6 @@ class AdminClassScheduleController extends Controller
         $class = DB::table('schedules')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->selectRaw('
-                class_transactions.class_name as classname,
                 schedules.date as date,
                 schedules.id as id
             ')->where('schedules.class_id',$req->classId)->orderBy("date")

@@ -39,14 +39,20 @@
                         <th scope="col">Detail</th>
                         <th scope="col">Schedule Detail</th>
                         <th scope="col">Level Up</th>
-                        <th scope="col">Reset</th>
+                        {{-- <th scope="col">Reset</th> --}}
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($classes as $class)
                         <tr>
-                            <td>{{$class->ClassName}}</td>
-                            <td>Rp.{{number_format($class->ClassPrice)}}</td>
+                            <td>
+                                {{$class->Type->class_name}} -
+                                @foreach ($class->mapping as $map)
+                                {{$map->getUser->name}} 
+                            @endforeach
+                            - {{$class->id}}
+                            </td>
+                            <td>Rp.{{number_format($class->Type->class_price)}}</td>
                             <td>
                                 <form action="{{route('changeStatusClass',$class)}}" method="post">
                                     @csrf
@@ -79,17 +85,17 @@
                                         <button type="submit" class="btn btn-info">Level Up</button>
                                     </form>
                                 </td>
-                                <td>
+                                {{-- <td>
                                     <form action="{{route('headResetClass',$class->id)}}" onclick="return confirm('Are you sure?')" method="get">
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Reset Class</button>
                                     </form>
-                                </td>
+                                </td> --}}
                             @else
                                 <td>None</td>
                                 <td>None</td>
                                 <td>None</td>
-                                <td>None</td>
+                                {{-- <td>None</td> --}}
                             @endif
                         </tr>
                     @endforeach

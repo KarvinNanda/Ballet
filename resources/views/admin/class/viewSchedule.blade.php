@@ -32,7 +32,7 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama Kelas</th>
+                            {{-- <th scope="col">Nama Kelas</th> --}}
                             <th scope="col">Tanggal</th>
                             <th scope="col">Waktu</th>
                             <th scope="col">Update</th>
@@ -41,7 +41,7 @@
                         </thead>
                         <tbody>
                         @if($class->isEmpty())
-                            <td>No Data</td>
+                            {{-- <td>No Data</td> --}}
                             <td>No Data</td>
                             <td>No Data</td>
                             <td>No Data</td>
@@ -49,7 +49,7 @@
                         @else
                             @foreach($class as $c)
                             <tr>
-                                <td>{{$c->classname}}</td>
+                                {{-- <td>{{$c->classname}}</td> --}}
                                 <td>{{$carbon::parse($c->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($c->date)->format('H:i:s')}}</td>
                                 <td>

@@ -34,7 +34,6 @@
                     <thead>
                     <tr>
                         <th scope="col">Class Name</th>
-                        <th scope="col">Class Type</th>
                         <th scope="col">Price</th>
                         <th scope="col">Action</th>
                         <th scope="col">Detail</th>
@@ -45,8 +44,13 @@
                     <tbody>
                     @foreach($classes as $class)
                         <tr>
-                            <td>{{$class->class_name}}</td>
-                            <td>{{$class->Type->class_name}}</td>
+                            <td>
+                                {{$class->Type->class_name}} -
+                                @foreach ($class->mapping as $map)
+                                {{$map->getUser->name}} 
+                            @endforeach
+                            - {{$class->id}}
+                            </td>
                             <td>Rp.{{number_format($class->Type->class_price)}}</td>
                             <td>
                                 <form action="{{route('changeStatusClassAdmin',$class)}}" method="post">

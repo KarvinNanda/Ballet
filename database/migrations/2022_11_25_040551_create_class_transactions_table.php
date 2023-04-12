@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('class_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('class_name');
             $table->foreignId('class_type_id')->constrained();
             $table->string('Status');
             $table->timestamps();
