@@ -14,10 +14,12 @@ class HeadController extends Controller
             ->join('schedules','class_transactions.id','schedules.class_id')
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
             ->join('users','mapping_class_teachers.user_id','users.id')
+            ->join('class_types','class_transactions.class_type_id','class_types.id')
             ->selectRaw('
-                class_transactions.ClassName as class,
+                class_types.class_name as class,
                 schedules.date,
-                users.name as teacherName
+                users.name as teacherName,
+                class_transactions.id as id
             ')
             ->orderBy('schedules.date')
             ->get();

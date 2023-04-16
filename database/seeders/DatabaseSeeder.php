@@ -18,12 +18,13 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(BankSeeder::class);
         $this->call(RekeningSeeder::class);
+        $this->call(ClassTypeSeeder::class);
         $this->call(ClassTransactionSeeder::class);
         $this->call(StudentSeeder::class);
         $this->call(TransactionSeeder::class);
         $this->call(ScheduleSeeder::class);
         $this->call(StockSeeder::class);
-
+       
 
         DB::table('users')->insert([
             [

@@ -4,12 +4,14 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassTransaction;
+use App\Models\ClassType;
 use App\Models\DetailAbsen;
 use App\Models\HeaderAbsen;
 use App\Models\MappingClassChild;
 use App\Models\MappingClassTeacher;
 use App\Models\Schedule;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -19,6 +21,23 @@ class HeadClassController extends Controller
     public function index(){
         $classes = ClassTransaction::simplePaginate(5);
         return view('head.class.index',compact('classes'));
+    }
+
+    public function indexType(){
+        $types = ClassType::all();
+        return view('head.class.classType',compact('types'));
+    }
+
+    public function viewUpdateType(Request $req){
+        $type = ClassType::find($req->typeID);
+        return view('head.class.classTypeUpdate',compact('type'));
+    }
+
+    public function updateType(Request $req){
+        $type = ClassType::find($req->typeID);
+        $type->class_price = $req->inputPrice;
+        $type->save();
+        return redirect()->route('headClassTypePage');
     }
 
     public function active(){
@@ -37,13 +56,15 @@ class HeadClassController extends Controller
     }
 
     public function insertPage(){
-        return view('head.class.insert');
+        $types = ClassType::all();
+        $users = User::all()->where('role','teacher');
+        return view('head.class.insert',compact('types','users'));
     }
 
     public function insert(Request $req){
         $rules = [
-            'inputName' => 'required',
-            'inputPrice' => 'required|numeric'
+            'inputType' => 'required',
+            'inputTeacher' => 'required'
         ];
 
         $validate = Validator::make($req->all(),$rules);
@@ -52,11 +73,16 @@ class HeadClassController extends Controller
         }
 
         $class = new ClassTransaction();
-        $class->ClassName = $req->inputName;
-        $class->ClassPrice = $req->inputPrice;
-		$class->Status = 'non-aktif';
+        $class->class_type_id = $req->inputType;
+        $class->Status = 'aktif';
 
         $class->save();
+
+        $map = new MappingClassTeacher();
+        $map->class_id = $class->id;
+        $map->user_id = $req->inputTeacher;
+
+        $map->save();
 
         return redirect()->route('headClassPage');
     }
@@ -192,13 +218,9 @@ class HeadClassController extends Controller
     }
 
     public function levelUpStudent(Request $req){
-        $check = ClassTransaction::where('id',$req->class_id+1)->first();
-        if($check->Status == 'non-aktif'){
-            ClassTransaction::where('id',$check->id)->update(['status' => 'aktif']);
-            DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
-        } else{
-            DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
-        }
+        $class = ClassTransaction::where('id',$req->class_id)->first();
+        $class->class_type_id += 1;
+        $class->save();
         return redirect()->route("headClassPage");
     }
 

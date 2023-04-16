@@ -27,7 +27,7 @@
                     @foreach($data as $item)
                         @if($carbon::parse($item->date)->addDays(1)->toDateString() >= $carbon::now()->setTimezone('GMT+7')->toDateString() && $carbon::parse($item->date)->toDateString() <= $carbon::now()->setTimezone('GMT+7')->addDays(7)->toDateString())
                             <tr>
-                                <td>{{$item->class}}</td>
+                                <td>{{$item->class}} - {{$item->id}}</td>
                                 <td>{{$carbon::parse($item->date)->englishDayOfWeek}}</td>
                                 <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($item->date)->format('H:i:s')}}</td>

@@ -1,10 +1,10 @@
 @extends('Master.master')
 
-@section('title','Add Class')
+@section('title','Update Type')
 
 @section('content')
     <div class="pagetitle">
-        <h1>Class Form</h1>
+        <h1>Class Type Form</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -13,26 +13,19 @@
                 <h5 class="card-title"></h5>
 
                 <!-- General Form Elements -->
-                <form action="{{route('ClassAdd')}}" method="post">
+                <form action="{{route('headChangeTypeClass')}}" method="post">
                     @csrf
+                    <input type="hidden" name="typeID" value="{{$type->id}}">
                     <div class="row mb-3">
-                        <label for="inputType" class="col-sm-2 col-form-label">Class Type</label>
+                        <label  class="col-sm-2 col-form-label">Class Type Name</label>
                         <div class="col-sm-10">
-                            <select class="form-select" name="inputType">
-                                @foreach ($types as $type)
-                                    <option value="{{ $type->id }}">{{ $type->class_name }} - {{$type->class_price}}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" class="form-control" value="{{$type->class_name}}" disabled>
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label for="inputTeacher" class="col-sm-2 col-form-label">Teacher</label>
+                        <label  class="col-sm-2 col-form-label">Class Type Price</label>
                         <div class="col-sm-10">
-                            <select class="form-select" name="inputTeacher">
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                            </select>
+                            <input type="text" class="form-control" name="inputPrice" value="{{$type->class_price}}">
                         </div>
                     </div>
 

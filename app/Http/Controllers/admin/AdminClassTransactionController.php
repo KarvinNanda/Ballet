@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassTransaction;
+use App\Models\ClassType;
 use App\Models\MappingClassChild;
 use App\Models\MappingClassTeacher;
 use App\Models\Student;
@@ -37,13 +38,15 @@ class AdminClassTransactionController extends Controller
     }
 
     public function insertPage(){
-        return view('admin.class.insert');
+        $types = ClassType::all();
+        $users = User::all()->where('role','teacher');
+        return view('admin.class.insert',compact('types','users'));
     }
 
     public function insert(Request $req){
         $rules = [
-            'inputName' => 'required',
-            'inputPrice' => 'required|numeric'
+            'inputType' => 'required',
+            'inputTeacher' => 'required'
         ];
 
         $validate = Validator::make($req->all(),$rules);
@@ -52,11 +55,16 @@ class AdminClassTransactionController extends Controller
         }
 
         $class = new ClassTransaction();
-        $class->ClassName = $req->inputName;
-        $class->ClassPrice = $req->inputPrice;
-        $class->Status = 'non-aktif';
+        $class->class_type_id = $req->inputType;
+        $class->Status = 'aktif';
 
         $class->save();
+
+        $map = new MappingClassTeacher();
+        $map->class_id = $class->id;
+        $map->user_id = $req->inputTeacher;
+
+        $map->save();
 
         return redirect()->route('adminClassView');
     }
@@ -121,13 +129,9 @@ class AdminClassTransactionController extends Controller
     }
 
     public function levelUpStudent(Request $req){
-        $check = ClassTransaction::where('id',$req->class_id+1)->first();
-        if($check->Status == 'non-aktif'){
-            ClassTransaction::where('id',$check->id)->update(['status' => 'aktif']);
-            DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
-        } else{
-            DB::table('mapping_class_children')->where('class_id',$req->class_id)->update(['class_id'=>$req->class_id+1]);
-        }
+        $class = ClassTransaction::where('id',$req->class_id)->first();
+        $class->class_type_id += 1;
+        $class->save();
         return redirect()->route("adminClassView");
     }
 

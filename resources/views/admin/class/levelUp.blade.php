@@ -28,7 +28,6 @@
                         @if($students->isEmpty())
                             <td>No Data</td>
                             <td>No Data</td>
-                            <td>No Data</td>
                         @else
                             @foreach($students as $student)
                                 <tr>

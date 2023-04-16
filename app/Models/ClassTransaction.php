@@ -24,5 +24,15 @@ class ClassTransaction extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    public function Type()
+    {
+        return $this->belongsTo(ClassType::class, 'class_type_id');
+    }
+
+    public function mapping()
+    {
+        return $this->hasMany(MappingClassTeacher::class, 'class_id');
+    }
+
     protected $fillable = [];
 }

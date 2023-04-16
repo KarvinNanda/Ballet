@@ -15,17 +15,25 @@
                 <!-- General Form Elements -->
                 <form action="{{route('adminClassAdd')}}" method="post">
                     @csrf
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputName">
-                        </div>
-                    </div>
 
                     <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Price</label>
+                        <label for="inputType" class="col-sm-2 col-form-label">Class Type</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputPrice">
+                            <select class="form-select" name="inputType">
+                                @foreach ($types as $type)
+                                    <option value="{{ $type->id }}">{{ $type->class_name }} - {{$type->class_price}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="inputTeacher" class="col-sm-2 col-form-label">Teacher</label>
+                        <div class="col-sm-10">
+                            <select class="form-select" name="inputTeacher">
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 

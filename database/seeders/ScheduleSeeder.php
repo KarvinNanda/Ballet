@@ -18,38 +18,14 @@ class ScheduleSeeder extends Seeder
         DB::table('schedules')->insert([
             [
                 'class_id' => '1',
-                'date' => '2023-01-01',
+                'date' => '2023-04-12',
             ],
 
             [
                 'class_id' => '2',
-                'date' => '2023-01-02',
+                'date' => '2023-04-11',
             ],
 
-            [
-                'class_id' => '3',
-                'date' => '2023-01-03',
-            ],
-
-            [
-                'class_id' => '4',
-                'date' => '2023-01-04',
-            ],
-
-            [
-                'class_id' => '5',
-                'date' => '2023-01-05',
-            ],
-
-            [
-                'class_id' => '6',
-                'date' => '2023-01-06',
-            ],
-
-            [
-                'class_id' => '6',
-                'date' => '2023-01-07',
-            ],
         ]);
     }
 }

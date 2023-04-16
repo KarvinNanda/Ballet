@@ -14,8 +14,9 @@ class TeacherClassController extends Controller
         $data = DB::table('class_transactions')
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
             ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+            ->join('class_types','class_transactions.class_type_id','class_types.id')
             ->selectRaw('
-                class_transactions.ClassName as class,
+                class_types.class_name as class,
                 COUNT(mapping_class_children.class_id) as students
             ')
             ->where('mapping_class_teachers.user_id',Auth::user()->id)
@@ -35,7 +36,7 @@ class TeacherClassController extends Controller
                 students.dob as student_dob
             ')
             ->where('mapping_class_children.class_id',$class->id)
-            ->where('class_transactions.ClassName',$class->ClassName)
+            ->where('class_transactions.class_name',$class->class_name)
             ->get();
         return view('teacher.class.detail',compact('data'));
     }

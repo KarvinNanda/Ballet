@@ -123,6 +123,11 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a href="{{route('adminClassTypePage')}}">
+                                        <i class="bi bi-circle"></i><span>Class Type Data</span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a href="{{route('adminStudentView')}}">
                                         <i class="bi bi-circle"></i><span>Student Data</span>
                                     </a>
@@ -143,6 +148,11 @@
                                 <li>
                                     <a href="{{route('headClassPage')}}">
                                         <i class="bi bi-circle"></i><span>Class Data</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{route('headClassTypePage')}}">
+                                        <i class="bi bi-circle"></i><span>Class Type Data</span>
                                     </a>
                                 </li>
                                 <li>

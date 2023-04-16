@@ -32,7 +32,6 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Class Name</th>
                             <th scope="col">Date</th>
                             <th scope="col">Time</th>
                             <th scope="col">Update</th>
@@ -44,14 +43,12 @@
                         @if($class->isEmpty())
                             <td>No Data</td>
                             <td>No Data</td>
-                            <td>No Data</td>
                             <td>None</td>
                             <td>None</td>
                             <td>None</td>
                         @else
                             @foreach($class as $c)
                             <tr>
-                                <td>{{$c->classname}}</td>
                                 <td>{{$carbon::parse($c->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($c->date)->format('H:i:s')}}</td>
                                 <td>
