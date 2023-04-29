@@ -14,12 +14,13 @@ class AdminReportController extends Controller
         $data = DB::table('schedules')
             ->join('header_absens','header_absens.schedules_id','schedules.id')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
+            ->join('class_types','class_transactions.class_type_id','class_types.id')
             ->selectRaw('
-                schedules.date as date,
-                class_transactions.class_name as class_name,
+                class_types.class_name as class_name,
                 header_absens.id as header_id
             ')
             ->orderBy('schedules.date')
+            ->groupBy('class_name')
             ->get();
         return view('admin.report.class-attendence.index',compact('data'));
     }
@@ -27,25 +28,36 @@ class AdminReportController extends Controller
     public function printClassAttendence(HeaderAbsen $header,$className){
         $find = HeaderAbsen::find($header->id);
 
+        $firstDayOfClass = DB::table('schedules')
+            ->join('class_transactions','class_transactions.id','schedules.class_id')
+            ->join('class_types','class_transactions.class_type_id','class_types.id')
+            ->where('class_types.class_name','like',"%$className%")
+            ->orderBy('schedules.date','ASC')
+        ->first();
+
+        $lastDayOfClass = Carbon::parse($firstDayOfClass->date)->addMonth(5)->lastOfMonth();
+
         $report = DB::table('schedules')
             ->join('header_absens','header_absens.schedules_id','schedules.id')
-            ->join('detail_absens','detail_absens.header_absen_id','header_absens.id')
-            ->join('students','detail_absens.student_id','students.id')
+            ->leftjoin('detail_absens','detail_absens.header_absen_id','header_absens.id')
+            ->leftjoin('students','detail_absens.student_id','students.id')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
+            ->join('class_types','class_transactions.class_type_id','class_types.id')
             ->selectRaw('
                 schedules.date as date,
                 detail_absens.Description as description,
                 detail_absens.Notes as note,
                 students.LongName as student_name,
-                class_transactions.ClassName as class_name
+                class_types.class_name as class_name
             ')
-            ->where('schedules.date','=',Carbon::parse($find->Schedules->date)->toDateTime())
-            ->where('class_transactions.ClassName',$className)
+            ->whereBetween('schedules.date',[$firstDayOfClass->date,$lastDayOfClass])
+            ->where('class_types.class_name',$className)
             ->orderBy('schedules.date')
-            ->get();
+            ->get()
+            ->groupBy('date');
 
-        $pdf = Pdf::loadView('admin.report.class-attendence.print',compact('report'))
-            ->download('Laporan Absensi Siswa Kelas '.$report[0]->class_name.' '.Carbon::parse($find->Schedules->date)->format('dmY').'.pdf');
+        $pdf = Pdf::loadView('admin.report.class-attendence.print',compact('report','className'))
+            ->download('Laporan Absensi Siswa Kelas '.$className.' '.Carbon::now()->setTimezone("GMT+7")->format('dmY').'.pdf');
         return $pdf;
     }
 

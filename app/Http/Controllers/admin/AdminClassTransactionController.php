@@ -33,8 +33,33 @@ class AdminClassTransactionController extends Controller
     }
 
     public function search(Request $req){
-        $classes = ClassTransaction::where('ClassName','like',"%$req->search%")->simplePaginate(5);
+        $classes = ClassTransaction::join('class_types','class_transactions.class_type_id','class_types.id')
+        ->where('class_name','like',"%$req->search%")->simplePaginate(5);
         return view('admin.class.view',compact('classes'));
+    }
+
+    public function addCoursePage(){
+        return view('admin.class.classTypeAdd');
+    }
+
+    public function addCourse(Request $req){
+        $rules = [
+            'inputName' => 'required',
+            'inputPrice' => 'required|numeric'
+        ];
+
+        $validate = Validator::make($req->all(),$rules);
+        if($validate->fails()){
+            return redirect()->back()->withErrors($validate);
+        }
+
+        $class = new ClassType();
+        $class->class_name = $req->inputName;
+        $class->class_price = $req->inputPrice;
+
+        $class->save();
+
+        return redirect()->route('adminClassView');
     }
 
     public function insertPage(){

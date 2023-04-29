@@ -56,6 +56,9 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/class/active', [AdminClassTransactionController::class,'active'])->name('adminActiveClassPage');
     Route::get('/class/non/active', [AdminClassTransactionController::class,'nonActive'])->name('adminNonActiveClassPage');
 
+    Route::get('/class/add/course', [AdminClassTransactionController::class,'addCoursePage'])->name('adminCourseAddPage');
+    Route::post('/class/add/course', [AdminClassTransactionController::class,'addCourse'])->name('adminCourseAdd');
+
     Route::get('/class/type', [AdminController::class,'indexType'])->name('adminClassTypePage');
     Route::post('/class/type/view', [AdminController::class,'viewUpdateType'])->name('adminViewChangeTypeClass');
     Route::post('/class/type/update', [AdminController::class,'updateType'])->name('adminChangeTypeClass');
@@ -99,6 +102,8 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::post('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
     Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detailTeacher'])->name('adminTeacherDetail');
     Route::post('/teacher/search', [AdminTeacherController::class,'search'])->name('adminTeacherSearch');
+    Route::get('/teacher/update/{teacher}', [AdminTeacherController::class,'updatePage'])->name('adminTeacherUpdatePage');
+    Route::post('/teacher/update/{teacher}', [AdminTeacherController::class,'update'])->name('adminTeacherUpdate');
 
     Route::get('/stock', [AdminStockController::class,'index'])->name('adminStockPage');
 
@@ -133,6 +138,9 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/class/add', [HeadClassController::class,'insert'])->name('ClassAdd');
     Route::post('/class/search', [HeadClassController::class,'search'])->name('searchClass');
     Route::post('/class/delete/{class}', [HeadClassController::class,'delete'])->name('deleteClass');
+
+    Route::get('/class/add/course', [HeadClassController::class,'addCoursePage'])->name('headCourseAddPage');
+    Route::post('/class/add/course', [HeadClassController::class,'addCourse'])->name('headCourseAdd');
 
     Route::get('/class/type', [HeadClassController::class,'indexType'])->name('headClassTypePage');
     Route::post('/class/type/view', [HeadClassController::class,'viewUpdateType'])->name('headViewChangeTypeClass');
@@ -175,6 +183,8 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/teacher/add', [HeadTeacherController::class,'insert'])->name('TeacherAdd');
     Route::post('/teacher/search', [HeadTeacherController::class,'search'])->name('searchTeacher');
     Route::post('/teacher/delete/{teacher}', [HeadTeacherController::class,'delete'])->name('TeacherDelete');
+    Route::get('/teacher/update/{teacher}', [HeadTeacherController::class,'updatePage'])->name('TeacherUpdatePage');
+    Route::post('/teacher/update/{teacher}', [HeadTeacherController::class,'update'])->name('TeacherUpdate');
 
     Route::get('/finance', [HeadFinanceController::class,'index'])->name('headFinancePage');
     Route::get('/finance/add', [HeadFinanceController::class,'insertPage'])->name('headFinanceAddPage');
@@ -241,6 +251,10 @@ Route::prefix('finance')->middleware(['finance'])->group(function(){
 
     Route::get('/report/stock',[FinanceStockController::class,'stock'])->name('financeStockReport');
     Route::post('/report/stock/{report_stock}',[FinanceStockController::class,'printStock'])->name('financeStockPrintReport');
+
+    Route::get('/report/teacher',[FinanceController::class,'reportTeacherPage'])->name('financeTeacherReportPage');
+    Route::post('/report/teacher/{month}',[FinanceController::class,'reportTeacher'])->name('financeTeacherReport');
+    Route::get('/report/finance/student',[FinanceController::class,'reportStudent'])->name('financeStudentReport');
 });
 
 Route::middleware(['authLogin'])->group(function(){

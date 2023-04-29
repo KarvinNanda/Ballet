@@ -124,7 +124,7 @@
                                 </li>
                                 <li>
                                     <a href="{{route('adminClassTypePage')}}">
-                                        <i class="bi bi-circle"></i><span>Class Type Data</span>
+                                        <i class="bi bi-circle"></i><span>Course Data</span>
                                     </a>
                                 </li>
                                 <li>
@@ -152,7 +152,7 @@
                                 </li>
                                 <li>
                                     <a href="{{route('headClassTypePage')}}">
-                                        <i class="bi bi-circle"></i><span>Class Type Data</span>
+                                        <i class="bi bi-circle"></i><span>Course Data</span>
                                     </a>
                                 </li>
                                 <li>
@@ -263,6 +263,12 @@
                                 <li>
                                     <a href="{{route('financeStockReport')}}">
                                         <i class="bi bi-circle"></i><span>Stock Report</span>
+                                    </a>
+                                    <a href="{{route('financeTeacherReportPage')}}">
+                                        <i class="bi bi-circle"></i><span>Teacher Attendence Report</span>
+                                    </a>
+                                    <a href="{{route('financeStudentReport')}}">
+                                        <i class="bi bi-circle"></i><span>Finance Active Student Report</span>
                                     </a>
                                 </li>
                             </ul>

@@ -28,6 +28,30 @@ class HeadClassController extends Controller
         return view('head.class.classType',compact('types'));
     }
 
+    public function addCoursePage(){
+        return view('head.class.classTypeAdd');
+    }
+
+    public function addCourse(Request $req){
+        $rules = [
+            'inputName' => 'required',
+            'inputPrice' => 'required|numeric'
+        ];
+
+        $validate = Validator::make($req->all(),$rules);
+        if($validate->fails()){
+            return redirect()->back()->withErrors($validate);
+        }
+
+        $class = new ClassType();
+        $class->class_name = $req->inputName;
+        $class->class_price = $req->inputPrice;
+
+        $class->save();
+
+        return redirect()->route('headClassPage');
+    }
+
     public function viewUpdateType(Request $req){
         $type = ClassType::find($req->typeID);
         return view('head.class.classTypeUpdate',compact('type'));
@@ -51,7 +75,8 @@ class HeadClassController extends Controller
     }
 
     public function search(Request $req){
-        $classes = ClassTransaction::where('ClassName','like',"%$req->search%")->simplePaginate(5);
+        $classes = ClassTransaction::join('class_types','class_transactions.class_type_id','class_types.id')
+            ->where('class_name','like',"%$req->search%")->simplePaginate(5);
         return view('head.class.index',compact('classes'));
     }
 

@@ -25,33 +25,33 @@
                         <thead>
                         <tr>
                             <th scope="col">Name</th>
+                            <th scope="col">Bonus</th>
                             <th scope="col">DOB</th>
                             <th scope="col">Address</th>
                             <th scope="col">Phone</th>
                             <th scope="col">Email</th>
-                            <th scope="col">Action</th>
+                            <th scope="col" colspan="2">Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($teachers as $teacher)
                             <tr>
                                 <td>{{$teacher->name}}</td>
+                                <td>{{$teacher->percent}}%</td>
                                 <td>{{\Carbon\Carbon::parse($teacher->dob)->format('d M Y')}}</td>
                                 <td>{{$teacher->address}}</td>
                                 <td>{{$teacher->phone}}</td>
                                 <td>{{$teacher->email}}</td>
-                                <td>
+                                <td class="d-flex">
                                     <form action="{{route('adminTeacherDelete',$teacher)}}" method="post">
                                         @csrf
-                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                        <button type="submit" class="btn btn-danger me-3">Delete</button>
+                                    </form>
+
+                                    <form action="{{route('adminTeacherUpdatePage',$teacher)}}" method="get">
+                                        <button type="submit" class="btn btn-warning">Update</button>
                                     </form>
                                 </td>
-{{--                                <td>--}}
-{{--                                    <form action="{{route('adminTeacherDetail',$teacher)}}" method="post">--}}
-{{--                                        @csrf--}}
-{{--                                        <button type="submit" class="btn btn-secondary">Detail</button>--}}
-{{--                                    </form>--}}
-{{--                                </td>--}}
                             </tr>
                         @endforeach
                         </tbody>
