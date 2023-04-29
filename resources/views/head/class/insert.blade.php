@@ -16,9 +16,10 @@
                 <form action="{{route('ClassAdd')}}" method="post">
                     @csrf
                     <div class="row mb-3">
-                        <label for="inputType" class="col-sm-2 col-form-label">Class Type</label>
+                        <label for="inputType" class="col-sm-2 col-form-label">Course</label>
                         <div class="col-sm-10">
                             <select class="form-select" name="inputType">
+                                <option selected></option>
                                 @foreach ($types as $type)
                                     <option value="{{ $type->id }}">{{ $type->class_name }} - {{$type->class_price}}</option>
                                 @endforeach
@@ -29,6 +30,7 @@
                         <label for="inputTeacher" class="col-sm-2 col-form-label">Teacher</label>
                         <div class="col-sm-10">
                             <select class="form-select" name="inputTeacher">
+                                <option selected></option>
                                 @foreach ($users as $user)
                                     <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach

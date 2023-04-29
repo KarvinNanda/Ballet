@@ -17,7 +17,6 @@
                     <thead>
                     <tr>
                         <th scope="col">Class Name</th>
-                        <th scope="col">Date</th>
                         <th scope="col">Action</th>
                     </tr>
                     </thead>
@@ -25,7 +24,6 @@
                     @foreach($data as $item)
                             <tr>
                                 <td>{{$item->class_name}}</td>
-                                <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
                                 <td>
                                     <form action="{{route('adminClassPrintReport',['header' => $item->header_id,'className' => $item->class_name])}}" method="post">
                                         @csrf

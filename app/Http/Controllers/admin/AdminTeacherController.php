@@ -35,6 +35,37 @@ class AdminTeacherController extends Controller
         return redirect()->back();
     }
 
+    public function updatePage(User $teacher){
+        return view('admin.teacher.update',compact('teacher'));
+    }
+
+    public function update(Request $req,User $teacher){
+        $rules = [
+            'inputName' => 'required',
+            'inputEmail' => 'required|email:filter',
+            'inputDate_of_Birth' => 'required|date|before:tomorrow',
+            'inputAddress' => 'required',
+            'inputBonus' => 'required|numeric',
+            'inputPhone' => 'required|numeric|digits_between:10,12'
+        ];
+
+        $validate = Validator::make($req->all(),$rules);
+        if($validate->fails()){
+            return redirect()->back()->withErrors($validate);
+        }
+
+        $user = User::find($teacher->id);
+        $user->name = $req->inputName;
+        $user->address = $req->inputAddress;
+        $user->dob = $req->inputDate_of_Birth;
+        $user->email = $req->inputEmail;
+        $user->phone = $req->inputPhone;
+        $user->percent = $req->inputBonus;
+        $user->save();
+
+        return redirect()->route('adminTeacherView');
+    }
+
     public function deleteTeacher(Request $req){
         $teacher = User::where('id','=',$req->id);
         $teacher->delete();
@@ -68,6 +99,7 @@ class AdminTeacherController extends Controller
         $user->email = $req->inputEmail;
         $user->phone = $req->inputPhone;
         $user->password = bcrypt('ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY'));
+        $user->percent = 35;
         $user->save();
 
         $credential = [

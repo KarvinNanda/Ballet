@@ -24,30 +24,38 @@
 <div class="container">
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Laporan Tanggal {{$carbon::parse($report[0]->date)->format('d M Y')}}</h2>
-            <h2>Kelas {{$report[0]->class_name}}</h2>
+            <h2>Laporan Kelas {{$className}}</h2>
         </div>
 
-        <div class="col text-center">
-            <table class="table table-bordered">
-                <thead>
-                <tr>
-                    <th>Student Name</th>
-                    <th>Description</th>
-                    <th>Notes</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($report as $item)
-                    <tr>
-                        <td>{{$item->student_name}}</td>
-                        <td>{{$item->description}}</td>
-                        <td>{{$item->note != '' ?$item->note : '-' }}</td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-        </div>
+        @foreach($report as $items)
+            <div class="row">
+                <div class="col ">
+                    <h3>{{$carbon::parse($items[0]->date)->format('d M Y')}}</h3>
+                </div>
+                <div class="col">
+                    <div class="col text-center">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Description</th>
+                                <th>Notes</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($items as $item)
+                                <tr>
+                                    <td>{{$item->student_name}}</td>
+                                    <td>{{$item->description}}</td>
+                                    <td>{{$item->note != '' ?$item->note : '-' }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endforeach
     </div>
 </div>
 

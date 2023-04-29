@@ -24,17 +24,18 @@ class DatabaseSeeder extends Seeder
         $this->call(TransactionSeeder::class);
         $this->call(ScheduleSeeder::class);
         $this->call(StockSeeder::class);
-       
+
 
         DB::table('users')->insert([
             [
-                'name' => 'saminjo',
+                'name' => 'Saminjo',
                 'email' => 'saminjo@gmail.com',
                 'password' => bcrypt('saminjo123'),
                 'role' => 'teacher',
                 'address' => 'Jl.Kasih Selamat',
                 'dob' => '2002-12-01',
                 'phone' => '018239233333',
+                'percent' => 35,
             ],
 
             [
@@ -45,6 +46,7 @@ class DatabaseSeeder extends Seeder
                 'address' => 'Jl.Depan U',
                 'dob' => '2002-10-01',
                 'phone' => '018239222222',
+                'percent' => 0,
             ],
 
             [
@@ -55,26 +57,29 @@ class DatabaseSeeder extends Seeder
                 'address' => 'Jl.CepeSebelah',
                 'dob' => '2002-05-01',
                 'phone' => '018239211111',
+                'percent' => 0,
             ],
 
             [
-                'name' => 'CT',
+                'name' => 'Carolyn Tanujaya',
                 'address' => 'Jl.riau ujung',
                 'role' => 'teacher',
                 'dob' => '2002-03-01',
                 'email' => 'cete@gmail.com',
                 'phone' => '018239210222',
                 'password' => bcrypt('cete123'),
+                'percent' => 35,
             ],
 
             [
-                'name' => 'NA',
+                'name' => 'Nabila',
                 'dob' => '2002-05-01',
                 'address' => 'Jl.sudriamn',
                 'role' => 'teacher',
                 'phone' => '088281239283',
                 'email' => 'ana@gmail.com',
                 'password' => bcrypt('ana123'),
+                'percent' => 35,
             ],
 
             [
@@ -85,6 +90,7 @@ class DatabaseSeeder extends Seeder
                 'phone' => '019283746574',
                 'email' => 'felix@gmail.com',
                 'password' => bcrypt('felix123'),
+                'percent' => 0,
             ],
         ]);
         $this->call(MappingClassTeacherSeeder::class);

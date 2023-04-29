@@ -1,11 +1,11 @@
 @inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
-@section('title','Report Class Attendence')
+@section('title','Report Teacher Attendence')
 
 @section('content')
     <div class="pagetitle">
-        <h1>Report Class Attendence</h1>
+        <h1>Report Teacher Attendence</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -16,16 +16,16 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">Class Name</th>
+                        <th scope="col">Month</th>
                         <th scope="col">Action</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($data as $item)
                             <tr>
-                                <td>{{$item->class_name}}</td>
+                                <td>{{$item->month}}</td>
                                 <td>
-                                    <form action="{{route('headClassPrintReport',['header' => $item->header_id,'className' => $item->class_name])}}" method="post">
+                                    <form action="{{route('financeTeacherReport',$item->month_num)}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Report</button>
                                     </form>
