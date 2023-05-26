@@ -25,17 +25,16 @@ class TeacherController extends Controller
             class_types.class_name as class,
             schedules.date,
             users.name as teacherName,
-            class_transactions.id as id
+            class_transactions.id as id,
+            schedules.id as schedule_id
         ')
         ->orderBy('schedules.date')
         ->get();
-//        dd(Carbon::now()->toDateTimeLocalString());
-            return view('teacher.index',compact('data'));
+        return view('teacher.index',compact('data'));
     }
 
     public function viewAbsen($id){
         $view = Schedule::find($id);
-
         $class = DB::table('mapping_class_children')->join('students','students.id','mapping_class_children.student_id')
             ->selectRaw('
             students.nis as nis,
@@ -53,8 +52,6 @@ class TeacherController extends Controller
     }
 
     public function getAbsen(Request $req, Schedule $schedule){
-
-//        dd($req);
         $header = new HeaderAbsen();
         $header->schedules_id = $schedule->id;
         $header->save();
