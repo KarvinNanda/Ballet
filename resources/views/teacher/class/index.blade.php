@@ -7,7 +7,6 @@
     <div class="pagetitle">
         <h1>Today Schedule</h1>
     </div><!-- End Page Title -->
-
     <section class="section">
         <div class="card">
             <div class="card-body">
@@ -18,6 +17,8 @@
                     <tr>
                         <th scope="col">Class Name</th>
                         <th scope="col">Count Student</th>
+                        <th scope="col">View Student</th>
+                        <th scope="col">Schedule Detail</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -28,9 +29,16 @@
                                     <td>{{$i->students}}</td>
                                 @endforeach
                                 <td>
-                                    <form action="{{route('viewDetail',$item[0]->class)}}" method="post">
+                                    <form action="{{route('viewDetailTeacher',$item[0]->id)}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-info">View</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <form action="{{route('viewScheduleClassTeacher')}}" method="post">
+                                    @csrf
+                                    <input type="hidden" value={{$item[0]->id}} name="classId">
+                                    <button type="submit" class="btn btn-secondary">Schedule</button>
                                     </form>
                                 </td>
                             </tr>
