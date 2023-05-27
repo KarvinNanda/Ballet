@@ -18,7 +18,6 @@
                         <th scope="col">Class Name</th>
                         <th scope="col">Count Student</th>
                         <th scope="col">View Student</th>
-                        <th scope="col">Schedule Detail</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -34,13 +33,7 @@
                                         <button type="submit" class="btn btn-info">View</button>
                                     </form>
                                 </td>
-                                <td>
-                                    <form action="{{route('viewScheduleClassTeacher')}}" method="post">
-                                    @csrf
-                                    <input type="hidden" value={{$item[0]->id}} name="classId">
-                                    <button type="submit" class="btn btn-secondary">Schedule</button>
-                                    </form>
-                                </td>
+                            
                             </tr>
                     @endforeach
                     </tbody>

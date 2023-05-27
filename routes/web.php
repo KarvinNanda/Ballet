@@ -244,6 +244,8 @@ Route::prefix('teacher')->middleware(['teacher'])->group(function(){
 
     Route::post('/add/schedule/class',[TeacherClassController::class,'addSchedule'])->name('addScheduleClassTeacher');
     Route::post('/add/MultipleSchedule/class',[TeacherClassController::class,'addMultipleSchedule'])->name('addMultipleScheduleClassTeacher');
+
+    Route::get('/view/class/schedule', [TeacherClassController::class,'viewClassSchedule'])->name('viewAllScheduleTeacher');
 });
 
 //finance
