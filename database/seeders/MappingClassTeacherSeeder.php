@@ -17,16 +17,26 @@ class MappingClassTeacherSeeder extends Seeder
     {
         //
         DB::table('mapping_class_teachers')->insert([
-            [
-                'class_id' => '2',
-                'user_id' => '1'
-            ],
 
             [
                 'class_id' => '1',
                 'user_id' => '4'
             ],
 
+            [
+                'class_id' => '2',
+                'user_id' => '1'
+            ],
+
+            [
+                'class_id' => '3',
+                'user_id' => '4'
+            ],
+
+            [
+                'class_id' => '4',
+                'user_id' => '1'
+            ],
         ]);
     }
 }

@@ -47,7 +47,7 @@
                             <td>
                                 {{$class->Type->class_name}} -
                                 @foreach ($class->mapping as $map)
-                                {{$map->getUser->name}} 
+                                {{$map->getUser->name}}
                             @endforeach
                             - {{$class->id}}
                             </td>
@@ -64,11 +64,11 @@
                             </td>
                             @if($class->Status == 'aktif')
                             <td>
-                                <form action="{{route('adminDetailClass')}}" method="post">
-                                    @csrf
-                                    <input type="hidden" value="{{$class->id}}" name="classId">
-                                    <button type="submit" class="btn btn-secondary">Detail</button>
-                                </form>
+{{--                                <form action="{{route('adminDetailClass')}}" method="get">--}}
+{{--                                    @csrf--}}
+{{--                                    <input type="hidden" value="{{$class->id}}" name="classId">--}}
+                                    <a href="{{route('adminDetailClass', ['id' => $class->id])}}"><button type="submit" class="btn btn-secondary">Detail</button></a>
+{{--                                </form>--}}
                             </td>
                             <td>
                                 <form action="{{route('viewScheduleClass')}}" method="post">

@@ -80,10 +80,14 @@
                             </tr>
                         @endforeach
                         </tbody>
+
                     </div>
+
                 </table>
                 <!-- End Table with stripped rows -->
-
+                <div class="pagination justify-content-center mt-4">
+                    {{ $students->links() }}
+                </div>
             </div>
         </div>
     </section>
