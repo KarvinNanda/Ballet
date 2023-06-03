@@ -38,6 +38,7 @@ class AdminStudentController extends Controller
     public function adminStudentViewSorting($value){
         $students = DB::table('students')
             ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+            ->join('banks','banks.id','rekenings.banks_id')
             ->selectRaw('
                 students.id as id,
                 students.Status as status,

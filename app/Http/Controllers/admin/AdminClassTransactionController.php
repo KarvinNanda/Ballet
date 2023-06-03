@@ -94,12 +94,12 @@ class AdminClassTransactionController extends Controller
         return redirect()->route('adminClassView');
     }
     //detail
-    public function detailClass(Request $req){
+    public function detailClass($id){
 //        $teachers = MappingClassTeacher::where('class_id',$req->classId)->simplePaginate(5);
 //
 ////        dd($teachers->User);
 //        $students = MappingClassChild::where('class_id',$req->classId)->simplePaginate(5);
-        $class_id = $req->classId;
+        $class_id = $id;
 
         $teachers = DB::table('class_transactions')
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
@@ -112,7 +112,7 @@ class AdminClassTransactionController extends Controller
                 users.email as teacherEmail,
                 users.phone as teacherPhone
             ')
-            ->where('class_transactions.id',$req->classId)
+            ->where('class_transactions.id',$id)
             ->simplePaginate(5);
 //        dd($teachers);
 
@@ -127,7 +127,7 @@ class AdminClassTransactionController extends Controller
                 students.Email as studentEmail,
                 students.Phone1 as studentPhone
             ')
-            ->where('class_transactions.id',$req->classId)
+            ->where('class_transactions.id',$id)
             ->simplePaginate(5);
 
         return view('admin.class.detail',compact('teachers','students','class_id'));

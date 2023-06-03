@@ -52,7 +52,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/', [AdminController::class,'index'])->name('admin');
     Route::post('/class/search', [AdminClassTransactionController::class,'search'])->name('adminSearchClass');
     Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
-    Route::post('/detail/class', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
+    Route::get('/detail/class/{id}', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
     Route::get('/class/active', [AdminClassTransactionController::class,'active'])->name('adminActiveClassPage');
     Route::get('/class/non/active', [AdminClassTransactionController::class,'nonActive'])->name('adminNonActiveClassPage');
 

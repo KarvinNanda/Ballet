@@ -24,6 +24,17 @@ class ClassTransactionSeeder extends Seeder
                 'class_type_id' => 2,
                 'status'=>'non-aktif'
             ],
+
+                [
+                    'class_type_id' => 1,
+                    'status'=>'aktif'
+                ],
+
+                [
+                    'class_type_id' => 3,
+                    'status'=>'aktif'
+                ],
+
             ]
         );
     }
