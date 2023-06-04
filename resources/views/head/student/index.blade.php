@@ -84,7 +84,9 @@
             </div>
                 </table>
                 <!-- End Table with stripped rows -->
-
+                <div class="alert text-center" role="alert">
+                    {{$students->links()}}
+                </div>
             </div>
         </div>
     </section>

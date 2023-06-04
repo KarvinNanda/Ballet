@@ -27,6 +27,42 @@ class StockSeeder extends Seeder
                 'size' => '40',
                 'quantity' => 50
             ],
+
+            [
+                'name' => 'Baju Ballet',
+                'size' => 'M',
+                'quantity' => 15
+            ],
+
+            [
+                'name' => 'Sepatu Ballet',
+                'size' => '40',
+                'quantity' => 50
+            ],
+
+            [
+                'name' => 'Unitard',
+                'size' => 'L',
+                'quantity' => 10
+            ],
+
+            [
+                'name' => 'Leotard',
+                'size' => 'M',
+                'quantity' => 5
+            ],
+
+            [
+                'name' => 'Stocking',
+                'size' => 'M',
+                'quantity' => 13
+            ],
+
+            [
+                'name' => 'Rok Tutu',
+                'size' => 'S',
+                'quantity' => 10
+            ],
         ]);
     }
 }
