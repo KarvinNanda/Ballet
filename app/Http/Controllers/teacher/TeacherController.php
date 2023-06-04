@@ -54,6 +54,7 @@ class TeacherController extends Controller
     public function getAbsen(Request $req, Schedule $schedule){
         $header = new HeaderAbsen();
         $header->schedules_id = $schedule->id;
+        $header->teacher_id = Auth::user()->id;
         $header->save();
 
         $header_id = DB::table("header_absens")->orderBy('id','desc')->first();
