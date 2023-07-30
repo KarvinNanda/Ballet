@@ -35,7 +35,7 @@ class SendingEmail extends Mailable
     {
         return new Envelope(
             subject: 'Selamat Datang',
-            from: new Address(env('MAIL_FROM_ADDRESS'), env('MAIL_FROM_NAME'))
+            from: env('MAIL_FROM_ADDRESS')
         );
     }
 

@@ -96,7 +96,6 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
 
     Route::post('/student/form', [AdminStudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
 
-
     Route::post('/student/search', [AdminStudentController::class,'search'])->name('adminStudentSearch');
     Route::post('/student/change/{student}', [AdminStudentController::class,'ChangeNonactive'])->name('adminStudentChange');
     Route::get('/student/active', [AdminStudentController::class,'active'])->name('adminStudentActive');
