@@ -14,11 +14,46 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+use function PHPSTORM_META\map;
+
 class AdminClassTransactionController extends Controller
 {
     public function viewClass()
     {
-        $classes = ClassTransaction::simplePaginate(5);
+        $classes = ClassTransaction::select(
+            'class_transactions.id',
+            'class_name',
+            'class_price',
+            'Status',
+            'class_type_id',
+            'student_id',
+            'class_id',
+            DB::raw('COUNT(student_id) as people_count'))
+            ->join('class_types','class_transactions.class_type_id','class_types.id')
+            ->join('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+            ->groupBy('class_id')
+            ->simplePaginate(5);
+
+        return view('admin.class.view',compact('classes'));
+    }
+
+    public function viewClassSorting($value)
+    {
+        $classes = ClassTransaction::select(
+            'class_transactions.id',
+            'class_name',
+            'class_price',
+            'Status',
+            'class_type_id',
+            'student_id',
+            'class_id',
+            DB::raw('COUNT(student_id) as people_count'))
+            ->join('class_types','class_transactions.class_type_id','class_types.id')
+            ->join('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+            ->groupBy('class_id')
+            ->orderBy($value)
+            ->simplePaginate(5);
+
         return view('admin.class.view',compact('classes'));
     }
 

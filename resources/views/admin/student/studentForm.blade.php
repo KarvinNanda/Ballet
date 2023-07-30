@@ -13,9 +13,8 @@
                 <h5 class="card-title"></h5>
 
                 <!-- General Form Elements -->
-                <form action="{{route('StudentAdd')}}" method="post">
+                <form action="{{route('adminStudentForm')}}" method="post">
                     @csrf
-
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">NIS</label>
                         <div class="col-sm-10">

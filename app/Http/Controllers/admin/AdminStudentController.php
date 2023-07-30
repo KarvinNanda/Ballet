@@ -280,7 +280,7 @@ class AdminStudentController extends Controller
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
-            ')->where('students.LongName',"LIKE",$student->LongName)->first();
+            ')->where('students.LongName',"LIKE", $student->LongName)->first();
         }
         return view('admin.student.adminStudentDetail',compact('detail'));
     }

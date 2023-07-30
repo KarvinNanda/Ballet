@@ -51,7 +51,10 @@ Route::post('/login', [LoginController::class,'doLogin'])->name('do-login');
 Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/', [AdminController::class,'index'])->name('admin');
     Route::post('/class/search', [AdminClassTransactionController::class,'search'])->name('adminSearchClass');
+
     Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
+    Route::get('/view/class/sorting/{value}', [AdminClassTransactionController::class,'viewClassSorting'])->name('viewClassSorting');
+
     Route::get('/detail/class/{id}', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
     Route::get('/class/active', [AdminClassTransactionController::class,'active'])->name('adminActiveClassPage');
     Route::get('/class/non/active', [AdminClassTransactionController::class,'nonActive'])->name('adminNonActiveClassPage');
@@ -88,7 +91,10 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/student/view', [AdminStudentController::class,'adminStudentView'])->name('adminStudentView');
     Route::get('/student/sorting/{value}', [AdminStudentController::class,'adminStudentViewSorting'])->name('adminStudentViewSorting');
     Route::get('/student/form', [AdminStudentController::class,'viewStudentForm'])->name('adminStudentForm');;
+
     Route::post('/student/form', [AdminStudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
+
+
     Route::post('/student/search', [AdminStudentController::class,'search'])->name('adminStudentSearch');
     Route::post('/student/change/{student}', [AdminStudentController::class,'ChangeNonactive'])->name('adminStudentChange');
     Route::get('/student/active', [AdminStudentController::class,'active'])->name('adminStudentActive');
@@ -172,8 +178,10 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/student/non/active', [HeadStudentController::class,'nonActive'])->name('nonactiveStudentPage');
     Route::post('/student/non/active/{student}', [HeadStudentController::class,'ChangeNonactive'])->name('nonactiveStudent');
     Route::get('/student/add', [HeadStudentController::class,'insertPage'])->name('headStudentAddPage');
+
     Route::post('/student/add', [HeadStudentController::class,'insert'])->name('StudentAdd');
     Route::post('/student/search', [HeadStudentController::class,'search'])->name('searchStudent');
+
     Route::post('/student/detail/{student:LongName}', [HeadStudentController::class,'detailStudent'])->name('detailStudent');
     Route::post('/student/delete/{student}', [HeadStudentController::class,'deleteStudent'])->name('deleteStudent');
     Route::get('/student/sorting/{value}', [HeadStudentController::class,'sorting'])->name('sortingStudent');
@@ -229,6 +237,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
 Route::prefix('teacher')->middleware(['teacher'])->group(function(){
     Route::get('/', [TeacherController::class,'index'])->name('teacher');
     Route::get('/view/class', [TeacherClassController::class,'index'])->name('viewClass');
+
     Route::post('/view/class/{id}', [TeacherClassController::class,'viewDetail'])->name('viewDetailTeacher');
     Route::post('/view/class/absen/{id}', [TeacherController::class,'viewAbsen'])->name('viewAbsen');
     Route::post('/view/class/getabsen/{schedule}', [TeacherController::class,'getAbsen'])->name('getAbsen');
