@@ -73,7 +73,9 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::post('/add/teacher/class', [AdminClassTransactionController::class,'addTeacher'])->name('addTeacherClass');
     Route::post('/add/student/class', [AdminClassTransactionController::class,'addStudent'])->name('addStudentClass');
     Route::get('/reset/class/{id}',[AdminClassTransactionController::class,'resetClass'])->name('resetClass'); // baru
+
     Route::get('/delete/TeacherClass/{teacher}/{class}',[AdminClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
+
     Route::get('/delete/StudentClass/{student}/{class}',[AdminClassTransactionController::class,'deleteStudent'])->name("classDeleteStudent");
     Route::get('/class/add', [AdminClassTransactionController::class,'insertPage'])->name('adminClassAddPage');
     Route::post('/class/add', [AdminClassTransactionController::class,'insert'])->name('adminClassAdd');

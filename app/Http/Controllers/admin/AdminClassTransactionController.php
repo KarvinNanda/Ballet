@@ -29,8 +29,8 @@ class AdminClassTransactionController extends Controller
             'student_id',
             'class_id',
             DB::raw('COUNT(student_id) as people_count'))
-            ->join('class_types','class_transactions.class_type_id','class_types.id')
-            ->join('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+            ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
             ->groupBy('class_id')
             ->simplePaginate(5);
 
@@ -229,7 +229,7 @@ class AdminClassTransactionController extends Controller
         $mappingTeacher->user_id = $req->teacherId;
         $mappingTeacher->class_id = $req->classId;
         $mappingTeacher->Save();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminDetailClass", ['id' => $req->classId]);
     }
 
     //addStudent
@@ -249,28 +249,24 @@ class AdminClassTransactionController extends Controller
         $mappingStudent->student_id = $req->studentId;
         $mappingStudent->class_id = $req->classId;
         $mappingStudent->Save();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminDetailClass", ['id' => $req->classId]);
     }
 
     public function deleteTeacher($teacher, $class){
         $teacher = DB::table('mapping_class_teachers')->where('class_id',$class)->where('user_id',$teacher);
         $teacher->delete();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminDetailClass", ['id' => $class]);
     }
 
     public function deleteStudent($student, $class){
         $teacher = DB::table('mapping_class_children')->where('class_id',$class)->where('student_id',$student);
         $teacher->delete();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminDetailClass", ['id' => $class]);
     }
-
 
     public function resetClass($id){
         $classScheduleReset = DB::table('schedules')->where('class_id',$id);
         $classScheduleReset->delete();
         return redirect()->route("adminClassView");
     }
-
-
-
 }

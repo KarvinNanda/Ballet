@@ -37,27 +37,27 @@ class ClassTypeSeeder extends Seeder
             ],
 
             [
-                'class_name' => 'Grace 1',
+                'class_name' => 'Grade 1',
                 'class_price' => 420000,
             ],
 
             [
-                'class_name' => 'Grace 2',
+                'class_name' => 'Grade 2',
                 'class_price' => 430000,
             ],
 
             [
-                'class_name' => 'Grace 3',
+                'class_name' => 'Grade 3',
                 'class_price' => 440000,
             ],
 
             [
-                'class_name' => 'Grace 4',
+                'class_name' => 'Grade 4',
                 'class_price' => 450000,
             ],
 
             [
-                'class_name' => 'Grace 5',
+                'class_name' => 'Grade 5',
                 'class_price' => 460000,
             ],
 
