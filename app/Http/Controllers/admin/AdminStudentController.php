@@ -82,7 +82,7 @@ class AdminStudentController extends Controller
 
         $rekening = new Rekenings();
         $rekening->bank_rek = $req->inputRekening;
-        $rekening->nama_pengirim = '-';
+        $rekening->nama_pengirim = $req->inputNamaPengirim;
         $rekening->banks_id = null;
         $rekening->save();
 

@@ -53,9 +53,7 @@
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Address</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" style="height: 100px" name="inputAddress">
-                                {{old('inputAddress')}}
-                            </textarea>
+                            <textarea class="form-control" style="height: 100px" name="inputAddress">{{old('inputAddress')}}</textarea>
                         </div>
                     </div>
 
@@ -70,6 +68,13 @@
                         <label class="col-sm-2 col-form-label ">Account Number</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputRekening" value="{{old('inputRekening')}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-2 col-form-label ">Sender Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="inputNamaPengirim" value="{{old('inputNamaPengirim')}}">
                         </div>
                     </div>
 
