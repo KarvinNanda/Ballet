@@ -48,8 +48,8 @@ class AdminClassTransactionController extends Controller
             'student_id',
             'class_id',
             DB::raw('COUNT(student_id) as people_count'))
-            ->join('class_types','class_transactions.class_type_id','class_types.id')
-            ->join('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+            ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
             ->groupBy('class_id')
             ->orderBy($value)
             ->simplePaginate(5);
