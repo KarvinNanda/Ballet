@@ -77,7 +77,7 @@ class AdminStudentController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $rekening = new Rekenings();
@@ -230,8 +230,8 @@ class AdminStudentController extends Controller
 
     public function detailStudent($studentId){
         $detail = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->join('banks','banks.id','rekenings.banks_id')
+            ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+            ->leftJoin('banks','banks.id','rekenings.banks_id')
             ->selectRaw('
                 students.id as id,
                 students.nis as nis,
@@ -254,35 +254,19 @@ class AdminStudentController extends Controller
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
-            ')->where('students.id',"LIKE",$studentId)->first();
+            ')->where('students.id', "=", $studentId)->first();
 
-        if(is_null($detail)){
-            $detail = DB::table('students')
-                ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-                ->selectRaw('
-                students.id as id,
-                students.nis as nis,
-                students.Status as status,
-                students.LongName as LongName,
-                students.ShortName as ShortName,
-                students.Dob as dob,
-                students.EnrollDate as EnrollDate,
-                students.nama_orang_tua as nama_orang_tua,
-                students.Address as Address,
-                students.City as City,
-                students.kode_pos as kode_pos,
-                students.Phone1 as Phone1,
-                students.Phone2 as Phone2,
-                students.Whatsapp as Whatsapp,
-                students.Instagram as Instagram,
-                students.Line as Line,
-                students.Email as Email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
-                rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim
-            ')->where('students.LongName',"LIKE", $student->LongName)->first();
-        }
-        return view('admin.student.adminStudentDetail',compact('detail'));
+        $courses_taken = DB::table('mapping_class_children')
+            ->join('class_transactions', 'mapping_class_children.class_id', 'class_transactions.id')
+            ->join('class_types', 'class_transactions.class_type_id', 'class_types.id')
+            ->where('mapping_class_children.student_id',"LIKE",$studentId)
+            ->groupBy('class_transactions.class_type_id')
+            ->get();
+
+        $detail = compact('detail');
+        $detail['courses_taken'] = $courses_taken;
+
+        return view('admin.student.adminStudentDetail', $detail);
     }
 
 

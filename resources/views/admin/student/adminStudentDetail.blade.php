@@ -151,5 +151,27 @@
         </div>
     </section>
 
+    <section class="section">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Courses Taken</h5>
+
+                <table class="table">
+                    <thead>
+                        <th>Course Name</th>
+                        <th>Price</th>
+                    </thead>
+                    <tbody>
+                        @foreach ($courses_taken as $data)
+                            <tr>
+                                <td>{{$data->class_name}}</td>
+                                <td>{{$data->class_price}}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
 
 @endsection

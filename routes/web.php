@@ -92,7 +92,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
 
     Route::get('/student/view', [AdminStudentController::class,'adminStudentView'])->name('adminStudentView');
     Route::get('/student/sorting/{value}', [AdminStudentController::class,'adminStudentViewSorting'])->name('adminStudentViewSorting');
-    Route::get('/student/form', [AdminStudentController::class,'viewStudentForm'])->name('adminStudentForm');;
+    Route::get('/student/form', [AdminStudentController::class,'viewStudentForm'])->name('adminStudentForm');
 
     Route::post('/student/form', [AdminStudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
 
