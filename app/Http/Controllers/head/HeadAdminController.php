@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 class HeadAdminController extends Controller
 {
     public function index(){
-        $admins = User::where('role','admin')->simplePaginate(5);
+        $admins = User::where('role','admin')->paginate(1);
         return view('head.admin.index',compact('admins'));
     }
 
