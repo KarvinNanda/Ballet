@@ -156,7 +156,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/level/class', [HeadClassController::class,'levelUp'])->name('headLevelUp');
     Route::post('/level/class/student', [HeadClassController::class,'levelUpStudent'])->name('headLevelUpStudent');
 
-    Route::post('/detail/class', [HeadClassController::class,'detailClass'])->name('headDetailClass');
+    Route::get('/detail/class/{id}', [HeadClassController::class,'detailClass'])->name('headDetailClass');
     Route::get('/view/add/teacher/class/{id}', [HeadClassController::class,'viewaddTeacher'])->name('headViewaddTeacherClass');
     Route::get('/view/add/student/class/{id}', [HeadClassController::class,'viewaddStudent'])->name('headViewaddStudentClass');
     Route::get('/delete/TeacherClass/{teacher}/{class}',[HeadClassController::class,'deleteTeacher'])->name("headClassDeleteTeacher");

@@ -129,9 +129,7 @@ class HeadClassController extends Controller
         return redirect()->back();
     }
 
-    public function detailClass(Request $req){
-        $class_id = $req->classId;
-
+    public function detailClass(Request $req, $id){
         $teachers = DB::table('class_transactions')
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
             ->join('users','mapping_class_teachers.user_id','users.id')
@@ -143,24 +141,28 @@ class HeadClassController extends Controller
                 users.email as teacherEmail,
                 users.phone as teacherPhone
             ')
-            ->where('class_transactions.id',$req->classId)
-            ->simplePaginate(5);
+            ->where('class_transactions.id', $id)
+            ->simplePaginate(5, ['*'], 'teachers');
+
+        $teachers->appends(['teachers' => request('teachers')]);
 
         $students = DB::table('class_transactions')
-            ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
-            ->join('students','mapping_class_children.student_id','students.id')
-            ->selectRaw('
-                students.id as id,
-                students.LongName as studentName,
-                students.Dob as studentDOB,
-                students.Address as studentAddress,
-                students.Email as studentEmail,
-                students.Phone1 as studentPhone
-            ')
-            ->where('class_transactions.id',$req->classId)
-            ->simplePaginate(5);
+        ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+        ->join('students','mapping_class_children.student_id','students.id')
+        ->selectRaw('
+        students.id as id,
+        students.LongName as studentName,
+        students.Dob as studentDOB,
+        students.Address as studentAddress,
+        students.Email as studentEmail,
+        students.Phone1 as studentPhone
+        ')
+        ->where('class_transactions.id', $id)
+        ->simplePaginate(5, ['*'], 'students');
 
-        return view('head.class.detail',compact('teachers','students','class_id'));
+        $students->appends(['students' => request('students')]);
+
+        return view('head.class.detail',compact('teachers','students','id'));
     }
 
 
@@ -182,7 +184,7 @@ class HeadClassController extends Controller
         $mappingTeacher->user_id = $req->teacherId;
         $mappingTeacher->class_id = $req->classId;
         $mappingTeacher->Save();
-        return redirect()->route("headClassPage");
+        return redirect()->route("headDetailClass", ['id' => $req->classId]);
     }
 
     public function viewaddStudent(Request $req){
@@ -201,19 +203,19 @@ class HeadClassController extends Controller
         $mappingStudent->student_id = $req->studentId;
         $mappingStudent->class_id = $req->classId;
         $mappingStudent->Save();
-        return redirect()->route("headClassPage");
+        return redirect()->route("headDetailClass", ['id' => $req->classId]);
     }
 
     public function deleteTeacher($teacher, $class){
         $teacher = DB::table('mapping_class_teachers')->where('class_id',$class)->where('user_id',$teacher);
         $teacher->delete();
-        return redirect()->route("headClassPage");
+        return redirect()->route("headDetailClass", ['id' => $class]);
     }
 
     public function deleteStudent($student, $class){
         $teacher = DB::table('mapping_class_children')->where('class_id',$class)->where('student_id',$student);
         $teacher->delete();
-        return redirect()->route("headClassPage");
+        return redirect()->route("headDetailClass", ['id' => $class]);
     }
 
     public function resetClass($id){
