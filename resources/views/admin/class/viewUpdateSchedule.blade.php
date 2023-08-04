@@ -12,7 +12,7 @@
             <div class="card-body">
                 <h5 class="card-title"></h5>
                 <!-- General Form Elements -->
-                <form action="{{route('updateScheduleClass')}}" method="post">
+                <form action="{{route('updateScheduleClass', ['classId' => $classId])}}" method="post">
                     @csrf
                     <input type="hidden" value="{{$schedule->id}}" name="scheduleId">
                     <div class="row mb-3">

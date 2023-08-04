@@ -16,7 +16,7 @@
                 <form action="{{route('headViewaddScheduleClass')}}" method="post">
                     @csrf
                     <input type="hidden" value="{{$classId}}" name="classId">
-                    <button class="btn btn-success me-5 mt-2 mb-2"> Add Schedule</button>
+                    <button class="btn btn-success me-5 mt-2 mb-2">Add Schedule</button>
                 </form>
 
                 <form action="{{route('headViewaddMultipleScheduleClass')}}" method="post">
@@ -76,6 +76,7 @@
                         </tbody>
                     </div>
                 </table>
+                {{$class->links()}}
                 <!-- End Table with stripped rows -->
             </div>
         </div>

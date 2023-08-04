@@ -12,16 +12,15 @@
     <section class="section">
         <div class="card">
             <div class="mt-3 w-100 d-flex justify-content-end">
-
-                <form action="{{route('viewaddScheduleClass')}}" method="post">
+                <form action="{{route('adminViewAddScheduleClass', ['id' => $id])}}" method="get">
                     @csrf
-                    <input type="hidden" value="{{$classId}}" name="classId">
+                    <input type="hidden" value="{{$id}}" name="classId">
                     <button class="btn btn-success me-5 mt-2 mb-2"> Add Schedule</button>
                 </form>
 
-                <form action="{{route('viewaddMultipleScheduleClass')}}" method="post">
+                <form action="{{route('adminViewAddMultipleScheduleClass')}}" method="get">
                     @csrf
-                    <input type="hidden" value="{{$classId}}" name="classId">
+                    <input type="hidden" value="{{$id}}" name="classId">
                     <button class="btn btn-success me-5 mt-2 mb-2"> Add Multiple Schedule</button>
                 </form>
             </div>
@@ -53,14 +52,14 @@
                                 <td>{{$carbon::parse($c->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($c->date)->format('H:i:s')}}</td>
                                 <td>
-                                    <form action="{{route('viewUpdateScheduleClass')}}" method="post">
+                                    <form action="{{route('viewUpdateScheduleClass', ['classId' => $id])}}" method="post">
                                         @csrf
                                         <input type="hidden" value="{{$c->id}}" name="scheduleId">
-                                        <button class="btn btn-success me-5 mt-2 mb-2"> Update Schedule</button>
+                                        <button class="btn btn-success me-5 mt-2 mb-2">Update Schedule</button>
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="{{route("deleteSchedule",['id'=>$c->id,'classId'=>$classId])}}" method="get">
+                                    <form action="{{route("deleteSchedule",['id'=>$c->id,'classId'=>$id])}}" method="get">
                                         @csrf
                                         <button type="submit" class="btn btn-success">Delete Schedule</button>
                                     </form>

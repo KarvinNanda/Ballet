@@ -10,15 +10,17 @@ use Illuminate\Support\Facades\DB;
 
 class HeadClassScheduleController extends Controller
 {
-    public function viewSchedule(Request $req){
+    public function viewSchedule(Request $req, $id){
         $classId = $req->classId;
         $class = DB::table('schedules')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->selectRaw('
                 schedules.date as date,
                 schedules.id as id
-            ')->where('schedules.class_id',$req->classId)->orderBy("date")
-            ->get();
+            ')
+            ->where('schedules.class_id', $id)->orderBy("date")
+            ->paginate(5);
+
         return view('head.class.viewSchedule',compact('class','classId'));
     }
 
@@ -90,6 +92,6 @@ class HeadClassScheduleController extends Controller
     public function deleteScheduleClass($id,$classId){
         $classDelete = DB::table('schedules')->where('schedules.id',$id)->where('class_id',$classId);
         $classDelete->delete();
-        return redirect()->route("headClassPage");
+        return redirect()->back();
     }
 }

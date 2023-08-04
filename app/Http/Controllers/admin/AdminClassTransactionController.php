@@ -149,7 +149,6 @@ class AdminClassTransactionController extends Controller
             ')
             ->where('class_transactions.id',$id)
             ->simplePaginate(5);
-//        dd($teachers);
 
         $students = DB::table('class_transactions')
             ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')

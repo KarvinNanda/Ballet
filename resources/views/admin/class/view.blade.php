@@ -79,7 +79,7 @@
 {{--                                </form>--}}
                             </td>
                             <td>
-                                <form action="{{route('viewScheduleClass')}}" method="post">
+                                <form action="{{route('viewScheduleClass', ['id' => $class->id])}}" method="get">
                                     @csrf
                                     <input type="hidden" value="{{$class->id}}" name="classId">
                                     <button type="submit" class="btn btn-secondary">Schedule</button>

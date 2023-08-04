@@ -15,33 +15,32 @@ use Illuminate\Support\Facades\DB;
 
 class AdminClassScheduleController extends Controller
 {
-    public function viewSchedule(Request $req){
-        $classId = $req->classId;
+    public function viewSchedule(Request $req, $id){
         $class = DB::table('schedules')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->selectRaw('
                 schedules.date as date,
                 schedules.id as id
-            ')->where('schedules.class_id',$req->classId)->orderBy("date")
+            ')->where('schedules.class_id', $id)->orderBy("date")
             ->get();
-        return view('admin.class.viewSchedule',compact('class','classId'));
+        return view('admin.class.viewSchedule',compact('class','id'));
     }
 
-    public function viewaddScheduleClass(Request $req){
-        $classId = $req->classId;
+    public function viewaddScheduleClass(Request $req, $id){
+        $classId = $id;
         $test = Schedule::find($classId);
-        return view('admin.class.viewaddSchedule',compact('classId'));
+        return view('admin.class.viewaddSchedule', compact('classId'));
     }
 
-    public function viewUpdateScheduleClass(Request $req){
+    public function viewUpdateScheduleClass(Request $req, $classId){
         $schedule = Schedule::find($req->scheduleId);
-        return view('admin.class.viewUpdateSchedule',compact('schedule'));
+        return view('admin.class.viewUpdateSchedule', compact('schedule', $classId));
     }
 
     public function viewAddMultipleScheduleClass(Request $req){
         $classId = $req->classId;
         $test = Schedule::find($classId);
-        return view('admin.class.addMultipleSchedule',compact('classId'));
+        return view('admin.class.addMultipleSchedule', compact('classId'));
     }
 
     public function addSchedule(Request $req){
@@ -70,11 +69,11 @@ class AdminClassScheduleController extends Controller
         return redirect()->route("adminClassView");
     }
 
-    public function updateSchedule(Request $req){
+    public function updateSchedule(Request $req, $classId){
         $schedule = Schedule::find($req->scheduleId);
         $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
-        return redirect()->route("adminClassView");
+        return redirect()->route("viewScheduleClass", ['id' => $classId]);
     }
 
     public function addMultipleSchedule(Request $req){

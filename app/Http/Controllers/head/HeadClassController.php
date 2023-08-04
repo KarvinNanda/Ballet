@@ -24,7 +24,7 @@ class HeadClassController extends Controller
     }
 
     public function indexType(){
-        $types = ClassType::all();
+        $types = ClassType::paginate(5);
         return view('head.class.classType',compact('types'));
     }
 
