@@ -23,7 +23,10 @@ class AdminClassScheduleController extends Controller
                 schedules.id as id
             ')->where('schedules.class_id', $id)->orderBy("date")
             ->get();
-        return view('admin.class.viewSchedule',compact('class','id'));
+
+        $class_id = $id;
+
+        return view('admin.class.viewSchedule', compact('class', 'class_id'));
     }
 
     public function viewaddScheduleClass(Request $req, $id){
@@ -32,9 +35,11 @@ class AdminClassScheduleController extends Controller
         return view('admin.class.viewaddSchedule', compact('classId'));
     }
 
-    public function viewUpdateScheduleClass(Request $req, $classId){
+    public function viewUpdateScheduleClass(Request $req, $id){
         $schedule = Schedule::find($req->scheduleId);
-        return view('admin.class.viewUpdateSchedule', compact('schedule', $classId));
+        $class_id = $id;
+
+        return view('admin.class.viewUpdateSchedule', compact('schedule', 'class_id'));
     }
 
     public function viewAddMultipleScheduleClass(Request $req){
@@ -59,21 +64,23 @@ class AdminClassScheduleController extends Controller
             }
         }
         if($bool==false){
-            return redirect()->route("adminClassView");
+            return redirect()->route("viewScheduleClass", ['id' => $req->classId]);
         }else{
             $schedule = new Schedule();
             $schedule->class_id = $req->classId;
             $schedule->date = $date;
             $schedule->save();
         }
-        return redirect()->route("adminClassView");
+
+        return redirect()->route("viewScheduleClass", ['id' => $req->classId]);
     }
 
-    public function updateSchedule(Request $req, $classId){
+    public function updateSchedule(Request $req, $id){
         $schedule = Schedule::find($req->scheduleId);
         $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
-        return redirect()->route("viewScheduleClass", ['id' => $classId]);
+
+        return redirect()->route("viewScheduleClass", ['id' => $id]);
     }
 
     public function addMultipleSchedule(Request $req){
@@ -88,7 +95,7 @@ class AdminClassScheduleController extends Controller
             $date->addDay(7);
         }
 
-        return redirect()->route("adminClassView");
+        return redirect()->route("viewScheduleClass", ['id' => $req->classId]);
     }
 
 
@@ -96,6 +103,7 @@ class AdminClassScheduleController extends Controller
     public function deleteScheduleClass($id,$classId){
         $classDelete = DB::table('schedules')->where('schedules.id',$id)->where('class_id',$classId);
         $classDelete->delete();
-        return redirect()->route("adminClassView");
+
+        return redirect()->route("viewScheduleClass", ['id' => $classId]);
     }
 }

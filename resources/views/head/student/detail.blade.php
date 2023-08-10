@@ -68,26 +68,26 @@
                     </div>
                 </div>
 
-                @if(@$detail->bank)
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Bank Name</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="bank" value="{{$detail->bank}}">
+                {{-- @if(@$detail->bank)
+                    <div class="row mb-3">
+                        <label for="inputPhone" class="col-sm-2 col-form-label">Bank Name</label>
+                        <div class="col-sm-10">
+                            <p class="form-control bg-opacity-10">{{$detail->bank}}</p>
+                        </div>
                     </div>
-                </div>
                 @endif
 
                 <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">Sender Name</label>
                     <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="pengirim" value="{{$detail->pengirim}}">
+                        <p class="form-control bg-opacity-10">{{$detail->pengirim}}</p>
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">Account Number</label>
                     <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="rek" value="{{$detail->rek}}">
+                            <p class="form-control bg-opacity-10">{{$detail->rek}}</p>
                     </div>
                 </div>
 

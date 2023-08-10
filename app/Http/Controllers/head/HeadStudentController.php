@@ -26,7 +26,8 @@ class HeadStudentController extends Controller
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
-            ->simplePaginate(5);
+            ->paginate(5);
+
         return view('head.student.index',compact('students'));
     }
 
@@ -85,6 +86,7 @@ class HeadStudentController extends Controller
         } else {
             $students = DB::table('students')
                 ->join('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->join('banks','rekenings.banks_id','banks.id')
                 ->selectRaw('
                 students.id as id,
                 students.Status as status,
@@ -108,6 +110,8 @@ class HeadStudentController extends Controller
                 ->orWhere('students.bank_rek',"LIKE","%$req->search%")
                 ->orWhere('students.nama_orang_tua',"LIKE","%$req->search%")
                 ->orWhere('students.Address',"LIKE","%$req->search%")
+                ->orWhere('rekenings.nama_pengirim',"LIKE","%$req->search%")
+                ->orWhere('banks.bank_name',"LIKE","%$req->search%")
                 ->simplePaginate(5);
         }
 
@@ -181,9 +185,9 @@ class HeadStudentController extends Controller
             'inputNis' => 'required|numeric|min_digits:10',
         ];
 
-        $validate = Validator::make($req->all(),$rules);
+        $validate = Validator::make($req->all(), $rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $rekening = new Rekenings();
@@ -213,7 +217,6 @@ class HeadStudentController extends Controller
 
         $student->save();
 
-
         return redirect()->route('headStudentPage');
     }
 
@@ -230,8 +233,8 @@ class HeadStudentController extends Controller
 
     public function detailStudent(Student $student, $id){
         $detail = DB::table('students')
-            ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->leftJoin('banks','banks.id','rekenings.banks_id')
+            ->leftJoin('rekenings', 'students.bank_rek', 'rekenings.bank_rek')
+            ->leftJoin('banks', 'banks.id', 'rekenings.banks_id')
             ->selectRaw('
                 students.id as id,
                 students.nis as nis,
@@ -316,9 +319,6 @@ class HeadStudentController extends Controller
         $student->Dob = $request->dob;
         $student->Address = $request->Address;
         $student->nama_orang_tua = $request->nama_orang_tua;
-        // $student->bank = $request->bank;
-        // $student->pengirim = $request->pengirim;
-        // $student->rek = $request->rek;
         $student->City = $request->city;
         $student->kode_pos = $request->kode_pos;
         $student->Phone1 = $request->Phone1;
