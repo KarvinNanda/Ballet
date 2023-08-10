@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Validator;
 
 class HeadStudentController extends Controller
 {
-
     public function index(){
         $students = DB::table('students')
             ->join('rekenings','students.bank_rek','rekenings.bank_rek')
@@ -166,8 +165,6 @@ class HeadStudentController extends Controller
     }
 
     public function insert(Request $req){
-
-
         $rules = [
             'inputLongName' => 'required',
             'inputNickName' => 'required',
@@ -231,10 +228,10 @@ class HeadStudentController extends Controller
         return redirect()->back();
     }
 
-    public function detailStudent(Student $student){
+    public function detailStudent(Student $student, $id){
         $detail = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->join('banks','banks.id','rekenings.banks_id')
+            ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+            ->leftJoin('banks','banks.id','rekenings.banks_id')
             ->selectRaw('
                 students.id as id,
                 students.nis as nis,
@@ -257,9 +254,9 @@ class HeadStudentController extends Controller
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
-            ')->where('students.LongName',"LIKE",$student->LongName)->first();
-//        dd(is_null($detail));
-        if(is_null($detail)){
+            ')->where('students.id',"LIKE", $id)->first();
+
+            if(is_null($detail)){
             $detail = DB::table('students')
                 ->join('rekenings','students.bank_rek','rekenings.bank_rek')
                 ->selectRaw('
@@ -285,6 +282,54 @@ class HeadStudentController extends Controller
                 rekenings.nama_pengirim as pengirim
             ')->where('students.LongName',"LIKE",$student->LongName)->first();
         }
-        return view('head.student.detail',compact('detail'));
+
+        return view('head.student.detail', compact('detail'));
+    }
+
+    public function update(Request $request)
+    {
+        $rules = [
+            'LongName' => 'required',
+            'nama_orang_tua' => 'required',
+            'city' => 'required',
+            'Email' => 'required|email:filter',
+            'dob' => 'required|date|before:tomorrow',
+            'Address' => 'required',
+            'Phone1' => 'required|numeric|digits_between:10,12',
+            'Phone2' => 'required|numeric|digits_between:10,12',
+            'Whatsapp' => 'required|numeric|digits_between:10,12',
+            'rek' => 'required|numeric|digits_between:10,15',
+            'kode_pos' => 'required|numeric|min_digits:5',
+            'nis' => 'required|numeric|min_digits:10',
+        ];
+
+        $validate = Validator::make($request->all(), $rules);
+        if($validate->fails()){
+            return redirect()->back()->withErrors($validate);
+        }
+
+        $student = Student::find($request->id);
+        $student->nis = $request->nis;
+        $student->LongName = $request->LongName;
+        $student->ShortName = $request->ShortName;
+        $student->Email = $request->Email;
+        $student->Dob = $request->dob;
+        $student->Address = $request->Address;
+        $student->nama_orang_tua = $request->nama_orang_tua;
+        // $student->bank = $request->bank;
+        // $student->pengirim = $request->pengirim;
+        // $student->rek = $request->rek;
+        $student->City = $request->city;
+        $student->kode_pos = $request->kode_pos;
+        $student->Phone1 = $request->Phone1;
+        $student->Phone2 = $request->Phone2;
+        $student->Whatsapp = $request->Whatsapp;
+        $student->Instagram = $request->Instagram;
+        $student->Line = $request->Line;
+        $student->EnrollDate = $request->EnrollDate;
+
+        $student->save();
+
+        return redirect()->back();
     }
 }

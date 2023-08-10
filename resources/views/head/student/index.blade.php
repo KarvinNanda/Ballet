@@ -73,7 +73,7 @@
                                 </form>
                             </td>
                             <td>
-                                <form action="{{route('detailStudent',$student->name)}}" method="post">
+                                <form action="{{route('detailStudent',$student->id)}}" method="get">
                                     @csrf
                                     <button type="submit" class="btn btn-secondary">Detail</button>
                                 </form>

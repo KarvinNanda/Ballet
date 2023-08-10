@@ -190,9 +190,11 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/student/add', [HeadStudentController::class,'insert'])->name('StudentAdd');
     Route::post('/student/search', [HeadStudentController::class,'search'])->name('searchStudent');
 
-    Route::post('/student/detail/{student:LongName}', [HeadStudentController::class,'detailStudent'])->name('detailStudent');
+    Route::get('/student/detail/{id}', [HeadStudentController::class,'detailStudent'])->name('detailStudent');
     Route::post('/student/delete/{student}', [HeadStudentController::class,'deleteStudent'])->name('deleteStudent');
     Route::get('/student/sorting/{value}', [HeadStudentController::class,'sorting'])->name('sortingStudent');
+
+    Route::post('/student/update', [HeadStudentController::class, 'update'])->name('updateStudent');
 
     Route::get('/teacher', [HeadTeacherController::class,'index'])->name('headTeacherPage');
     Route::get('/teacher/add', [HeadTeacherController::class,'insertPage'])->name('headTeacherAddPage');
