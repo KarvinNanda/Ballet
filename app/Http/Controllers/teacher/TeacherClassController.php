@@ -53,7 +53,7 @@ class TeacherClassController extends Controller
             ->selectRaw('
                 schedules.date as date,
                 schedules.id as id
-            ')->where('schedules.class_id', $req->classId)->orderBy("date")
+            ')->where('schedules.class_id', $classId)->orderBy("date")
             ->get();
 
         return view('teacher.class.viewSchedule', compact('class', 'classId'));
@@ -109,6 +109,7 @@ class TeacherClassController extends Controller
                 }
             }
         }
+
         if ($bool == false) {
             return redirect()->route("viewScheduleClassTeacher", ['id' => $id]);
         } else {
@@ -136,9 +137,9 @@ class TeacherClassController extends Controller
         return redirect()->route("viewScheduleClassTeacher", ['id' => $req->classId]);
     }
 
-    public function viewClassSchedule(Request $request)
+    public function viewClassSchedule(Request $request, $id)
     {
-        $userId = $request->input('userId');
+        $userId = $id;
         $classes = ClassTransaction::whereHas('mapping', function ($query) use ($userId) {
             $query->where('user_id', $userId);
         })->where('Status', 'aktif')->simplePaginate(5);

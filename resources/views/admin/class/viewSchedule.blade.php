@@ -15,13 +15,13 @@
                 <form action="{{route('adminViewAddScheduleClass', ['id' => $class_id])}}" method="get">
                     @csrf
                     <input type="hidden" value="{{$class_id}}" name="classId">
-                    <button class="btn btn-success me-5 mt-2 mb-2"> Add Schedule</button>
+                    <button class="btn btn-success me-5 mt-2 mb-2">Add Schedule</button>
                 </form>
 
                 <form action="{{route('adminViewAddMultipleScheduleClass')}}" method="get">
                     @csrf
                     <input type="hidden" value="{{$class_id}}" name="classId">
-                    <button class="btn btn-success me-5 mt-2 mb-2"> Add Multiple Schedule</button>
+                    <button class="btn btn-success me-5 mt-2 mb-2">Add Multiple Schedule</button>
                 </form>
             </div>
             <div class="card-body">

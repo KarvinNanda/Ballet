@@ -24,9 +24,10 @@ class HeadClassScheduleController extends Controller
         return view('head.class.viewSchedule',compact('class','classId'));
     }
 
-    public function viewaddScheduleClass(Request $req){
-        $classId = $req->classId;
+    public function viewaddScheduleClass(Request $req, $id){
+        $classId = $id;
         $test = Schedule::find($classId);
+
         return view('head.class.viewaddSchedule',compact('classId'));
     }
 
@@ -35,9 +36,10 @@ class HeadClassScheduleController extends Controller
         return view('head.class.viewUpdateSchedule',compact('schedule'));
     }
 
-    public function viewAddMultipleScheduleClass(Request $req){
-        $classId = $req->classId;
+    public function viewAddMultipleScheduleClass(Request $req, $id){
+        $classId = $id;
         $test = Schedule::find($classId);
+
         return view('head.class.addMultipleSchedule',compact('classId'));
     }
 

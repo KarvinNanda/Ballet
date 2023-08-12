@@ -34,7 +34,7 @@ class AdminClassTransactionController extends Controller
             ->groupBy('class_id')
             ->simplePaginate(5);
 
-        return view('admin.class.view',compact('classes'));
+        return view('admin.class.view', compact('classes'));
     }
 
     public function viewClassSorting($value)

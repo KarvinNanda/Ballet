@@ -21,24 +21,22 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($classes as $class)
-                    <tr>
-                        <td>
-                            {{$class->Type->class_name}} -
-                            @foreach ($class->mapping as $map)
-                            {{$map->getUser->name}}
-                        @endforeach
-                        - {{$class->id}}
-                        </td>
-                        <td>
-                            <form action="{{route('viewScheduleClassTeacher', ['id' => $class->id])}}" method="get">
-                            @csrf
-                            <input type="hidden" value={{$class->id}} name="classId">
-                            <button type="submit" class="btn btn-secondary">Schedule</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
+                    @foreach($classes as $class)
+                        <tr>
+                            <td>
+                                {{$class->Type->class_name}} -
+                                @foreach ($class->mapping as $map)
+                                {{$map->getUser->name}}
+                            @endforeach
+                            - {{$class->id}}
+                            </td>
+                            <td>
+                                <form action="{{route('viewScheduleClassTeacher', ['id' => $class->id])}}" method="get">
+                                    <button type="submit" class="btn btn-secondary">Schedule</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
             <!-- End Table with stripped rows -->
