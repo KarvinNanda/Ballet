@@ -183,6 +183,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/view/addMultipleSchedule/class/{id}',[HeadClassScheduleController::class,'viewAddMultipleScheduleClass'])->name('headViewaddMultipleScheduleClass');// baru
 
     Route::get('/student', [HeadStudentController::class,'index'])->name('headStudentPage');
+
     Route::get('/student/active', [HeadStudentController::class,'active'])->name('activeStudentPage');
     Route::get('/student/non/active', [HeadStudentController::class,'nonActive'])->name('nonactiveStudentPage');
     Route::post('/student/non/active/{student}', [HeadStudentController::class,'ChangeNonactive'])->name('nonactiveStudent');

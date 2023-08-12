@@ -4,6 +4,10 @@
 @section('title','Student List')
 
 @section('content')
+    <div class="d-none">
+        {{ $keyword = request('keyword') }}
+        {{ $status = request('status', 'all') }}
+    </div>
 
     <div class="pagetitle">
         <h1>Student Tables</h1>
@@ -11,26 +15,30 @@
 
     <section class="section">
         <div class="card">
-            <div class="dropdown mt-3 ms-3">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Choose
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{route('activeStudentPage')}}">Active</a></li>
-                    <li><a class="dropdown-item" href="{{route('nonactiveStudentPage')}}">Non-Active</a></li>
-                </ul>
-            </div>
             <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="POST" action="{{route('searchStudent')}}">
+                <form
+                    class="d-flex align-items-center justify-content-center gap-2"
+                    method="GET"
+                    action="{{route('headStudentPage')}}"
+                >
+                    <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
+
                     @csrf
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
+                    <select class="form-select" name="status">
+                        <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All</option>
+                        <option value="aktif" {{ $status == 'aktif' ? 'selected' : '' }}>Active</option>
+                        <option value="non-aktif" {{ $status == 'non-aktif' ? 'selected' : '' }}>Non Active</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary text-nowrap">Apply Filters</button>
                 </form>
-                <a href="{{route('headStudentAddPage')}}"><button class="btn btn-success me-3 mb-3">Add Student</button></a>
+
+                <a href="{{route('headStudentAddPage')}}">
+                    <button class="btn btn-success me-3 mb-3">Add Student</button>
+                </a>
             </div>
 
             <div class="card-body">
-
-
                 <!-- Table with stripped rows -->
                 <table class="table table-striped">
                     <div class="container">
@@ -85,7 +93,12 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="alert text-center" role="alert">
-                    {{$students->links()}}
+                    {{
+                        $students->appends([
+                            'status' => request('status'),
+                            'keyword' => request('keyword')
+                        ])->links()
+                    }}
                 </div>
             </div>
         </div>

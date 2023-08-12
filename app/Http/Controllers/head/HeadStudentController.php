@@ -12,21 +12,75 @@ use Illuminate\Support\Facades\Validator;
 
 class HeadStudentController extends Controller
 {
-    public function index(){
-        $students = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->selectRaw('
+
+    public function index(Request $request){
+        $keyword = $request->query('keyword');
+        $status = $request->query('status');
+
+        if ($status == "all") {
+            $students = DB::table('students')
+                ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->leftJoin('banks','rekenings.banks_id','banks.id')
+                ->selectRaw('
                 students.id as id,
                 students.Status as status,
                 students.LongName as name,
                 students.Dob as dob,
                 students.nama_orang_tua as ortu,
+                students.Address as alamat,
                 students.Phone1 as phone,
+                students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
-            ->paginate(5);
+                ->where('students.LongName',"LIKE","%$keyword%")
+                ->orWhere('students.ShortName',"LIKE","%$keyword%")
+                ->orWhere('students.Instagram',"LIKE","%$keyword%")
+                ->orWhere('students.Phone1',"LIKE","%$keyword%")
+                ->orWhere('students.Phone2',"LIKE","%$keyword%")
+                ->orWhere('students.bank_rek',"LIKE","%$keyword%")
+                ->orWhere('students.nama_orang_tua',"LIKE","%$keyword%")
+                ->orWhere('students.Address',"LIKE","%$keyword%")
+                ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
+                ->orWhere('banks.bank_name',"LIKE","%$keyword%")
+                ->paginate(5);
+        } else {
+            $students = DB::table('students')
+                ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->leftJoin('banks','rekenings.banks_id','banks.id')
+                ->selectRaw('
+                students.id as id,
+                students.Status as status,
+                students.LongName as name,
+                students.Dob as dob,
+                students.nama_orang_tua as ortu,
+                students.Address as alamat,
+                students.Phone1 as phone,
+                students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
+                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                rekenings.bank_rek as rek,
+                rekenings.nama_pengirim as pengirim
+            ')
+                ->where('students.Status', "=", $status)
+                ->where(function ($query) use ($keyword) {
+                    $query->where('students.LongName',"LIKE","%$keyword%")
+                    ->orWhere('students.ShortName',"LIKE","%$keyword%")
+                    ->orWhere('students.Instagram',"LIKE","%$keyword%")
+                    ->orWhere('students.Phone1',"LIKE","%$keyword%")
+                    ->orWhere('students.Phone2',"LIKE","%$keyword%")
+                    ->orWhere('students.bank_rek',"LIKE","%$keyword%")
+                    ->orWhere('students.nama_orang_tua',"LIKE","%$keyword%")
+                    ->orWhere('students.Address',"LIKE","%$keyword%")
+                    ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
+                    ->orWhere('banks.bank_name',"LIKE","%$keyword%");
+                })
+                ->paginate(5);
+        }
 
         return view('head.student.index',compact('students'));
     }

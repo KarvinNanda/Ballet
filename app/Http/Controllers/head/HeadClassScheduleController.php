@@ -58,6 +58,7 @@ class HeadClassScheduleController extends Controller
                 }
             }
         }
+
         if($bool==false){
             return redirect()->route("adminClassView");
         }else{
@@ -66,7 +67,8 @@ class HeadClassScheduleController extends Controller
             $schedule->date = $date;
             $schedule->save();
         }
-        return redirect()->route("headClassPage");
+
+        return redirect()->route("headViewScheduleClass", ['classId' => $req->classId]);
     }
 
     public function updateSchedule(Request $req){
@@ -88,7 +90,7 @@ class HeadClassScheduleController extends Controller
             $date->addDay(7);
         }
 
-        return redirect()->route("headClassPage");
+        return redirect()->route("headViewScheduleClass", ['classId' => $req->classId]);
     }
 
     public function deleteScheduleClass($id,$classId){
