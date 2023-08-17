@@ -25,7 +25,6 @@ class DatabaseSeeder extends Seeder
         $this->call(ScheduleSeeder::class);
         $this->call(StockSeeder::class);
 
-
         DB::table('users')->insert([
             [
                 'name' => 'Saminjo',
@@ -93,6 +92,7 @@ class DatabaseSeeder extends Seeder
                 'percent' => 0,
             ],
         ]);
+
         $this->call(MappingClassTeacherSeeder::class);
         $this->call(MappingClassChildSeeder::class);
     }

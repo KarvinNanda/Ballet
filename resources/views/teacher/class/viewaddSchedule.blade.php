@@ -13,7 +13,7 @@
                 <h5 class="card-title"></h5>
 
                 <!-- General Form Elements -->
-                <form action="{{route('addScheduleClassTeacher')}}" method="post">
+                <form action="{{route('addScheduleClassTeacher', ['id' => $classId])}}" method="post">
                     @csrf
                     <input type="hidden" value="{{$classId}}" name="classId">
                     <div class="row mb-3">

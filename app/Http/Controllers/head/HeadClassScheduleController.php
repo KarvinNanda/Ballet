@@ -10,21 +10,24 @@ use Illuminate\Support\Facades\DB;
 
 class HeadClassScheduleController extends Controller
 {
-    public function viewSchedule(Request $req){
+    public function viewSchedule(Request $req, $id){
         $classId = $req->classId;
         $class = DB::table('schedules')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->selectRaw('
                 schedules.date as date,
                 schedules.id as id
-            ')->where('schedules.class_id',$req->classId)->orderBy("date")
-            ->get();
+            ')
+            ->where('schedules.class_id', $id)->orderBy("date")
+            ->paginate(5);
+
         return view('head.class.viewSchedule',compact('class','classId'));
     }
 
-    public function viewaddScheduleClass(Request $req){
-        $classId = $req->classId;
+    public function viewaddScheduleClass(Request $req, $id){
+        $classId = $id;
         $test = Schedule::find($classId);
+
         return view('head.class.viewaddSchedule',compact('classId'));
     }
 
@@ -33,9 +36,10 @@ class HeadClassScheduleController extends Controller
         return view('head.class.viewUpdateSchedule',compact('schedule'));
     }
 
-    public function viewAddMultipleScheduleClass(Request $req){
-        $classId = $req->classId;
+    public function viewAddMultipleScheduleClass(Request $req, $id){
+        $classId = $id;
         $test = Schedule::find($classId);
+
         return view('head.class.addMultipleSchedule',compact('classId'));
     }
 
@@ -54,6 +58,7 @@ class HeadClassScheduleController extends Controller
                 }
             }
         }
+
         if($bool==false){
             return redirect()->route("adminClassView");
         }else{
@@ -62,7 +67,8 @@ class HeadClassScheduleController extends Controller
             $schedule->date = $date;
             $schedule->save();
         }
-        return redirect()->route("headClassPage");
+
+        return redirect()->route("headViewScheduleClass", ['classId' => $req->classId]);
     }
 
     public function updateSchedule(Request $req){
@@ -84,12 +90,12 @@ class HeadClassScheduleController extends Controller
             $date->addDay(7);
         }
 
-        return redirect()->route("headClassPage");
+        return redirect()->route("headViewScheduleClass", ['classId' => $req->classId]);
     }
 
     public function deleteScheduleClass($id,$classId){
         $classDelete = DB::table('schedules')->where('schedules.id',$id)->where('class_id',$classId);
         $classDelete->delete();
-        return redirect()->route("headClassPage");
+        return redirect()->back();
     }
 }

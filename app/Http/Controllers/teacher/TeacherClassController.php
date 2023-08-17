@@ -45,16 +45,17 @@ class TeacherClassController extends Controller
         return view('teacher.class.detail', compact('data'));
     }
 
-    public function viewSchedule(Request $req)
+    public function viewSchedule(Request $req, $id)
     {
-        $classId = $req->classId;
+        $classId = $id;
         $class = DB::table('schedules')
             ->join('class_transactions', 'class_transactions.id', 'schedules.class_id')
             ->selectRaw('
                 schedules.date as date,
                 schedules.id as id
-            ')->where('schedules.class_id', $req->classId)->orderBy("date")
+            ')->where('schedules.class_id', $classId)->orderBy("date")
             ->get();
+
         return view('teacher.class.viewSchedule', compact('class', 'classId'));
     }
 
@@ -79,24 +80,25 @@ class TeacherClassController extends Controller
         return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()]);
     }
 
-    public function viewaddScheduleClass(Request $req)
+    public function viewaddScheduleClass(Request $req, $id)
     {
-        $classId = $req->classId;
+        $classId = $id;
         $test = Schedule::find($classId);
+
         return view('teacher.class.viewaddSchedule', compact('classId'));
     }
 
-    public function viewAddMultipleScheduleClass(Request $req)
+    public function viewAddMultipleScheduleClass(Request $req, $id)
     {
-        $classId = $req->classId;
+        $classId = $id;
         $test = Schedule::find($classId);
         return view('teacher.class.addMultipleSchedule', compact('classId'));
     }
 
-    public function addSchedule(Request $req)
+    public function addSchedule(Request $req, $id)
     {
         $date = Carbon::parse($req->dateTime);
-        $class_schedule = Schedule::where('class_id', $req->classId)->get();
+        $class_schedule = Schedule::where('class_id', $id)->get();
         $bool = true;
         foreach ($class_schedule as $sche) {
             if (Carbon::parse($sche->date)->toDateString() == Carbon::parse($date)->toDateString()) {
@@ -107,20 +109,21 @@ class TeacherClassController extends Controller
                 }
             }
         }
+
         if ($bool == false) {
-            return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()]);
+            return redirect()->route("viewScheduleClassTeacher", ['id' => $id]);
         } else {
             $schedule = new Schedule();
             $schedule->class_id = $req->classId;
             $schedule->date = $date;
             $schedule->save();
         }
-        return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()]);
+
+        return redirect()->route("viewScheduleClassTeacher", ['id' => $id]);
     }
 
     public function addMultipleSchedule(Request $req)
     {
-
         $date = Carbon::parse($req->dateTime);
 
         for ($i = 0; $i < $req->ScheduleLoop; $i++) {
@@ -131,15 +134,16 @@ class TeacherClassController extends Controller
             $date->addDay(7);
         }
 
-        return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()]);
+        return redirect()->route("viewScheduleClassTeacher", ['id' => $req->classId]);
     }
 
-    public function viewClassSchedule(Request $request)
+    public function viewClassSchedule(Request $request, $id)
     {
-        $userId = $request->input('userId');
+        $userId = $id;
         $classes = ClassTransaction::whereHas('mapping', function ($query) use ($userId) {
             $query->where('user_id', $userId);
         })->where('Status', 'aktif')->simplePaginate(5);
+
         return view('teacher.class.schedule', compact('classes'));
     }
 }

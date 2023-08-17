@@ -13,21 +13,75 @@ use Illuminate\Support\Facades\Validator;
 class HeadStudentController extends Controller
 {
 
-    public function index(){
-        $students = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->selectRaw('
+    public function index(Request $request){
+        $keyword = $request->query('keyword');
+        $status = $request->query('status');
+
+        if ($status == "all") {
+            $students = DB::table('students')
+                ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->leftJoin('banks','rekenings.banks_id','banks.id')
+                ->selectRaw('
                 students.id as id,
                 students.Status as status,
                 students.LongName as name,
                 students.Dob as dob,
                 students.nama_orang_tua as ortu,
+                students.Address as alamat,
                 students.Phone1 as phone,
+                students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
-            ->simplePaginate(5);
+                ->where('students.LongName',"LIKE","%$keyword%")
+                ->orWhere('students.ShortName',"LIKE","%$keyword%")
+                ->orWhere('students.Instagram',"LIKE","%$keyword%")
+                ->orWhere('students.Phone1',"LIKE","%$keyword%")
+                ->orWhere('students.Phone2',"LIKE","%$keyword%")
+                ->orWhere('students.bank_rek',"LIKE","%$keyword%")
+                ->orWhere('students.nama_orang_tua',"LIKE","%$keyword%")
+                ->orWhere('students.Address',"LIKE","%$keyword%")
+                ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
+                ->orWhere('banks.bank_name',"LIKE","%$keyword%")
+                ->paginate(5);
+        } else {
+            $students = DB::table('students')
+                ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->leftJoin('banks','rekenings.banks_id','banks.id')
+                ->selectRaw('
+                students.id as id,
+                students.Status as status,
+                students.LongName as name,
+                students.Dob as dob,
+                students.nama_orang_tua as ortu,
+                students.Address as alamat,
+                students.Phone1 as phone,
+                students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
+                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                rekenings.bank_rek as rek,
+                rekenings.nama_pengirim as pengirim
+            ')
+                ->where('students.Status', "=", $status)
+                ->where(function ($query) use ($keyword) {
+                    $query->where('students.LongName',"LIKE","%$keyword%")
+                    ->orWhere('students.ShortName',"LIKE","%$keyword%")
+                    ->orWhere('students.Instagram',"LIKE","%$keyword%")
+                    ->orWhere('students.Phone1',"LIKE","%$keyword%")
+                    ->orWhere('students.Phone2',"LIKE","%$keyword%")
+                    ->orWhere('students.bank_rek',"LIKE","%$keyword%")
+                    ->orWhere('students.nama_orang_tua',"LIKE","%$keyword%")
+                    ->orWhere('students.Address',"LIKE","%$keyword%")
+                    ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
+                    ->orWhere('banks.bank_name',"LIKE","%$keyword%");
+                })
+                ->paginate(5);
+        }
+
         return view('head.student.index',compact('students'));
     }
 
@@ -86,6 +140,7 @@ class HeadStudentController extends Controller
         } else {
             $students = DB::table('students')
                 ->join('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->join('banks','rekenings.banks_id','banks.id')
                 ->selectRaw('
                 students.id as id,
                 students.Status as status,
@@ -109,6 +164,8 @@ class HeadStudentController extends Controller
                 ->orWhere('students.bank_rek',"LIKE","%$req->search%")
                 ->orWhere('students.nama_orang_tua',"LIKE","%$req->search%")
                 ->orWhere('students.Address',"LIKE","%$req->search%")
+                ->orWhere('rekenings.nama_pengirim',"LIKE","%$req->search%")
+                ->orWhere('banks.bank_name',"LIKE","%$req->search%")
                 ->simplePaginate(5);
         }
 
@@ -166,8 +223,6 @@ class HeadStudentController extends Controller
     }
 
     public function insert(Request $req){
-
-
         $rules = [
             'inputLongName' => 'required',
             'inputNickName' => 'required',
@@ -184,9 +239,9 @@ class HeadStudentController extends Controller
             'inputNis' => 'required|numeric|min_digits:10',
         ];
 
-        $validate = Validator::make($req->all(),$rules);
+        $validate = Validator::make($req->all(), $rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $rekening = new Rekenings();
@@ -216,7 +271,6 @@ class HeadStudentController extends Controller
 
         $student->save();
 
-
         return redirect()->route('headStudentPage');
     }
 
@@ -231,10 +285,10 @@ class HeadStudentController extends Controller
         return redirect()->back();
     }
 
-    public function detailStudent(Student $student){
+    public function detailStudent(Student $student, $id){
         $detail = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->join('banks','banks.id','rekenings.banks_id')
+            ->leftJoin('rekenings', 'students.bank_rek', 'rekenings.bank_rek')
+            ->leftJoin('banks', 'banks.id', 'rekenings.banks_id')
             ->selectRaw('
                 students.id as id,
                 students.nis as nis,
@@ -257,9 +311,9 @@ class HeadStudentController extends Controller
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
-            ')->where('students.LongName',"LIKE",$student->LongName)->first();
-//        dd(is_null($detail));
-        if(is_null($detail)){
+            ')->where('students.id',"LIKE", $id)->first();
+
+            if(is_null($detail)){
             $detail = DB::table('students')
                 ->join('rekenings','students.bank_rek','rekenings.bank_rek')
                 ->selectRaw('
@@ -285,6 +339,51 @@ class HeadStudentController extends Controller
                 rekenings.nama_pengirim as pengirim
             ')->where('students.LongName',"LIKE",$student->LongName)->first();
         }
-        return view('head.student.detail',compact('detail'));
+
+        return view('head.student.detail', compact('detail'));
+    }
+
+    public function update(Request $request)
+    {
+        $rules = [
+            'LongName' => 'required',
+            'nama_orang_tua' => 'required',
+            'city' => 'required',
+            'Email' => 'required|email:filter',
+            'dob' => 'required|date|before:tomorrow',
+            'Address' => 'required',
+            'Phone1' => 'required|numeric|digits_between:10,12',
+            'Phone2' => 'required|numeric|digits_between:10,12',
+            'Whatsapp' => 'required|numeric|digits_between:10,12',
+            'rek' => 'required|numeric|digits_between:10,15',
+            'kode_pos' => 'required|numeric|min_digits:5',
+            'nis' => 'required|numeric|min_digits:10',
+        ];
+
+        $validate = Validator::make($request->all(), $rules);
+        if($validate->fails()){
+            return redirect()->back()->withErrors($validate);
+        }
+
+        $student = Student::find($request->id);
+        $student->nis = $request->nis;
+        $student->LongName = $request->LongName;
+        $student->ShortName = $request->ShortName;
+        $student->Email = $request->Email;
+        $student->Dob = $request->dob;
+        $student->Address = $request->Address;
+        $student->nama_orang_tua = $request->nama_orang_tua;
+        $student->City = $request->city;
+        $student->kode_pos = $request->kode_pos;
+        $student->Phone1 = $request->Phone1;
+        $student->Phone2 = $request->Phone2;
+        $student->Whatsapp = $request->Whatsapp;
+        $student->Instagram = $request->Instagram;
+        $student->Line = $request->Line;
+        $student->EnrollDate = $request->EnrollDate;
+
+        $student->save();
+
+        return redirect()->back();
     }
 }

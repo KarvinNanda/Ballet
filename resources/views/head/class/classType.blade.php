@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="pagetitle">
-        <h1>Course Tables</h1>
+        <h1>Course Price and Data</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -41,6 +41,8 @@
                     @endforeach
                     </tbody>
                 </table>
+
+                {{$types->links()}}
             </div>
         </div>
     </section>

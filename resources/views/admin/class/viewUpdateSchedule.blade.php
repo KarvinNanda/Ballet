@@ -12,7 +12,8 @@
             <div class="card-body">
                 <h5 class="card-title"></h5>
                 <!-- General Form Elements -->
-                <form action="{{route('updateScheduleClass')}}" method="post">
+                {{-- <form action="{{route('updateScheduleClass', ['classId' => $class_id])}}" method="post"> --}}
+                <form action="{{route('updateScheduleClass', ['id' => $class_id])}}" method="post">
                     @csrf
                     <input type="hidden" value="{{$schedule->id}}" name="scheduleId">
                     <div class="row mb-3">
@@ -23,7 +24,7 @@
                     </div>
 
                     <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
+                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3" type="submit">
                             Submit
                         </button>
                     </div>

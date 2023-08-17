@@ -33,9 +33,17 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">Class Name</th>
+                        <th scope="col">
+                            <a href="{{route("viewClassSorting","class_name")}}">
+                                Class Name
+                            </a>
+                        </th>
                         <th scope="col">Price</th>
-                        <th scope="col">Action</th>
+                        <th scope="col">
+                            <a href="{{route("viewClassSorting","status")}}">
+                                Action
+                            </a>
+                        </th>
                         <th scope="col">Detail</th>
                         <th scope="col">Schedule Detail</th>
                         <th scope="col">Level Up</th>
@@ -49,7 +57,7 @@
                                 @foreach ($class->mapping as $map)
                                 {{$map->getUser->name}}
                             @endforeach
-                            - {{$class->id}}
+                            - {{$class->people_count}}
                             </td>
                             <td>Rp.{{number_format($class->Type->class_price)}}</td>
                             <td>
@@ -71,7 +79,7 @@
 {{--                                </form>--}}
                             </td>
                             <td>
-                                <form action="{{route('viewScheduleClass')}}" method="post">
+                                <form action="{{route('viewScheduleClass', ['id' => $class->id])}}" method="get">
                                     @csrf
                                     <input type="hidden" value="{{$class->id}}" name="classId">
                                     <button type="submit" class="btn btn-secondary">Schedule</button>

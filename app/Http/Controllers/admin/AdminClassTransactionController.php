@@ -14,11 +14,46 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+use function PHPSTORM_META\map;
+
 class AdminClassTransactionController extends Controller
 {
     public function viewClass()
     {
-        $classes = ClassTransaction::simplePaginate(5);
+        $classes = ClassTransaction::select(
+            'class_transactions.id',
+            'class_name',
+            'class_price',
+            'Status',
+            'class_type_id',
+            'student_id',
+            'class_id',
+            DB::raw('COUNT(student_id) as people_count'))
+            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+            ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+            ->groupBy('class_id')
+            ->simplePaginate(5);
+
+        return view('admin.class.view', compact('classes'));
+    }
+
+    public function viewClassSorting($value)
+    {
+        $classes = ClassTransaction::select(
+            'class_transactions.id',
+            'class_name',
+            'class_price',
+            'Status',
+            'class_type_id',
+            'student_id',
+            'class_id',
+            DB::raw('COUNT(student_id) as people_count'))
+            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+            ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+            ->groupBy('class_id')
+            ->orderBy($value)
+            ->simplePaginate(5);
+
         return view('admin.class.view',compact('classes'));
     }
 
@@ -114,7 +149,6 @@ class AdminClassTransactionController extends Controller
             ')
             ->where('class_transactions.id',$id)
             ->simplePaginate(5);
-//        dd($teachers);
 
         $students = DB::table('class_transactions')
             ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
@@ -194,7 +228,7 @@ class AdminClassTransactionController extends Controller
         $mappingTeacher->user_id = $req->teacherId;
         $mappingTeacher->class_id = $req->classId;
         $mappingTeacher->Save();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminDetailClass", ['id' => $req->classId]);
     }
 
     //addStudent
@@ -214,28 +248,24 @@ class AdminClassTransactionController extends Controller
         $mappingStudent->student_id = $req->studentId;
         $mappingStudent->class_id = $req->classId;
         $mappingStudent->Save();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminDetailClass", ['id' => $req->classId]);
     }
 
     public function deleteTeacher($teacher, $class){
         $teacher = DB::table('mapping_class_teachers')->where('class_id',$class)->where('user_id',$teacher);
         $teacher->delete();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminDetailClass", ['id' => $class]);
     }
 
     public function deleteStudent($student, $class){
         $teacher = DB::table('mapping_class_children')->where('class_id',$class)->where('student_id',$student);
         $teacher->delete();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminDetailClass", ['id' => $class]);
     }
-
 
     public function resetClass($id){
         $classScheduleReset = DB::table('schedules')->where('class_id',$id);
         $classScheduleReset->delete();
         return redirect()->route("adminClassView");
     }
-
-
-
 }

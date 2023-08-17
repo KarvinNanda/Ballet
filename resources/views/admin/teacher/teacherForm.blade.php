@@ -18,35 +18,35 @@
                     <div class="row mb-3">
                         <label for="inputName" class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputName">
+                            <input type="text" class="form-control" name="inputName" value="{{old('inputName')}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputEmail">
+                            <input type="text" class="form-control" name="inputEmail" value="{{old('inputEmail')}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="inputDOB" class="col-sm-2 col-form-label">DOB</label>
                         <div class="col-sm-10">
-                            <input type="date" class="form-control" name="inputDate_of_Birth">
+                            <input type="date" class="form-control" name="inputDate_of_Birth" value="{{old('inputDate_of_Birth')}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
                         <div class="col-sm-10">
-                            <textarea class="form-control" style="height: 100px" name="inputAddress"></textarea>
+                            <textarea class="form-control" style="height: 100px" name="inputAddress">{{old('inputAddress')}}</textarea>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label for="inputPhone" class="col-sm-2 col-form-label">Phone</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputPhone">
+                            <input type="text" class="form-control" name="inputPhone" value="{{old('inputPhone')}}">
                         </div>
                     </div>
 

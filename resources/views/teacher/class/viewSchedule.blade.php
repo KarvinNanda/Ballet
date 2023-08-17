@@ -13,16 +13,16 @@
         <div class="card">
             <div class="mt-3 w-100 d-flex justify-content-end">
 
-                <form action="{{route('viewaddScheduleClass')}}" method="post">
+                <form action="{{route('viewaddScheduleClass', ['id' => $classId])}}" method="get">
                     @csrf
                     <input type="hidden" value="{{$classId}}" name="classId">
-                    <button class="btn btn-success me-5 mt-2 mb-2"> Add Schedule</button>
+                    <button class="btn btn-success me-5 mt-2 mb-2">Add Schedule</button>
                 </form>
 
-                <form action="{{route('viewaddMultipleScheduleClass')}}" method="post">
+                <form action="{{route('viewaddMultipleScheduleClass', ['id' => $classId])}})}}" method="get">
                     @csrf
                     <input type="hidden" value="{{$classId}}" name="classId">
-                    <button class="btn btn-success me-5 mt-2 mb-2"> Add Multiple Schedule</button>
+                    <button class="btn btn-success me-5 mt-2 mb-2">Add Multiple Schedule</button>
                 </form>
             </div>
             <div class="card-body">

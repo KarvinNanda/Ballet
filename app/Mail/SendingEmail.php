@@ -5,6 +5,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -34,6 +35,7 @@ class SendingEmail extends Mailable
     {
         return new Envelope(
             subject: 'Selamat Datang',
+            from: env('MAIL_FROM_ADDRESS')
         );
     }
 
@@ -45,7 +47,7 @@ class SendingEmail extends Mailable
     public function content()
     {
         return new Content(
-            markdown: 'email.index',
+            view: 'email.index',
         );
     }
 

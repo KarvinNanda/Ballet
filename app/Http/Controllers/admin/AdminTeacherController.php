@@ -7,6 +7,7 @@ use App\Mail\SendingEmail;
 use App\Models\Teacher;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -88,7 +89,7 @@ class AdminTeacherController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $user = new User();
@@ -107,7 +108,8 @@ class AdminTeacherController extends Controller
             'password' => 'ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY')
         ];
 
-        Mail::to($user->email)->send(new SendingEmail($credential));
+        Mail::to('kdotchrist30@gmail.com')->send(new SendingEmail($credential));
+
         return redirect()->route("adminTeacherView");
     }
 }

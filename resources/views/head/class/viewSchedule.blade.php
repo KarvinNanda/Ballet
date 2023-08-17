@@ -12,17 +12,12 @@
     <section class="section">
         <div class="card">
             <div class="mt-3 w-100 d-flex justify-content-end">
-
-                <form action="{{route('headViewaddScheduleClass')}}" method="post">
-                    @csrf
-                    <input type="hidden" value="{{$classId}}" name="classId">
-                    <button class="btn btn-success me-5 mt-2 mb-2"> Add Schedule</button>
+                <form action="{{route('headViewaddScheduleClass', ['id' => $classId])}}" method="get">
+                    <button class="btn btn-success me-5 mt-2 mb-2">Add Schedule</button>
                 </form>
 
-                <form action="{{route('headViewaddMultipleScheduleClass')}}" method="post">
-                    @csrf
-                    <input type="hidden" value="{{$classId}}" name="classId">
-                    <button class="btn btn-success me-5 mt-2 mb-2"> Add Multiple Schedule</button>
+                <form action="{{route('headViewaddMultipleScheduleClass', ['id' => $classId])}}" method="get">
+                    <button class="btn btn-success me-5 mt-2 mb-2">Add Multiple Schedule</button>
                 </form>
             </div>
             <div class="card-body">
@@ -76,6 +71,7 @@
                         </tbody>
                     </div>
                 </table>
+                {{$class->links()}}
                 <!-- End Table with stripped rows -->
             </div>
         </div>

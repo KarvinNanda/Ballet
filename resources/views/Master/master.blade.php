@@ -248,7 +248,7 @@
                                 <a class="nav-link collapsed" href="{{route('viewClass')}}">
                                     <span>Class</span>
                                 </a>
-                                <a class="nav-link collapsed" href="{{ route('viewAllScheduleTeacher', ['userId' => auth()->id()]) }}">
+                                <a class="nav-link collapsed" href="{{ route('viewAllScheduleTeacher', ['id' => auth()->id()]) }}">
                                     <span>Schedule</span>
                                 </a>
                             </li>
