@@ -31,13 +31,15 @@
 {{--<div class="container">--}}
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Report Active Student</h2>
+            <h2>Laporan Siswa Aktif</h2>
         </div>
 
         <div class="col text-center">
             <table class="table table-bordered">
                 <thead>
                 <tr>
+                    <th>No</th>
+                    <th>Class</th>
                     <th>NIS</th>
                     <th>Name</th>
                     <th>DOB</th>
@@ -54,23 +56,29 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach($report as $item)
-                    <tr>
-                        <td>{{$item->nis}}</td>
-                        <td>{{$item->LongName}}</td>
-                        <td>{{$carbon::parse($item->Dob)->format('d M')}} ({{$item->old}} Old)</td>
-                        <td>{{$item->nama_orang_tua}}</td>
-                        <td>{{$item->nama_pengirim}}</td>
-                        <td>{{$item->bank_name}}</td>
-                        <td>{{$item->bank_rek}}</td>
-                        <td>{{$item->Address}},{{$item->City}},{{$item->kode_pos}}</td>
-                        <td>Phone 1 : {{$item->Phone1}} <br> Phone 2 : {{$item->Phone2}}</td>
-                        <td>{{$item->Whatsapp}}</td>
-                        <td>{{$item->Line}}</td>
-                        <td>{{$item->Instagram}}</td>
-                        <td>{{$item->Email}}</td>
-                    </tr>
-                @endforeach
+                @if(count($report))
+                    @foreach($report as $item)
+                        <tr>
+                            <td>{{$loop->iteration}}</td>
+                            <td width="120px">{{$item->class_name}}</td>
+                            <td>{{$item->nis}}</td>
+                            <td>{{$item->LongName}}</td>
+                            <td width="120px">{{$carbon::parse($item->Dob)->format('d M')}} ({{$item->old}} Old)</td>
+                            <td>{{$item->nama_orang_tua}}</td>
+                            <td>{{$item->nama_pengirim}}</td>
+                            <td>{{$item->bank_name}}</td>
+                            <td>{{$item->bank_rek}}</td>
+                            <td>{{$item->Address}},{{$item->City}},{{$item->kode_pos}}</td>
+                            <td width="180px">Phone 1 : {{$item->Phone1}} <br> Phone 2 : {{$item->Phone2}}</td>
+                            <td>{{$item->Whatsapp}}</td>
+                            <td>{{$item->Line}}</td>
+                            <td>{{$item->Instagram}}</td>
+                            <td>{{$item->Email}}</td>
+                        </tr>
+                    @endforeach
+                @else
+                    <td colspan="15">None</td>
+                @endif
                 </tbody>
             </table>
         </div>

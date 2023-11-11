@@ -16,26 +16,27 @@ class HeadTransactionController extends Controller
 {
 
     public function index(){
-        $transactions = Transaction::select('*')
-            ->join('students','students.id','transactions.students_id')
-            ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
+        $sort = 'asc';
+        $transactions = Transaction::join('students','students.id','transactions.students_id')
+            ->leftjoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->leftjoin('class_types','class_transactions.class_type_id','class_types.id')
             ->selectRaw('
                 transactions.id,
                 transactions.transaction_date,
                 transactions.transaction_payment,
                 transactions.payment_status,
-                transactions.price,
+                class_types.class_price as price,
                 transactions.discount,
                 students.LongName,
                 students.id as student_id
             ')
-            ->simplePaginate(5);
-        return view('head.transaction.index',compact('transactions'));
+            ->orderBy('transactions.id','desc')
+            ->paginate(5);
+        return view('head.transaction.index',compact('transactions','sort'));
     }
 
-    public function sorting($column){
-        $transactions = Transaction::select('*')
-            ->join('students','students.id','transactions.students_id')
+    public function sorting($column,$type){
+        $transactions = Transaction::join('students','students.id','transactions.students_id')
             ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
             ->selectRaw('
                 transactions.id,
@@ -47,15 +48,17 @@ class HeadTransactionController extends Controller
                 students.LongName,
                 students.id as student_id
             ')
-            ->orderBy($column)
-            ->simplePaginate(5);
-        return view('head.transaction.index',compact('transactions'));
+            ->orderBy($column,$type)
+            ->paginate(5);
+        $sort = $type == 'asc' ? 'desc' : 'asc';
+        return view('head.transaction.index',compact('transactions','sort'));
     }
 
     public function detailTransaction(Transaction $transaction){
         $detail = Transaction::select('*')
-            ->join('students','students.id','transactions.students_id')
-            ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->leftJoin('students','students.id','transactions.students_id')
+            ->leftJoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
             ->where('transactions.students_id',$transaction->students_id)
             ->first();
         $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
@@ -64,21 +67,23 @@ class HeadTransactionController extends Controller
 
     public function search(Request $req){
         $transactions = Transaction::select('*')
-            ->join('students','students.id','transactions.students_id')
-            ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->leftJoin('students','students.id','transactions.students_id')
+            ->leftJoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
             ->where('students.LongName','like',"%$req->search%")
-            ->simplePaginate(5);
+            ->paginate(5);
         return view('head.transaction.index',compact('transactions'));
     }
 
     public function updatePage($trans){
         $transaction = Transaction::select('*')
-            ->join('students','students.id','transactions.students_id')
-            ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->leftJoin('students','students.id','transactions.students_id')
+            ->leftJoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
             ->where('transactions.id',$trans)
             ->first();
         $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
-        return view('head.transaction.update',compact('transaction','data'));
+        return view('head.transaction.update',compact('transaction','data','trans'));
     }
 
     public function update(Request $req,Transaction $transaction){
@@ -90,7 +95,7 @@ class HeadTransactionController extends Controller
         $validate = Validator::make($req->all(),$rules);
 
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $banks = Banks::updateOrCreate([
@@ -106,7 +111,7 @@ class HeadTransactionController extends Controller
         $trans->discount = $req->inputDisc;
         $trans->desc = $req->inputDesc;
         $trans->save();
-        return redirect()->route('headTransactionPage');
+        return redirect()->route('headTransactionPage')->with('msg','Success Update Transaction');
     }
 
     public function addTransaction(){
@@ -125,7 +130,7 @@ class HeadTransactionController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $transaction = new Transaction();
@@ -139,6 +144,6 @@ class HeadTransactionController extends Controller
 
         $transaction->save();
 
-        return to_route("headTransactionPage");
+        return to_route("headTransactionPage")->with('msg','Success Create Transaction');
     }
 }

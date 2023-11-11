@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 class HeadAdminController extends Controller
 {
     public function index(){
-        $admins = User::where('role','admin')->paginate(1);
+        $admins = User::where('role','admin')->orderBy('id','desc')->paginate(1);
         return view('head.admin.index',compact('admins'));
     }
 
@@ -32,7 +32,7 @@ class HeadAdminController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $user = new User();
@@ -52,18 +52,18 @@ class HeadAdminController extends Controller
 
         Mail::to($user->email)->send(new SendingEmail($credential));
 
-        return redirect()->route('headAdminPage');
+        return redirect()->route('headAdminPage')->with('msg','Success Create Admin');
     }
 
     public function search(Request $req){
-        $admins = User::where('name','like',"%$req->search%")->where('role','admin')->simplePaginate(5);
+        $admins = User::where('name','like',"%$req->search%")->where('role','admin')->paginate(5);
         return view('head.admin.index',compact('admins'));
     }
 
     public function delete(User $user){
         $user = User::find($user->id);
         $user->delete();
-        return redirect()->route('headAdminPage');
+        return redirect()->route('headAdminPage')->with('msg','Success Delete Admin');
     }
 
 

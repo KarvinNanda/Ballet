@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="pagetitle">
-        <h1>Transaction Detail</h1>
+        <h1>Transaction Form</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -15,42 +15,42 @@
 
                 <!-- General Form Elements -->
                 <div class="row mb-3">
-                    <label for="inputName" class="col-sm-2 col-form-label">Nama</label>
+                    <label for="inputName" class="col-sm-2 col-form-label">Name</label>
                     <div class="col-sm-10">
                         <p class="form-control bg-success bg-opacity-10">{{$detail->LongName}}</p>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputName" class="col-sm-2 col-form-label">Jatuh Tempo</label>
+                    <label for="inputName" class="col-sm-2 col-form-label">Due Date</label>
                     <div class="col-sm-10">
                         <p class="form-control bg-success bg-opacity-10">{{$detail->transaction_date}}</p>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputName" class="col-sm-2 col-form-label">Kelas</label>
+                    <label for="inputName" class="col-sm-2 col-form-label">Class</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10">{{$detail->ClassName}}</p>
+                        <p class="form-control bg-success bg-opacity-10">{{$detail->class_name}}</p>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputName" class="col-sm-2 col-form-label">Harga</label>
+                    <label for="inputName" class="col-sm-2 col-form-label">Price</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($detail->ClassPrice)}}</p>
+                        <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($detail->class_price)}}</p>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputName" class="col-sm-2 col-form-label">Diskon</label>
+                    <label for="inputName" class="col-sm-2 col-form-label">Discount</label>
                     <div class="col-sm-10">
                         <p class="form-control bg-success bg-opacity-10">{{$detail->discount == 0 ? 0 :$detail->discount}}%</p>
                     </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputAddress" class="col-sm-2 col-form-label">Keterangan</label>
+                    <label for="inputAddress" class="col-sm-2 col-form-label">Description</label>
                     <div class="col-sm-10">
                         <p class="form-control bg-success bg-opacity-10">{{$detail->desc == null ? '' : $detail->desc}}</p>
                     </div>
@@ -59,7 +59,7 @@
                 <div class="row mb-3">
                     <label for="inputEmail" class="col-sm-2 col-form-label">Total</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($detail->price - (($detail->discount/100)*$detail->price))}}</p>
+                        <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($detail->class_price - (($detail->discount/100)*$detail->class_price))}}</p>
                     </div>
                 </div>
 
@@ -85,9 +85,9 @@
                 </div>
 
                 <div class="row mb-3">
-                    <label for="inputDOB" class="col-sm-2 col-form-label">Tanggal Bayar</label>
+                    <label for="inputDOB" class="col-sm-2 col-form-label">Payment Date</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10">{{now()->toDateString()}}</p>
+                        <p class="form-control bg-success bg-opacity-10">{{$detail->transaction_payment}}</p>
                     </div>
                 </div>
 

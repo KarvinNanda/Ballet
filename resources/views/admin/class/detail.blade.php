@@ -40,8 +40,8 @@
                                     <td>{{$teacher->teacherName}}</td>
                                     <td>{{\Carbon\Carbon::parse($teacher->teacherDOB)->format('d M Y')}}</td>
                                     <td>{{$teacher->teacherAddress}}</td>
-                                    <td>{{$teacher->teacherPhone}}</td>
                                     <td>{{$teacher->teacherEmail}}</td>
+                                    <td>{{$teacher->teacherPhone}}</td>
                                         <td>
                                             <form action="{{route('classDeleteTeacher',['teacher' => $teacher->id,'class' => $class_id])}}" method="get">
                                                 @csrf
@@ -69,6 +69,7 @@
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
                 <a href="{{route('viewaddStudentClass',$class_id)}}"><button class="btn btn-success me-5 mt-2 mb-2" type="Submit"> Add Student</button></a>
+                <a href="{{route('ResetQuota',$class_id)}}"><button class="btn btn-secondary me-5 mt-2 mb-2" type="Submit"> Reset Quota</button></a>
             </div>
             <div class="card-body">
 
@@ -77,15 +78,17 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Nama</th>
+                            <th scope="col">Name</th>
                             <th scope="col">DOB</th>
                             <th scope="col">Address</th>
                             <th scope="col">Email</th>
                             <th scope="col">Phone</th>
+                            <th scope="col">Quota</th>
                         </tr>
                         </thead>
                         <tbody>
                         @if($students->isEmpty())
+                            <td>No Data</td>
                             <td>No Data</td>
                             <td>No Data</td>
                             <td>No Data</td>
@@ -97,8 +100,15 @@
                                     <td>{{$student->studentName}}</td>
                                     <td>{{\Carbon\Carbon::parse($student ->studentDOB)->format('d M Y')}}</td>
                                     <td>{{$student->studentAddress}}</td>
-                                    <td>{{$student->studentPhone}}</td>
                                     <td>{{$student->studentEmail}}</td>
+                                    <td>{{$student->studentPhone}}</td>
+                                    @if($class_name == 'Pointe Class')
+                                        <td>{{$student->studentQuota}} / 4</td>
+                                    @elseif($class_name == 'Intensive Kids' || $class_name == 'Intensive Class')
+                                        <td>{{$student->studentQuota}} / 12</td>
+                                    @else
+                                        <td>{{$student->studentQuota}} / 8</td>
+                                    @endif
                                     <td>
                                         <form action="{{route('classDeleteStudent',['student' => $student->id,'class' => $class_id])}}" method="get">
                                             @csrf

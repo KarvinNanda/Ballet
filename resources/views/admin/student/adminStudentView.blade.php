@@ -3,6 +3,10 @@
 @section('title','Student List')
 
 @section('content')
+    <div class="d-none">
+        {{ $keyword = request('keyword') }}
+        {{ $status = request('status', 'all') }}
+    </div>
 
     <div class="pagetitle">
         <h1>Student Tables</h1>
@@ -10,21 +14,27 @@
 
     <section class="section">
         <div class="card">
-            <div class="dropdown mt-3 ms-3">
-                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Choose
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="{{route('adminStudentActive')}}">Active</a></li>
-                    <li><a class="dropdown-item" href="{{route('adminStudentNonActive')}}">Non-Active</a></li>
-                </ul>
-            </div>
             <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="POST" action="{{route('adminStudentSearch')}}">
+                <form
+                    class="d-flex align-items-center justify-content-center gap-2"
+                    method="GET"
+                    action="{{route('adminStudentView')}}"
+                >
+                    <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
+
                     @csrf
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
+                    <select class="form-select" name="status">
+                        <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All</option>
+                        <option value="aktif" {{ $status == 'aktif' ? 'selected' : '' }}>Active</option>
+                        <option value="non-aktif" {{ $status == 'non-aktif' ? 'selected' : '' }}>Non Active</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary text-nowrap">Apply Filters</button>
                 </form>
-                <a href="{{route('adminStudentForm')}}"><button class="btn btn-success me-3 mb-3"> Add Student</button></a>
+
+                <a href="{{route('adminStudentForm')}}">
+                    <button class="btn btn-success me-3 mb-3">Add Student</button>
+                </a>
             </div>
 
             <div class="card-body">
@@ -35,9 +45,9 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col"><a href="{{route("adminStudentViewSorting","name")}}">Name</a></th>
-                            <th scope="col"><a href="{{route("adminStudentViewSorting","dob")}}">DOB</a></th>
-                            <th scope="col"><a href="{{route("adminStudentViewSorting","age")}}">Age</a></th>
+                            <th scope="col"><a href="{{route("adminStudentViewSorting",['value' => 'name','type' => $sort])}}">Name</a></th>
+                            <th scope="col"><a href="{{route("adminStudentViewSorting",['value' => 'dob','type' => $sort])}}">DOB</a></th>
+                            <th scope="col"><a href="{{route("adminStudentViewSorting",['value' => 'age','type' => $sort])}}">Age</a></th>
                             <th scope="col">Parent</th>
                             <th scope="col">Account Number</th>
                             <th scope="col">Sender</th>
@@ -59,9 +69,14 @@
                                     <form action="{{route('adminStudentChange',$student->id)}}" method="post">
                                         @csrf
                                         @if($student->status == 'aktif')
-                                            <button type="submit" class="btn btn-primary">Deactive</button>
+                                            <input type="submit" name="stats" class="btn btn-primary mb-2" value="Inactive"> <br>
+                                            <input type="submit" name="stats" class="btn btn-info" value="Trial">
+                                        @elseif($student->status == 'non-aktif')
+                                            <input type="submit" name="stats" class="btn btn-primary mb-2" value="Active"> <br>
+                                            <input type="submit" name="stats" class="btn btn-info" value="Trial">
                                         @else
-                                            <button type="submit" class="btn btn-primary">Active</button>
+                                            <input type="submit" name="stats" class="btn btn-primary mb-2" value="Active"> <br>
+                                            <input type="submit" name="stats" class="btn btn-primary" value="Inactive">
                                         @endif
                                     </form>
                                 </td>

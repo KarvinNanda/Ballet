@@ -11,7 +11,7 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="POST" action="{{route('searchStock')}}">
+                <form class="search-form d-flex align-items-center" method="get" action="{{route('headStockPage')}}">
                     @csrf
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
@@ -24,9 +24,9 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Size</th>
-                            <th scope="col">Quantity</th>
+                            <th scope="col"><a href="{{route("headStockViewSorting",['value' => "name",'sort' => $sort])}}">Name</a></th>
+                            <th scope="col"><a href="{{route("headStockViewSorting",['value' => "size",'sort' => $sort])}}">Size</a></th>
+                            <th scope="col"><a href="{{route("headStockViewSorting",['value' => "quantity",'sort' => $sort])}}">Quantity</a></th>
                             <th scope="col">Update</th>
                             <th scope="col">Delete</th>
                         </tr>

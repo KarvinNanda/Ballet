@@ -1,6 +1,6 @@
 @extends('Master.master')
 
-@section('title','Teacher List')
+@section('title','Students List')
 
 @section('content')
 

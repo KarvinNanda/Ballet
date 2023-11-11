@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="pagetitle">
-        <h1>Add Stock</h1>
+        <h1>Stock Form</h1>
     </div><!-- End Page Title -->
 
     <section class="section">

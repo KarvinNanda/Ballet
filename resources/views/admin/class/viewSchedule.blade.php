@@ -32,8 +32,8 @@
                         <thead>
                         <tr>
                             {{-- <th scope="col">Nama Kelas</th> --}}
-                            <th scope="col">Tanggal</th>
-                            <th scope="col">Waktu</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Time</th>
                             <th scope="col">Update</th>
                             <th scope="col">Delete</th>
                         </tr>

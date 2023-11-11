@@ -55,7 +55,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Bonus</label>
+                        <label for="inputPhone" class="col-sm-2 col-form-label">Reward(%)</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputBonus" value="{{$teacher->percent}}">
                         </div>

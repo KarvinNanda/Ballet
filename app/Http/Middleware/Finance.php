@@ -17,8 +17,13 @@ class Finance
      */
     public function handle(Request $request, Closure $next)
     {
-        if(!Auth::check() || Auth::user()->role != 'finance'){
+        if(Auth::user()->role != 'finance'){
+            if(!Auth::check()){
+                return to_route('login');
+            }
             return redirect()->back();
+        } else if(!Auth::check()){
+            return to_route('login');
         }
         return $next($request);
     }

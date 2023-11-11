@@ -25,8 +25,11 @@ use App\Http\Controllers\head\HeadTransactionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\teacher\TeacherClassController;
 use App\Http\Controllers\teacher\TeacherController;
+use App\Http\Controllers\BuyerController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\head\HeadClassScheduleController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,7 +43,19 @@ use App\Http\Controllers\head\HeadClassScheduleController;
 */
 
 Route::get('/',function (){
-    return to_route('login');
+    if(!Auth::check()){
+        return to_route('login');
+    } else {
+        return redirect()->to('/'.Auth::user()->role);
+    }
+});
+
+//buyer
+Route::prefix('buyer')->group(function(){
+    Route::get('/', [BuyerController::class,'index'])->name('buyer');
+    Route::get('/sorting/{value}/{type}', [BuyerController::class,'sorting'])->name('buyerSorting');
+    Route::get('/buy/{id}', [BuyerController::class,'buyingPage'])->name('buyingItem');
+    Route::post('/buy/{id}', [BuyerController::class,'buying'])->name('buying');
 });
 
 //login
@@ -53,8 +68,9 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::post('/class/search', [AdminClassTransactionController::class,'search'])->name('adminSearchClass');
 
     Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
-    Route::get('/view/class/sorting/{value}', [AdminClassTransactionController::class,'viewClassSorting'])->name('viewClassSorting');
+    Route::get('/view/class/sorting/{value}/{type}', [AdminClassTransactionController::class,'viewClassSorting'])->name('viewClassSorting');
 
+    Route::get('/detail/class/reset/quota/{id}', [AdminClassTransactionController::class,'resetQuota'])->name('ResetQuota');
     Route::get('/detail/class/{id}', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
     Route::get('/class/active', [AdminClassTransactionController::class,'active'])->name('adminActiveClassPage');
     Route::get('/class/non/active', [AdminClassTransactionController::class,'nonActive'])->name('adminNonActiveClassPage');
@@ -96,7 +112,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/view/addMultipleSchedule/class', [AdminClassScheduleController::class,'viewAddMultipleScheduleClass'])->name('adminViewAddMultipleScheduleClass');// baru
 
     Route::get('/student/view', [AdminStudentController::class,'adminStudentView'])->name('adminStudentView');
-    Route::get('/student/sorting/{value}', [AdminStudentController::class,'adminStudentViewSorting'])->name('adminStudentViewSorting');
+    Route::get('/student/sorting/{value}/{type}', [AdminStudentController::class,'adminStudentViewSorting'])->name('adminStudentViewSorting');
     Route::get('/student/form', [AdminStudentController::class,'viewStudentForm'])->name('adminStudentForm');
 
     Route::post('/student/form', [AdminStudentController::class,'adminStudentFormSubmit'])->name('adminStudentForm');
@@ -107,6 +123,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/student/non/active', [AdminStudentController::class,'nonActive'])->name('adminStudentNonActive');
     Route::post('/student/delete/{studentId}', [AdminStudentController::class,'deleteStudent'])->name('adminStudentDelete');
     Route::post('/student/detail/{studentId}', [AdminStudentController::class,'detailStudent'])->name('adminStudentDetail');
+    Route::post('/student/update', [AdminStudentController::class, 'update'])->name('adminUpdateStudent');
 
     Route::get('/teacher/view', [AdminTeacherController::class,'adminTeacherView'])->name('adminTeacherView');
     Route::get('/teacher/form', [AdminTeacherController::class,'adminTeacherForm'])->name('adminTeacherForm');
@@ -118,6 +135,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::post('/teacher/update/{teacher}', [AdminTeacherController::class,'update'])->name('adminTeacherUpdate');
 
     Route::get('/stock', [AdminStockController::class,'index'])->name('adminStockPage');
+    Route::get('/stock/sorting/{value}/{sort}', [AdminStockController::class,'adminStock'])->name('adminStockViewSorting');
 
     Route::get('/report',[AdminReportController::class,'index'])->name('adminReportPage');
     Route::post('/report/{header}',[AdminReportController::class,'print'])->name('adminPrintReport');
@@ -129,12 +147,15 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/transaction/view/paid/{transactionId}', [AdminTransactionController::class,'viewPaidTransaction'])->name('adminPaidTransaction');
     Route::post('/transaction/submit/paid/{transactionId}', [AdminTransactionController::class,'submitPaidTransaction'])->name('adminSubmitPaidTransaction');
     Route::post('/transaction/detail/{transaction:students_id}', [AdminTransactionController::class,'detailTransaction'])->name('adminDetailTransaction');
+    Route::post('/transaction/{id}', [AdminTransactionController::class,'updatePage'])->name('adminUpdateTransaction');
+    Route::post('/transaction/update/{transaction}', [AdminTransactionController::class,'update'])->name('adminUpdate');
 
-    Route::get('/transaction/sorting/{value}', [AdminTransactionController::class,'adminTransactionSorting'])->name('adminTransactionSorting');
+    Route::get('/transaction/sorting/{value}/{type}', [AdminTransactionController::class,'adminTransactionSorting'])->name('adminTransactionSorting');
 
     Route::get('/report/class',[AdminReportController::class,'classAttendence'])->name('adminClassReport');
-    Route::post('/report/class/{header}/{className}',[AdminReportController::class,'printClassAttendence'])->name('adminClassPrintReport');
-    Route::get('/report/active/student',[AdminReportController::class,'printActiveStudent'])->name('adminPrintActiveStudent');
+    Route::post('/report/class/{header}/{teacher}',[AdminReportController::class,'printClassAttendence'])->name('adminClassPrintReport');
+    Route::get('/report/active/student',[AdminReportController::class,'printActiveStudentPage'])->name('adminPrintActiveStudentPage');
+    Route::post('/report/active/student',[AdminReportController::class,'printActiveStudent'])->name('adminPrintActiveStudent');
 
 });
 
@@ -150,6 +171,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/class/add', [HeadClassController::class,'insert'])->name('ClassAdd');
     Route::post('/class/search', [HeadClassController::class,'search'])->name('searchClass');
     Route::post('/class/delete/{class}', [HeadClassController::class,'delete'])->name('deleteClass');
+    Route::get('/view/class/sorting/{value}/{type}', [HeadClassController::class,'sorting'])->name('sorting');
 
     Route::get('/class/add/course', [HeadClassController::class,'addCoursePage'])->name('headCourseAddPage');
     Route::post('/class/add/course', [HeadClassController::class,'addCourse'])->name('headCourseAdd');
@@ -161,6 +183,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/level/class', [HeadClassController::class,'levelUp'])->name('headLevelUp');
     Route::post('/level/class/student', [HeadClassController::class,'levelUpStudent'])->name('headLevelUpStudent');
 
+    Route::get('/detail/class/reset/quota/{id}', [HeadClassController::class,'resetQuota'])->name('headResetQuota');
     Route::get('/detail/class/{id}', [HeadClassController::class,'detailClass'])->name('headDetailClass');
     Route::get('/view/add/teacher/class/{id}', [HeadClassController::class,'viewaddTeacher'])->name('headViewaddTeacherClass');
     Route::get('/view/add/student/class/{id}', [HeadClassController::class,'viewaddStudent'])->name('headViewaddStudentClass');
@@ -194,7 +217,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
 
     Route::get('/student/detail/{id}', [HeadStudentController::class,'detailStudent'])->name('detailStudent');
     Route::post('/student/delete/{student}', [HeadStudentController::class,'deleteStudent'])->name('deleteStudent');
-    Route::get('/student/sorting/{value}', [HeadStudentController::class,'sorting'])->name('sortingStudent');
+    Route::get('/student/sorting/{value}/{type}', [HeadStudentController::class,'sorting'])->name('sortingStudent');
 
     Route::post('/student/update', [HeadStudentController::class, 'update'])->name('updateStudent');
 
@@ -219,7 +242,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/admin/search', [HeadAdminController::class,'search'])->name('searchAdmin');
 
     Route::get('/transaction', [HeadTransactionController::class,'index'])->name('headTransactionPage');
-    Route::get('/transaction/sorting/{column}', [HeadTransactionController::class,'sorting'])->name('headTransactionSorting');
+    Route::get('/transaction/sorting/{column}/{type}', [HeadTransactionController::class,'sorting'])->name('headTransactionSorting');
     Route::get('/transaction/add', [HeadTransactionController::class,'addTransaction'])->name('headAddTransactionPage');
     Route::post('/transaction/add', [HeadTransactionController::class,'insertTransaction'])->name('headAddTransaction');
     Route::post('/transaction/search', [HeadTransactionController::class,'search'])->name('searchTransaction');
@@ -234,10 +257,12 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/stock/update/{stock}', [HeadStockController::class,'update'])->name('StockUpdate');
     Route::post('/stock/delete/{stock}', [HeadStockController::class,'delete'])->name('stockDelete');
     Route::post('/stock/search', [HeadStockController::class,'search'])->name('searchStock');
+    Route::get('/stock/sorting/{value}/{sort}', [HeadStockController::class,'sorting'])->name('headStockViewSorting');
 
     Route::get('/report/class',[HeadReportController::class,'classAttendence'])->name('headClassReport');
-    Route::post('/report/class/{header}/{className}',[HeadReportController::class,'printClassAttendence'])->name('headClassPrintReport');
-    Route::get('/report/active/student',[HeadReportController::class,'printActiveStudent'])->name('headPrintActiveStudent');
+    Route::post('/report/class/{header}/{teacher}',[HeadReportController::class,'printClassAttendence'])->name('headClassPrintReport');
+    Route::get('/report/active/student',[HeadReportController::class,'printActiveStudentPage'])->name('headPrintActiveStudentPage');
+    Route::post('/report/active/student',[HeadReportController::class,'printActiveStudent'])->name('headPrintActiveStudent');
     Route::get('/report/stock',[HeadReportController::class,'stock'])->name('headStockReport');
     Route::post('/report/stock/{report_stock}',[HeadReportController::class,'printStock'])->name('headStockPrintReport');
 
@@ -278,21 +303,22 @@ Route::prefix('finance')->middleware(['finance'])->group(function(){
 
     Route::get('/transaction/sorting/{column}', [FinanceTransactionController::class,'sorting'])->name('financeTransactionSorting');
 
-    Route::post('/in/{stock}', [FinanceStockController::class,'in'])->name('in');
+    Route::get('/in/{stock}', [FinanceStockController::class,'in'])->name('in');
     Route::post('/out/{stock}', [FinanceStockController::class,'out'])->name('out');
     Route::post('/stock/report/{stock}/{type}', [FinanceStockController::class,'report'])->name('makeReport');
 
     Route::get('/transaction', [FinanceTransactionController::class,'index'])->name('financeTransaction');
-    Route::post('/transaction/search', [FinanceTransactionController::class,'search'])->name('searchTransaction');
-    Route::post('/transaction/paid/{transaction}', [FinanceTransactionController::class,'viewPaidTransaction'])->name('paidTransaction');
-    Route::post('/transaction/do-paid/{transaction}', [FinanceTransactionController::class,'submitPaidTransaction'])->name('doPaidTransaction');
+    Route::get('/transaction/search', [FinanceTransactionController::class,'search'])->name('searchTransaction');
+    Route::get('/transaction/paid/{transaction}', [FinanceTransactionController::class,'viewPaidTransaction'])->name('paidTransaction');
+    Route::post('/transaction/do-paid/{trans}', [FinanceTransactionController::class,'submitPaidTransaction'])->name('doPaidTransaction');
 
     Route::get('/report/stock',[FinanceStockController::class,'stock'])->name('financeStockReport');
     Route::post('/report/stock/{report_stock}',[FinanceStockController::class,'printStock'])->name('financeStockPrintReport');
 
     Route::get('/report/teacher',[FinanceController::class,'reportTeacherPage'])->name('financeTeacherReportPage');
     Route::post('/report/teacher/{month}',[FinanceController::class,'reportTeacher'])->name('financeTeacherReport');
-    Route::get('/report/finance/student',[FinanceController::class,'reportStudent'])->name('financeStudentReport');
+    Route::get('/report/finance/student',[FinanceController::class,'reportStudentPage'])->name('financeStudentReportPage');
+    Route::post('/report/finance/student',[FinanceController::class,'reportStudent'])->name('financeStudentReport');
 });
 
 Route::middleware(['authLogin'])->group(function(){
@@ -305,11 +331,12 @@ Route::middleware(['authLogin'])->group(function(){
     Route::get('/password',[ProfileController::class,'changePasswordPage'])->name('change-password-page');
     Route::post('/password/{user}',[ProfileController::class,'changePassword'])->name('change-password');
 
-//forgot password
-    Route::get('/forgot/password',[ForgotPasswordController::class,'index'])->name('email-page');
-    Route::post('/forgot/password',[ForgotPasswordController::class,'checkEmail'])->name('check-email');
-    Route::get('/expired',[ForgotPasswordController::class,'index'])->name('expired-page');
-
-    Route::get('/reset/password/{token}',[ForgotPasswordController::class,'resetPasswordPage'])->name('reset-password-page');
-    Route::post('/reset/password/{token}',[ForgotPasswordController::class,'resetPassword'])->name('reset-password');
 });
+
+//forgot password
+Route::get('/forgot/password',[ForgotPasswordController::class,'index'])->name('email-page');
+Route::post('/forgot/password',[ForgotPasswordController::class,'checkEmail'])->name('check-email');
+Route::get('/expired',[ForgotPasswordController::class,'index'])->name('expired-page');
+
+Route::get('/reset/password/{token}',[ForgotPasswordController::class,'resetPasswordPage'])->name('reset-password-page');
+Route::post('/reset/password/{token}',[ForgotPasswordController::class,'resetPassword'])->name('reset-password');

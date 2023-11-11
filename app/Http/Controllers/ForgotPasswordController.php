@@ -21,9 +21,12 @@ class ForgotPasswordController extends Controller
         ];
         $validate = Validator::make($req->all(),$rule);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
-        $user = User::where('email',$req->email)->firstOrFail();
+        $user = User::where('email',$req->email)->first();
+        if(is_null($user)){
+            return redirect()->back()->withErrors(['msg' => "Email Doesn't Exists"]);
+        }
         $token = bin2hex(random_bytes(32));
 
         ForgotPassword::updateOrCreate(
@@ -35,7 +38,7 @@ class ForgotPasswordController extends Controller
         );
 
         Mail::to($user->email)->send(new ForgotPasswordEmail($token));
-        return to_route('login');
+        return to_route('login')->with('msg','Please Check Your Email');
     }
 
     public function resetPasswordPage($token){
@@ -52,7 +55,7 @@ class ForgotPasswordController extends Controller
         ];
         $validate = Validator::make($req->all(),$rule);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
         $check = ForgotPassword::where('token',$token)->firstOrFail();
         if(now() > $check->expired_at){
@@ -60,6 +63,6 @@ class ForgotPasswordController extends Controller
         }
         $check->User->password = bcrypt($req->new_password_confirmation);
         $check->User->save();
-        return to_route('login');
+        return to_route('login')->with('msg','Success Change Password');
     }
 }

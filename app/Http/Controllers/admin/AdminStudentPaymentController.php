@@ -25,7 +25,7 @@ class AdminStudentPaymentController extends Controller
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
             ')
-            ->simplePaginate(5);
+            ->paginate(5);
         return view('admin.student.adminStudentView',compact('students'));
     }
 }

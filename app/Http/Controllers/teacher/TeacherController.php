@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\teacher;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClassTransaction;
 use App\Models\DetailAbsen;
 use App\Models\HeaderAbsen;
 use App\Models\Schedule;
@@ -16,36 +17,53 @@ use Illuminate\Support\Facades\DB;
 class TeacherController extends Controller
 {
     public function index(){
-        $data = DB::table('class_transactions')
-        ->join('schedules','class_transactions.id','schedules.class_id')
-        ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
-        ->join('users','mapping_class_teachers.user_id','users.id')
-        ->join('class_types','class_transactions.class_type_id','class_types.id')
+//        dd(Carbon::parse('2023-02-10')->diffInDays('2024-01-20'));
+
+        $data = ClassTransaction::leftjoin('schedules','class_transactions.id','schedules.class_id')
+        ->leftjoin('mapping_class_children','class_transactions.id','mapping_class_children.class_id')
         ->selectRaw('
-            class_types.class_name as class,
             schedules.date,
-            users.name as teacherName,
             class_transactions.id as id,
-            schedules.id as schedule_id
+            class_transactions.class_type_id,
+            schedules.id as schedule_id,
+            COUNT(student_id) as people_count
         ')
-        ->orderBy('schedules.date')
-        ->get();
+        ->orderBy('schedules.date','desc')
+        ->groupBy('schedules.date')
+        ->paginate(5);
+
+//        foreach ($data as $d){
+//            echo now()->diffInDays(Carbon::parse($d->date))." ".Carbon::parse($d->date)." ".now()."<br>";
+//        }
+
         return view('teacher.index',compact('data'));
     }
 
     public function viewAbsen($id){
         $view = Schedule::find($id);
-        $class = DB::table('mapping_class_children')->join('students','students.id','mapping_class_children.student_id')
+        $class_name = DB::table('class_transactions')
+            ->leftJoin('schedules','class_transactions.id','schedules.class_id')
+            ->leftJoin('class_types','class_types.id','class_transactions.class_type_id')
+            ->where('schedules.id',$view->id)
+            ->first()->class_name;
+
+        $class = DB::table('mapping_class_children')
+            ->leftjoin('students','students.id','mapping_class_children.student_id')
             ->selectRaw('
-            students.nis as nis,
-            students.LongName as nama
-        ')->where('mapping_class_children.class_id','=',$view->class_id)
+                students.id as id,
+                students.nis as nis,
+                students.LongName as nama,
+                students.Quota
+            ')
+            ->where('mapping_class_children.class_id','=',$view->class_id)
+            ->where('students.Status','!=','trial')
             ->get();
         $header = DB::table('header_absens')->where('schedules_id',"=",$id)->first();
         if(!is_null($header)){
             $detail = DB::table('detail_absens')->where('header_absen_id',$header->id)->get();
             return view('teacher.absen',compact("view","class","detail"));
         }
+
         return view('teacher.absen',compact("view","class"));
 
 
@@ -56,6 +74,12 @@ class TeacherController extends Controller
         $header->schedules_id = $schedule->id;
         $header->teacher_id = Auth::user()->id;
         $header->save();
+
+//        $class_name = DB::table('class_transactions')
+//            ->leftJoin('schedules','class_transactions.id','schedules.class_id')
+//            ->leftJoin('class_types','class_types.id','class_transactions.class_type_id')
+//            ->where('schedules.id',$schedule->id)
+//            ->first()->class_name;
 
         $header_id = DB::table("header_absens")->orderBy('id','desc')->first();
 
@@ -77,7 +101,8 @@ class TeacherController extends Controller
                 }
             }
             $detail->save();
+            DB::table('students')->where('id',$students[$i]->id)->update(['Quota' => $students[$i]->Quota + 1]);
         }
-        return redirect()->route("teacher");
+        return redirect()->route("teacher")->with('msg','Success Making Attendence');
     }
 }

@@ -24,7 +24,7 @@
 <div class="container">
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Stock Report Date {{$carbon::parse($date)->format('d M Y')}}</h2>
+            <h2>Laporan Stok Tanggal {{$carbon::parse($date)->format('d M Y')}}</h2>
         </div>
 
         <div class="col text-center">
@@ -47,7 +47,7 @@
                     <tr>
                         <td>{{$item[0]->stock->name}}</td>
                         <td>{{$item[0]->stock->size}}</td>
-                        <td>{{$item[0]->stock->quantity}}</td>
+                        <td>{{$item[0]->first_qty}}</td>
                         @foreach($item as $subItem)
                             @php
                                 $in+=$subItem->in;
@@ -56,7 +56,7 @@
                         @endforeach
                         <td>{{$in}}</td>
                         <td>{{$out}}</td>
-                        <td>{{$item[0]->stock->quantity + ($in - $out)}}</td>
+                        <td>{{$item[0]->first_qty + ($in - $out)}}</td>
                         @php
                             $in=$out=0;
                         @endphp

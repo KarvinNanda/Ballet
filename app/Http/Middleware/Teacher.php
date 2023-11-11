@@ -17,8 +17,13 @@ class Teacher
      */
     public function handle(Request $request, Closure $next)
     {
-        if(!Auth::check() || Auth::user()->role != 'teacher'){
+        if(Auth::user()->role != 'teacher'){
+            if(!Auth::check()){
+                return to_route('login');
+            }
             return redirect()->back();
+        } else if(!Auth::check()){
+            return to_route('login');
         }
         return $next($request);
     }

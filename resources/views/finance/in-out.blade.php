@@ -1,10 +1,11 @@
+@inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
 @section('title','In-Out Stock')
 
 @section('content')
     <div class="pagetitle">
-        <h1>Class Form</h1>
+        <h1>Detail Stock Form</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -37,7 +38,7 @@
                     </div>
 
                     <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">{{$type == 'in' ? 'IN' : 'OUT'}}</label>
+                        <label class="col-sm-2 col-form-label">{{$type == 'in' ? 'IN' : 'OUT'}} (Optional)</label>
                         <div class="col-sm-10">
                             <input type="number" name="in_out" class="form-control">
                         </div>
@@ -58,6 +59,39 @@
                     @endif
 
                 </form><!-- End General Form Elements -->
+
+                <table class="table table-striped">
+                    <div class="container">
+                        <thead>
+                        <tr>
+                            <th scope="col">Buyer</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">Buy Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @if($buyer)
+                        @foreach($buyer as $b)
+                            <tr>
+                                <td>{{$b->name}}</td>
+                                <td>{{$b->qty}}</td>
+                                <td>{{$carbon::parse($b->created_at)->format('Y-m-d')}}</td>
+                            </tr>
+                        @endforeach
+                        @else
+                            <tr>
+                                <td colspan="3"></td>
+                            </tr>
+                        @endif
+                        </tbody>
+                    </div>
+                </table>
+
+                @if($buyer)
+                <div class="alert text-center" role="alert">
+                    {{$buyer->links()}}
+                </div>
+                @endif
 
             </div>
         </div>

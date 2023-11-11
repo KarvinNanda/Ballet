@@ -32,13 +32,13 @@
                         <input class="form-control bg-opacity-10" name="ShortName" value="{{$detail->ShortName}}">
                     </div>
                 </div>
-{{--
+
                 <div class="row mb-3">
                     <label for="inputName" class="col-sm-2 col-form-label">Age</label>
                     <div class="col-sm-10">
-                        <div class="form-control bg-opacity-10" name="age" value={{$detail->age}}>
+                        <input class="form-control bg-opacity-10" name="age" value="{{$detail->age}}">
                     </div>
-                </div> --}}
+                </div>
 
                 <div class="row mb-3">
                     <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
@@ -68,11 +68,11 @@
                     </div>
                 </div>
 
-                {{-- @if(@$detail->bank)
+                 @if(@$detail->bank)
                     <div class="row mb-3">
                         <label for="inputPhone" class="col-sm-2 col-form-label">Bank Name</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-opacity-10">{{$detail->bank}}</p>
+                            <p class="form-control bg-success bg-opacity-10">{{$detail->bank}}</p>
                         </div>
                     </div>
                 @endif
@@ -80,14 +80,14 @@
                 <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">Sender Name</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-opacity-10">{{$detail->pengirim}}</p>
+                        <p class="form-control bg-success bg-opacity-10">{{$detail->pengirim}}</p>
                     </div>
-                </div> --}}
+                </div>
 
                 <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">Account Number</label>
                     <div class="col-sm-10">
-                            <p class="form-control bg-opacity-10">{{$detail->rek}}</p>
+                            <p class="form-control bg-success bg-opacity-10">{{$detail->rek}}</p>
                     </div>
                 </div>
 
@@ -147,6 +147,36 @@
                     </div>
                 </div>
 
+                <div class="row mb-3">
+                    <label for="inputPhone" class="col-sm-2 col-form-label">Quota</label>
+                    <div class="col-sm-10">
+                        <input class="form-control bg-opacity-10" name="Quota" value="{{$detail->Quota}}">
+                    </div>
+                </div>
+
+                <section class="section">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Courses Taken</h5>
+
+                            <table class="table">
+                                <thead>
+                                <th>Course Name</th>
+                                <th>Price</th>
+                                </thead>
+                                <tbody>
+                                @foreach ($courses_taken as $data)
+                                    <tr>
+                                        <td>{{$data->class_name}}</td>
+                                        <td>{{"Rp.".number_format($data->class_price)}}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
             </div>
 
             @if($errors->any())
@@ -161,4 +191,6 @@
 
         </form>
     </section>
+
+
 @endsection

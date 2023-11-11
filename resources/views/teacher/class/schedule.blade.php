@@ -25,10 +25,8 @@
                         <tr>
                             <td>
                                 {{$class->Type->class_name}} -
-                                @foreach ($class->mapping as $map)
-                                {{$map->getUser->name}}
-                            @endforeach
-                            - {{$class->id}}
+                                {{$class->mapping[0]->getUser->name}}
+                                - {{$class->people_count}}
                             </td>
                             <td>
                                 <form action="{{route('viewScheduleClassTeacher', ['id' => $class->id])}}" method="get">

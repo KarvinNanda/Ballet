@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banks;
 use App\Models\Rekenings;
 use App\Models\Student;
 use Carbon\Carbon;
@@ -17,25 +18,82 @@ class AdminStudentController extends Controller
         return view('admin.student.studentForm');
     }
 
-    public function adminStudentView(){
-        $students = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->selectRaw('
+    public function adminStudentView(Request $request){
+        $sort = 'asc';
+        $keyword = $request->query('keyword');
+        $status = $request->query('status');
+        if(is_null($status))$status='all';
+
+        if ($status == "all") {
+            $students = DB::table('students')
+                ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->leftJoin('banks','rekenings.banks_id','banks.id')
+                ->selectRaw('
                 students.id as id,
                 students.Status as status,
                 students.LongName as name,
                 students.Dob as dob,
                 students.nama_orang_tua as ortu,
+                students.Address as alamat,
                 students.Phone1 as phone,
+                students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
-            ->simplePaginate(5);
-        return view('admin.student.adminStudentView',compact('students'));
+                ->where('students.LongName',"LIKE","%$keyword%")
+                ->orWhere('students.ShortName',"LIKE","%$keyword%")
+                ->orWhere('students.Instagram',"LIKE","%$keyword%")
+                ->orWhere('students.Phone1',"LIKE","%$keyword%")
+                ->orWhere('students.Phone2',"LIKE","%$keyword%")
+                ->orWhere('students.bank_rek',"LIKE","%$keyword%")
+                ->orWhere('students.nama_orang_tua',"LIKE","%$keyword%")
+                ->orWhere('students.Address',"LIKE","%$keyword%")
+                ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
+                ->orWhere('banks.bank_name',"LIKE","%$keyword%")
+                ->orderBy('students.id','desc')
+                ->paginate(5);
+        } else {
+            $students = DB::table('students')
+                ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
+                ->leftJoin('banks','rekenings.banks_id','banks.id')
+                ->selectRaw('
+                students.id as id,
+                students.Status as status,
+                students.LongName as name,
+                students.Dob as dob,
+                students.nama_orang_tua as ortu,
+                students.Address as alamat,
+                students.Phone1 as phone,
+                students.Email as email,
+                students.Line as line,
+                students.Instagram as instagram,
+                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                rekenings.bank_rek as rek,
+                rekenings.nama_pengirim as pengirim
+            ')
+                ->where('students.Status', "=", $status)
+                ->where(function ($query) use ($keyword) {
+                    $query->where('students.LongName',"LIKE","%$keyword%")
+                        ->orWhere('students.ShortName',"LIKE","%$keyword%")
+                        ->orWhere('students.Instagram',"LIKE","%$keyword%")
+                        ->orWhere('students.Phone1',"LIKE","%$keyword%")
+                        ->orWhere('students.Phone2',"LIKE","%$keyword%")
+                        ->orWhere('students.bank_rek',"LIKE","%$keyword%")
+                        ->orWhere('students.nama_orang_tua',"LIKE","%$keyword%")
+                        ->orWhere('students.Address',"LIKE","%$keyword%")
+                        ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
+                        ->orWhere('banks.bank_name',"LIKE","%$keyword%");
+                })
+                ->orderBy('students.id','desc')
+                ->paginate(5);
+        }
+        return view('admin.student.adminStudentView',compact('students','sort'));
     }
 
-    public function adminStudentViewSorting($value){
+    public function adminStudentViewSorting($value,$type){
         $students = DB::table('students')
             ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
             ->join('banks','banks.id','rekenings.banks_id')
@@ -53,9 +111,10 @@ class AdminStudentController extends Controller
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
             ')
-            ->orderBy($value)
-            ->simplePaginate(5);
-        return view('admin.student.adminStudentView',compact('students'));
+            ->orderBy($value,$type)
+            ->paginate(5);
+        $sort = $type == 'asc' ? 'asc':'desc';
+        return view('admin.student.adminStudentView',compact('students','sort'));
     }
 
     public function adminStudentFormSubmit(Request $req){
@@ -80,10 +139,16 @@ class AdminStudentController extends Controller
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
+        if(@$req->inputBankName){
+            $bankID = Banks::updateOrCreate([
+                'bank_name' => $req->inputBankName
+            ]);
+        }
+
         $rekening = new Rekenings();
         $rekening->bank_rek = $req->inputRekening;
         $rekening->nama_pengirim = $req->inputNamaPengirim;
-        $rekening->banks_id = null;
+        $rekening->banks_id = is_null($bankID) ? null : $bankID->id;
         $rekening->save();
 
         $student = new Student();
@@ -104,10 +169,11 @@ class AdminStudentController extends Controller
         $student->Line = $req->inputInstagram ?  $req->inputLine : '-';
         $student->Status = 'aktif';
         $student->EnrollDate  = Carbon::now();
+        $student->Quota  = 0;
 
         $student->save();
 
-        return redirect()->route('adminStudentView');
+        return redirect()->route('adminStudentView')->with('msg','Success Create Data Student');
     }
 
     public function active(){
@@ -129,7 +195,7 @@ class AdminStudentController extends Controller
                 banks.bank_name as bank
             ')
             ->where('students.status','=','aktif')
-            ->simplePaginate(5);
+            ->paginate(5);
         return view('admin.student.adminStudentView',compact('students'));
     }
 
@@ -152,7 +218,7 @@ class AdminStudentController extends Controller
                 banks.bank_name as bank
             ')
             ->where('students.status','=','non-aktif')
-            ->simplePaginate(5);
+            ->paginate(5);
         return view('admin.student.adminStudentView',compact('students'));
     }
 
@@ -178,7 +244,7 @@ class AdminStudentController extends Controller
                 banks.bank_name as bank
             ')
                 ->WhereYear('students.Dob',"=",$curr - $req->search)
-                ->simplePaginate(5);
+                ->paginate(5);
         } else {
             $students = DB::table('students')
                 ->join('rekenings','students.bank_rek','rekenings.bank_rek')
@@ -205,27 +271,29 @@ class AdminStudentController extends Controller
                 ->orWhere('students.bank_rek',"LIKE","%$req->search%")
                 ->orWhere('students.nama_orang_tua',"LIKE","%$req->search%")
                 ->orWhere('students.Address',"LIKE","%$req->search%")
-                ->simplePaginate(5);
+                ->paginate(5);
         }
 
         return view('admin.student.adminStudentView',compact('students'));
     }
 
-    public function ChangeNonactive(Student $student){
+    public function ChangeNonactive(Student $student,Request $req){
         $change = Student::find($student->id);
-        if($change->Status == 'aktif'){
+        if($req->stats == 'Active'){
+            $change->Status = 'aktif';
+        } else if($req->stats == 'Inactive') {
             $change->Status = 'non-aktif';
         } else {
-            $change->Status = 'aktif';
+            $change->Status = 'trial';
         }
         $change->save();
-        return redirect()->back();
+        return redirect()->back()->with('msg','Success Update Student Status');
     }
 
     public function deleteStudent($studentId){
         $change = Student::find($studentId);
         $change->delete();
-        return redirect()->route("adminStudentView");
+        return redirect()->route("adminStudentView")->with('msg','Success Delete Data Student');
     }
 
     public function detailStudent($studentId){
@@ -250,6 +318,7 @@ class AdminStudentController extends Controller
                 students.Instagram as Instagram,
                 students.Line as Line,
                 students.Email as Email,
+                students.Quota as Quota,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
@@ -269,81 +338,49 @@ class AdminStudentController extends Controller
         return view('admin.student.adminStudentDetail', $detail);
     }
 
-
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function update(Request $request)
     {
-        //
-    }
+        $rules = [
+            'LongName' => 'required',
+            'nama_orang_tua' => 'required',
+            'city' => 'required',
+            'Email' => 'required|email:filter',
+            'dob' => 'required|date|before:tomorrow',
+            'Address' => 'required',
+            'Phone1' => 'required|numeric|digits_between:10,12',
+            'Phone2' => 'required|numeric|digits_between:10,12',
+            'Whatsapp' => 'required|numeric|digits_between:10,12',
+//            'rek' => 'required|numeric|digits_between:10,15',
+            'kode_pos' => 'required|numeric|min_digits:5',
+            'nis' => 'required|numeric|min_digits:10',
+            'Quota' => 'required|numeric',
+        ];
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+        $validate = Validator::make($request->all(), $rules);
+        if($validate->fails()){
+            return redirect()->back()->withErrors($validate)->withInput();
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $student = Student::find($request->id);
+        $student->nis = $request->nis;
+        $student->LongName = $request->LongName;
+        $student->ShortName = $request->ShortName;
+        $student->Email = $request->Email;
+        $student->Dob = $request->dob;
+        $student->Address = $request->Address;
+        $student->nama_orang_tua = $request->nama_orang_tua;
+        $student->City = $request->city;
+        $student->kode_pos = $request->kode_pos;
+        $student->Phone1 = $request->Phone1;
+        $student->Phone2 = $request->Phone2;
+        $student->Whatsapp = $request->Whatsapp;
+        $student->Instagram = $request->Instagram;
+        $student->Line = $request->Line;
+        $student->EnrollDate = $request->EnrollDate;
+        $student->Quota = $request->Quota;
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Student  $student
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Student $student)
-    {
-        //
-    }
+        $student->save();
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Student  $student
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Student $student)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Student  $student
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Student $student)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Student  $student
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Student $student)
-    {
-        //
+        return to_route('adminStudentView')->with('msg','Success Update Data Student');;
     }
 }

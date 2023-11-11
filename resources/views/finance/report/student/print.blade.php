@@ -38,6 +38,7 @@
             <table class="table table-bordered">
                 <thead>
                 <tr>
+                    <th>No</th>
                     <th>Name</th>
                     <th>Class</th>
                     <th>Teacher</th>
@@ -50,6 +51,7 @@
                 <tbody>
                 @foreach($report as $item)
                     <tr>
+                        <td>{{$loop->iteration}}</td>
                         <td>{{$item->name}}</td>
                         <td>{{$item->class}}</td>
                         <td>{{$item->teacher}}</td>
