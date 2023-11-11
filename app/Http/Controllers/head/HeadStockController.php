@@ -3,19 +3,29 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
+use App\Models\Buyer;
 use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class HeadStockController extends Controller
 {
-    public function index(){
-        $stocks = Stock::simplePaginate(5);
-        return view('head.stock.index',compact('stocks'));
+    public function index(Request $request){
+        $sort = 'asc';
+        $search = $request->search;
+        if(is_null($search)) $stocks = Stock::orderBy('id','desc')->paginate(5);
+        else  $stocks = Stock::where('name','like',"%$search%")->orderBy('id','desc')->paginate(5);
+        return view('head.stock.index',compact('stocks','sort'));
+    }
+
+    public function sorting($value,$sort){
+        $stocks = Stock::orderBy($value,$sort)->paginate(5);
+        $sort = $sort == 'asc' ? 'desc' : 'asc';
+        return view('head.stock.index',compact('stocks','sort'));
     }
 
     public function search(Request $req){
-        $stocks = Stock::where('name','like',"%$req->search%")->simplePaginate(5);
+        $stocks = Stock::where('name','like',"%$req->search%")->paginate(5);
         return view('head.stock.index',compact('stocks'));
     }
 
@@ -32,7 +42,7 @@ class HeadStockController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $stock = new Stock();
@@ -41,11 +51,12 @@ class HeadStockController extends Controller
         $stock->quantity = $req->inputQty;
         $stock->save();
 
-        return redirect()->route('headStockPage');
+        return redirect()->route('headStockPage')->with('msg','Success Create Stock');
     }
 
     public function updatePage(Stock $stock){
-        return view('head.stock.update',compact('stock'));
+        $buyer = Buyer::where('stock_id',$stock->id)->paginate(5);
+        return view('head.stock.update',compact('stock','buyer'));
     }
 
     public function update(Request $req,Stock $stock){
@@ -58,7 +69,7 @@ class HeadStockController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $stock = Stock::find($stock->id);
@@ -67,12 +78,12 @@ class HeadStockController extends Controller
         $stock->quantity = $req->inputQty;
         $stock->save();
 
-        return redirect()->route('headStockPage');
+        return redirect()->route('headStockPage')->with('msg','Success Update Stock');
     }
 
     public function delete(Stock $stock){
         $stock = Stock::find($stock->id);
         $stock->delete();
-        return redirect()->route('headStockPage');
+        return redirect()->route('headStockPage')->with('msg','Success Delete Stock');
     }
 }

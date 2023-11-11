@@ -69,6 +69,7 @@
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
                 <a href="{{route('headViewaddStudentClass',$id)}}"><button class="btn btn-info me-5 mt-2 mb-2" type="Submit">Add Student</button></a>
+                <a href="{{route('headResetQuota',$id)}}"><button class="btn btn-secondary me-5 mt-2 mb-2" type="Submit"> Reset Quota</button></a>
             </div>
             <div class="card-body">
 
@@ -82,10 +83,12 @@
                             <th scope="col">Address</th>
                             <th scope="col">Email</th>
                             <th scope="col">Phone</th>
+                            <th scope="col">Quota</th>
                         </tr>
                         </thead>
                         <tbody>
                         @if($students->isEmpty())
+                            <td>No Data</td>
                             <td>No Data</td>
                             <td>No Data</td>
                             <td>No Data</td>
@@ -97,8 +100,15 @@
                                     <td>{{$student->studentName}}</td>
                                     <td>{{\Carbon\Carbon::parse($student ->studentDOB)->format('d M Y')}}</td>
                                     <td>{{$student->studentAddress}}</td>
-                                    <td>{{$student->studentPhone}}</td>
                                     <td>{{$student->studentEmail}}</td>
+                                    <td>{{$student->studentPhone}}</td>
+                                    @if($class_name == 'Pointe Class')
+                                        <td>{{$student->studentQuota}} / 4</td>
+                                    @elseif($class_name == 'Intensive Kids' || $class_name == 'Intensive Class')
+                                        <td>{{$student->studentQuota}} / 12</td>
+                                    @else
+                                        <td>{{$student->studentQuota}} / 8</td>
+                                    @endif
                                     <td>
                                         <form action="{{route('headClassDeleteStudent',['student' => $student->id,'class' => $id])}}" method="get">
                                             @csrf

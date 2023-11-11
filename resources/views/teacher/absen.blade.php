@@ -1,4 +1,5 @@
 @extends('Master.master')
+@inject('carbon', 'Carbon\Carbon')
 
 @section('title','Class List')
 
@@ -21,7 +22,7 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">Nis</th>
+                        <th scope="col">NIS</th>
                         <th scope="col">Name</th>
                         <th scope="col">Attend</th>
                         <th scope="col">Description</th>
@@ -30,44 +31,56 @@
                     </tr>
                     </thead>
                     <tbody>
-                        @foreach($class as $c )
-
-                            <tr >
+                        @foreach($class as $c)
+                            @php
+                                $check_transaction = DB::table('transactions')
+                                                    ->where('students_id',$c->id)
+                                                    ->where('payment_status','Unpaid')
+                                                    ->orderBy('transaction_date')
+                                                    ->first()
+                            @endphp
+                            <tr>
                                 <input type="hidden" value="{{$c->nis}}" name="nis[]">
                                 <td>{{$c->nis}}</td>
                                 <td>{{$c->nama}}</td>
-                                <td>
-                                    @if(!@$detail)
-                                    <input type="hidden" name="check[{{$loop->iteration -1}}]" value="off">
-                                    <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" checked>
-                                    @elseif(@$detail[$loop->iteration-1]->Description == "Masuk")
-                                        <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" checked disabled>
-                                    @else
-                                        <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" disabled>
-                                    @endif
-                                </td>
-                                <td >
-                                    @if(!@$detail)
-                                    <select value="" name="keterangan[]" class="form-select">
-                                        <option selected>Select...</option>
-                                        <option value="Absent">Absent</option>
-                                        <option value="Permission">Permission</option>
-                                        <option value="Sick">Sick</option>
-                                    </select>
-                                    @else
-                                        <select value="" name="keterangan[]" class="form-select" disabled>
-                                            <option selected> {{@$detail[$loop->iteration-1]->Description}}</option>
-                                        </select>
-                                    @endif
-                                </td>
-                                <td >
-                                    @if(!@$detail)
-                                        <input type="text" name="notes[]" class="form-control">
-                                    @else
-                                        <input type="text" name="notes[]" class="form-control" value="{{@$detail[$loop->iteration-1]->Notes}}" disabled>
-                                     @endif
+                                @if( ($carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) >= 20 && $carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) <= 39) &&
+                                     $check_transaction->payment_status == 'Unpaid' &&
+                                     $c->Quota + 1 > 3 )
+                                    <td colspan="3">Please Completed Payment</td>
+                                @else
+                                    <td>
+                                        @if(!@$detail)
+                                            <input type="hidden" name="check[{{$loop->iteration -1}}]" value="off">
+                                            <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" checked>
+                                        @elseif(@$detail[$loop->iteration-1]->Description == "Masuk")
+                                            <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" checked disabled>
+                                        @else
+                                            <input type="checkbox" name="check[{{$loop->iteration -1}}]" class="form-check-input" id="test" value="on" disabled>
+                                        @endif
+                                    </td>
+                                    <td >
+                                        @if(!@$detail)
+                                            <select value="" name="keterangan[]" class="form-select">
+                                                <option selected>Select...</option>
+                                                <option value="Absent">Absent</option>
+                                                <option value="Permission">Permission</option>
+                                                <option value="Sick">Sick</option>
+                                            </select>
+                                        @else
+                                            <select value="" name="keterangan[]" class="form-select" disabled>
+                                                <option selected> {{@$detail[$loop->iteration-1]->Description}}</option>
+                                            </select>
+                                        @endif
+                                    </td>
+                                    <td >
+                                        @if(!@$detail)
+                                            <input type="text" name="notes[]" class="form-control">
+                                        @else
+                                            <input type="text" name="notes[]" class="form-control" value="{{@$detail[$loop->iteration-1]->Notes}}" disabled>
+                                        @endif
 
-                                </td>
+                                    </td>
+                                @endif
                             </tr>
 
 

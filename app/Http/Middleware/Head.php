@@ -17,8 +17,13 @@ class Head
      */
     public function handle(Request $request, Closure $next)
     {
-        if(!Auth::check() || Auth::user()->role != 'head'){
+        if(Auth::user()->role != 'head'){
+            if(!Auth::check()){
+                return to_route('login');
+            }
             return redirect()->back();
+        } else if(!Auth::check()){
+            return to_route('login');
         }
         return $next($request);
     }

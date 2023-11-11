@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="pagetitle">
-        <h1>Update Transaction</h1>
+        <h1>Transaction Form</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -13,7 +13,7 @@
                 <h5 class="card-title"></h5>
 
                 <!-- General Form Elements -->
-                <form action="{{route('update',$transaction->id)}}" method="post">
+                <form action="{{route('update',$trans)}}" method="post">
                     @csrf
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Name</label>
@@ -32,14 +32,14 @@
                     <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">Class</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->ClassName}}</p>
+                            <p class="form-control bg-success bg-opacity-10">{{$transaction->class_name}}</p>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
-                            <input type="number" class="form-control" name="inputHarga" value="{{$transaction->price}}">
+                            <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price)}}</p>
                         </div>
                     </div>
 
@@ -60,7 +60,7 @@
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Total</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->price - (($transaction->discount/100)*$transaction->price))}}</p>
+                            <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price - (($transaction->discount/100)*$transaction->class_price))}}</p>
                         </div>
                     </div>
 

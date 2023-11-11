@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 class HeadFinanceController extends Controller
 {
     public function index(){
-        $finances = User::where('role','finance')->simplePaginate(5);
+        $finances = User::where('role','finance')->orderBy('id','desc')->paginate(5);
         return view('head.finance.index',compact('finances'));
     }
 
@@ -32,7 +32,7 @@ class HeadFinanceController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $user = new User();
@@ -52,17 +52,17 @@ class HeadFinanceController extends Controller
 
         Mail::to($user->email)->send(new SendingEmail($credential));
 
-        return to_route('headFinancePage');
+        return to_route('headFinancePage')->with('msg','Success Create Finance Data');
     }
 
     public function search(Request $req){
-        $finances = User::where('name','like',"%$req->search%")->where('role','finance')->simplePaginate(5);
+        $finances = User::where('name','like',"%$req->search%")->where('role','finance')->paginate(5);
         return view('head.finance.index',compact('finances'));
     }
 
     public function delete(User $user){
         $user = User::find($user->id);
         $user->delete();
-        return to_route('headFinancePage');
+        return to_route('headFinancePage')->with('msg','Success Create Finance Data');
     }
 }

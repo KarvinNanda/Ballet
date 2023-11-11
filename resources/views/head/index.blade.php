@@ -25,7 +25,7 @@
                     </thead>
                     <tbody>
                     @foreach($data as $item)
-                        @if($item->date >= $carbon::now()->toDateString() && $item->date <= $carbon::now()->addDays(7)->toDateString())
+{{--                        @if($item->date >= $carbon::now()->toDateString() && $item->date <= $carbon::now()->addDays(7)->toDateString())--}}
                             <tr>
                                 <td>{{$item->teacherName}}</td>
                                 <td>{{$item->class}}</td>
@@ -33,11 +33,14 @@
                                 <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($item->date)->format('H:i:s')}}</td>
                             </tr>
-                        @endif
+{{--                        @endif--}}
                     @endforeach
                     </tbody>
                 </table>
                 <!-- End Table with stripped rows -->
+                <div class="alert text-center" role="alert">
+                    {{$data->links()}}
+                </div>
 
             </div>
         </div>

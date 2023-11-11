@@ -7,8 +7,11 @@ use App\Models\ClassTransaction;
 use App\Models\ClassType;
 use App\Models\MappingClassChild;
 use App\Models\MappingClassTeacher;
+use App\Models\Schedule;
 use App\Models\Student;
+use App\Models\Transaction;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,26 +21,56 @@ use function PHPSTORM_META\map;
 
 class AdminClassTransactionController extends Controller
 {
-    public function viewClass()
+    public function viewClass(Request $request)
     {
-        $classes = ClassTransaction::select(
-            'class_transactions.id',
-            'class_name',
-            'class_price',
-            'Status',
-            'class_type_id',
-            'student_id',
-            'class_id',
-            DB::raw('COUNT(student_id) as people_count'))
-            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
-            ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
-            ->groupBy('class_id')
-            ->simplePaginate(5);
+        $sort = 'asc';
+        $keyword = $request->query('keyword');
+        $status = $request->query('status');
+        if(is_null($status))$status='all';
+        if ($status == "all") {
+            $classes = ClassTransaction::select(
+                'class_transactions.id',
+                'class_name',
+                'class_price',
+                'Status',
+                'class_type_id',
+                'student_id',
+                'class_id',
+                DB::raw('COUNT(student_id) as people_count'))
+                ->where(function($q) use ($keyword){
+                    if(!is_null($keyword)) $q->where('class_name','like',"%$keyword%");
+                })
+                ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+                ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+                ->orderBy('class_transactions.id','desc')
+                ->groupBy('class_transactions.id')
+                ->paginate(5);
+        } else{
+            $classes = ClassTransaction::select(
+                'class_transactions.id',
+                'class_name',
+                'class_price',
+                'Status',
+                'class_type_id',
+                'student_id',
+                'class_id',
+                DB::raw('COUNT(student_id) as people_count'))
+                ->where(function($q) use ($keyword){
+                    if(!is_null($keyword)) $q->where('class_name','like',"%$keyword%");
+                })
+                ->where('Status','=',$status)
+                ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+                ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+                ->orderBy('class_transactions.id','desc')
+                ->groupBy('class_transactions.id')
+                ->paginate(5);
+        }
 
-        return view('admin.class.view', compact('classes'));
+
+        return view('admin.class.view', compact('classes','sort'));
     }
 
-    public function viewClassSorting($value)
+    public function viewClassSorting($value,$type)
     {
         $classes = ClassTransaction::select(
             'class_transactions.id',
@@ -51,25 +84,26 @@ class AdminClassTransactionController extends Controller
             ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
             ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
             ->groupBy('class_id')
-            ->orderBy($value)
-            ->simplePaginate(5);
+            ->orderBy($value,$type)
+            ->paginate(5);
+        $sort = $type == 'asc' ? 'desc':'asc';
 
-        return view('admin.class.view',compact('classes'));
+        return view('admin.class.view',compact('classes','sort'));
     }
 
     public function active(){
-        $classes = ClassTransaction::where('Status','aktif')->simplePaginate(5);
+        $classes = ClassTransaction::where('Status','aktif')->paginate(5);
         return view('admin.class.view',compact('classes'));
     }
 
     public function nonActive(){
-        $classes = ClassTransaction::where('Status','non-aktif')->simplePaginate(5);
+        $classes = ClassTransaction::where('Status','non-aktif')->paginate(5);
         return view('admin.class.view',compact('classes'));
     }
 
     public function search(Request $req){
         $classes = ClassTransaction::join('class_types','class_transactions.class_type_id','class_types.id')
-        ->where('class_name','like',"%$req->search%")->simplePaginate(5);
+        ->where('class_name','like',"%$req->search%")->paginate(5);
         return view('admin.class.view',compact('classes'));
     }
 
@@ -85,7 +119,7 @@ class AdminClassTransactionController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $class = new ClassType();
@@ -94,7 +128,7 @@ class AdminClassTransactionController extends Controller
 
         $class->save();
 
-        return redirect()->route('adminClassView');
+        return redirect()->route('adminClassView')->with('msg','Success Create Course');
     }
 
     public function insertPage(){
@@ -111,7 +145,7 @@ class AdminClassTransactionController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $class = new ClassTransaction();
@@ -126,15 +160,18 @@ class AdminClassTransactionController extends Controller
 
         $map->save();
 
-        return redirect()->route('adminClassView');
+        return redirect()->route('adminClassView')->with('msg','Success Create Class');
     }
     //detail
     public function detailClass($id){
-//        $teachers = MappingClassTeacher::where('class_id',$req->classId)->simplePaginate(5);
-//
-////        dd($teachers->User);
-//        $students = MappingClassChild::where('class_id',$req->classId)->simplePaginate(5);
         $class_id = $id;
+        $check_schedule = Schedule::where('class_id',$class_id)->first();
+        if(is_null($check_schedule)) return redirect()->back()->with('msg','Please Create Schedule First');
+        $class_name = DB::table('class_transactions')
+            ->leftJoin('class_types','class_types.id','class_transactions.class_type_id')
+            ->where('class_transactions.id',$class_id)
+        ->first()->class_name;
+
 
         $teachers = DB::table('class_transactions')
             ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
@@ -148,7 +185,7 @@ class AdminClassTransactionController extends Controller
                 users.phone as teacherPhone
             ')
             ->where('class_transactions.id',$id)
-            ->simplePaginate(5);
+            ->paginate(5);
 
         $students = DB::table('class_transactions')
             ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
@@ -159,12 +196,26 @@ class AdminClassTransactionController extends Controller
                 students.Dob as studentDOB,
                 students.Address as studentAddress,
                 students.Email as studentEmail,
-                students.Phone1 as studentPhone
+                students.Phone1 as studentPhone,
+                students.Quota as studentQuota
             ')
             ->where('class_transactions.id',$id)
-            ->simplePaginate(5);
+            ->paginate(5);
 
-        return view('admin.class.detail',compact('teachers','students','class_id'));
+        return view('admin.class.detail',compact('teachers','students','class_id','class_name'));
+    }
+
+    public function resetQuota($id){
+        $class_id = $id;
+
+        DB::table('class_transactions')
+            ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+            ->join('students','mapping_class_children.student_id','students.id')
+            ->where('class_transactions.id', $class_id)
+            ->update([
+                'students.Quota' => 0
+            ]);
+        return redirect()->route("adminDetailClass", ['id' => $class_id])->with('msg','Success Reset Quota');
     }
 
     public function levelUp(Request $req){
@@ -182,7 +233,7 @@ class AdminClassTransactionController extends Controller
                 students.Phone1 as studentPhone
             ')
             ->where('class_transactions.id',$req->classId)
-            ->simplePaginate(5);
+            ->paginate(5);
 
         return view('admin.class.levelUp',compact('students','class_id'));
     }
@@ -191,7 +242,7 @@ class AdminClassTransactionController extends Controller
         $class = ClassTransaction::where('id',$req->class_id)->first();
         $class->class_type_id += 1;
         $class->save();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminClassView")->with('msg','Success Level up All Student');
     }
 
     public function ChangeStatus(ClassTransaction $class){
@@ -218,7 +269,7 @@ class AdminClassTransactionController extends Controller
                     ->where('class_id','=',$class_id);
             })
 
-            ->simplePaginate(5);
+            ->paginate(5);
 //        $class_id = $req->id;
         return view('admin.class.viewTeacher',compact('teachers','class_id'));
     }
@@ -228,7 +279,7 @@ class AdminClassTransactionController extends Controller
         $mappingTeacher->user_id = $req->teacherId;
         $mappingTeacher->class_id = $req->classId;
         $mappingTeacher->Save();
-        return redirect()->route("adminDetailClass", ['id' => $req->classId]);
+        return redirect()->route("adminDetailClass", ['id' => $req->classId])->with('msg','Success Add Teacher');
     }
 
     //addStudent
@@ -238,34 +289,75 @@ class AdminClassTransactionController extends Controller
             $q->select('mapping_class_children.student_id')
                 ->from('mapping_class_children');
         })
-            ->where('students.Status',"=","aktif")
-            ->simplePaginate(5);
+            ->whereRaw("(students.Status = 'aktif' or students.Status = 'trial')")
+            ->paginate(5);
         return view('admin.class.viewStudent',compact('students','class_id'));
     }
 
     public function addStudent(Request $req){
+
+        $class_id = $req->classId;
+        $get_class_price = ClassTransaction::leftJoin('class_types','class_types.id','class_transactions.class_type_id')
+            ->where('class_transactions.id',$class_id)->first()->class_price;
+        $check_schedule = Schedule::where('class_id',$class_id)
+            ->whereRaw('date  >= curdate()')
+            ->orderBy('date')
+            ->first();
+
+        if(!is_null($check_schedule)){
+            $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
+
+
+            for ($i=0;$i<3;$i++){
+                if($i==0){
+                    $trans[] = [
+                        'students_id' =>$req->studentId,
+                        'class_transactions_id' => $class_id,
+                        'transaction_date' => $first_month,
+                        'payment_status' => 'Unpaid',
+                        'discount' => 0,
+                        'price' => $get_class_price,
+                        'desc' => '-'
+                    ];
+                } else {
+                    $trans[] = [
+                        'students_id' =>$req->studentId,
+                        'class_transactions_id' => $class_id,
+                        'transaction_date' => Carbon::parse($check_schedule->date)->day + 10 > 30 ? Carbon::parse($check_schedule->date)->addMonth($i+2)->setDay(10) : Carbon::parse($check_schedule->date)->addMonth($i+1)->setDay(10),
+                        'payment_status' => 'Unpaid',
+                        'discount' => 0,
+                        'price' => $get_class_price,
+                        'desc' => '-'
+                    ];
+                }
+            }
+            DB::table('transactions')->insert($trans);
+        }
+
         $mappingStudent = new MappingClassChild();
         $mappingStudent->student_id = $req->studentId;
         $mappingStudent->class_id = $req->classId;
         $mappingStudent->Save();
-        return redirect()->route("adminDetailClass", ['id' => $req->classId]);
+
+
+        return redirect()->route("adminDetailClass", ['id' => $req->classId])->with('msg','Success Add Student');
     }
 
     public function deleteTeacher($teacher, $class){
         $teacher = DB::table('mapping_class_teachers')->where('class_id',$class)->where('user_id',$teacher);
         $teacher->delete();
-        return redirect()->route("adminDetailClass", ['id' => $class]);
+        return redirect()->route("adminDetailClass", ['id' => $class])->with('msg','Success Delete Teacher');
     }
 
     public function deleteStudent($student, $class){
         $teacher = DB::table('mapping_class_children')->where('class_id',$class)->where('student_id',$student);
         $teacher->delete();
-        return redirect()->route("adminDetailClass", ['id' => $class]);
+        return redirect()->route("adminDetailClass", ['id' => $class])->with('msg','Success Delete Student');
     }
 
     public function resetClass($id){
         $classScheduleReset = DB::table('schedules')->where('class_id',$id);
         $classScheduleReset->delete();
-        return redirect()->route("adminClassView");
+        return redirect()->route("adminClassView")->with('msg','Success Reset Class');
     }
 }

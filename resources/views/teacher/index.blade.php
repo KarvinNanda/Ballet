@@ -25,16 +25,20 @@
                     </thead>
                     <tbody>
                     @foreach($data as $item)
-                        @if($carbon::parse($item->date)->addDays(1)->toDateString() >= $carbon::now()->setTimezone('GMT+7')->toDateString() && $carbon::parse($item->date)->toDateString() <= $carbon::now()->setTimezone('GMT+7')->addDays(7)->toDateString())
+{{--                        @if($carbon::parse($item->date)->addDays(1)->toDateString() >= $carbon::now()->setTimezone('GMT+7')->toDateString() && $carbon::parse($item->date)->toDateString() <= $carbon::now()->setTimezone('GMT+7')->addDays(7)->toDateString())--}}
                             <tr>
-                                <td>{{$item->class}} - {{$item->id}}</td>
+                                <td>
+                                    {{@$item->Type->class_name}} -
+                                    @foreach (@$item->mapping as $map)
+                                        {{$map->getUser->name}}
+                                    @endforeach
+                                    - {{$item->people_count}}
+                                </td>
                                 <td>{{$carbon::parse($item->date)->englishDayOfWeek}}</td>
                                 <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($item->date)->format('H:i:s')}}</td>
                                 <td>
-                                    @if($carbon::parse($item->date)->toDateString() < $carbon::now()->setTimezone('GMT+7')->toDateString() ||
-                                            ($carbon::now()->setTimezone('GMT+7')->toDateTimeString() > $carbon::parse($item->date)->toDateTimeString()
-                                            && $carbon::now()->setTimezone('GMT+7')->toDateString() == $carbon::parse($item->date)->toDateString()))
+                                    @if($carbon::parse($item->date)->addDays(1)->toDateString() == $carbon::now()->setTimezone('GMT+7')->toDateString() || $carbon::now()->setTimezone('GMT+7')->toDateString() == $carbon::parse($item->date)->toDateString())
                                         <form action="{{route('viewAbsen',$item->schedule_id)}}" method="post">
                                             @csrf
                                             <button type="submit" class="btn btn-info">Attendence</button>
@@ -44,11 +48,14 @@
                                     @endif
                                 </td>
                             </tr>
-                        @endif
+{{--                        @endif--}}
                     @endforeach
                     </tbody>
                 </table>
                 <!-- End Table with stripped rows -->
+                <div class="alert text-center" role="alert">
+                    {{$data->links()}}
+                </div>
 
             </div>
         </div>

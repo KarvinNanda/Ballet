@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="pagetitle">
-        <h1>Update Schdule</h1>
+        <h1>Schedule Form</h1>
     </div><!-- End Page Title -->
 
     <section class="section">

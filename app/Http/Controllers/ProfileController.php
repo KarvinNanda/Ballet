@@ -26,7 +26,7 @@ class ProfileController extends Controller
 
 
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $change = User::find($user->id);
@@ -54,7 +54,7 @@ class ProfileController extends Controller
         $active=false;
 
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $change = User::find($user->id);

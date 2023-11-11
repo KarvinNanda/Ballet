@@ -26,11 +26,11 @@
                         <tr>
                             <th scope="col">Name</th>
                             <th scope="col">Due Date</th>
-                            <th scope="col"><a href="{{route('headTransactionSorting','price')}}">Price</a></th>
+                            <th scope="col"><a href="{{route('headTransactionSorting',['column' => 'price','type' => $sort])}}">Price</a></th>
                             <th scope="col">Discount</th>
                             <th scope="col">Total</th>
                             <th scope="col">Payment Date</th>
-                            <th scope="col"><a href="{{route('headTransactionSorting','payment_status')}}">Status</a></th>
+                            <th scope="col"><a href="{{route('headTransactionSorting',['column' => 'payment_status','type' => $sort])}}">Status</a></th>
                             <th colspan="2" class="text-center" scope="col">Action</th>
                         </tr>
                         </thead>
@@ -46,7 +46,7 @@
                                 @else
                                     <td>Rp.{{number_format($transaction->price)}}</td>
                                 @endif
-                                <td>{{$carbon::now()->format('d M Y')}}</td>
+                                <td>{{is_null($transaction->transaction_payment) ? 'Waiting for Payment' : $transaction->transaction_payment}}</td>
                                 <td>{{$transaction->payment_status}}</td>
                                 <td class="d-flex">
                                     <form action="{{route('updateTransaction',$transaction->id)}}" method="post">

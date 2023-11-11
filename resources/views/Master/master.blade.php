@@ -5,6 +5,8 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
+
     <title>@yield('title')</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
@@ -29,20 +31,37 @@
 
     <!-- Template Main CSS File -->
     <link href="/assets/css/style.css" rel="stylesheet">
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css'>
+
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.all.min.js"></script>
 </head>
 
+@if(\Illuminate\Support\Facades\Auth::check())
 <body>
+@else
+<body class="toggle-sidebar">
+@endif
 
 <!-- ======= Header ======= -->
 <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
         <a href="" class="logo d-flex align-items-center">
+            @if(\Illuminate\Support\Facades\Auth::check())
             <span class="d-none d-lg-block">Hallo , {{\Illuminate\Support\Facades\Auth::user()->name}}</span>
+            @else
+            <span class="d-none d-lg-block">Hallo</span>
+            @endif
         </a>
-        <i class="bi bi-list toggle-sidebar-btn"></i>
+        @if(\Illuminate\Support\Facades\Auth::check())
+            <i class="bi bi-list toggle-sidebar-btn"></i>
+        @endif
+
     </div><!-- End Logo -->
 
+    @if(\Illuminate\Support\Facades\Auth::check())
     <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center">
 
@@ -63,7 +82,7 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="{{route('change-profile-page')}}">
-                            {{--                            <i class="bi bi-person"></i>--}}
+                                                        <i class="bi bi-person"></i>
                             <span>Change Profile</span>
                         </a>
                     </li>
@@ -74,7 +93,7 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="{{route('change-password-page')}}">
-                            {{--                            <i class="bi bi-person"></i>--}}
+                                                        <i class="bi bi-person"></i>
                             <span>Change Password</span>
                         </a>
                     </li>
@@ -85,7 +104,7 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="{{route('logout')}}">
-                            {{--                            <i class="bi bi-box-arrow-right"></i>--}}
+                                                        <i class="bi bi-box-arrow-right"></i>
                             <span>Sign Out</span>
                         </a>
                     </li>
@@ -95,10 +114,12 @@
 
         </ul>
     </nav><!-- End Icons Navigation -->
+    @endif
 
 </header><!-- End Header -->
 
 <!-- ======= Sidebar ======= -->
+@if(\Illuminate\Support\Facades\Auth::check())
 <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
@@ -112,8 +133,8 @@
         @auth
             @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin' || \Illuminate\Support\Facades\Auth::user()->role == 'head')
                 <li class="nav-item">
-                    <a class="nav-link" data-bs-target="#tables-nav" href="#">
-                        <span>Manage Data</span>
+                    <a class="nav-link collapsed" data-bs-target="#tables-nav" href="#">
+                        <span>Master</span>
                     </a>
                         @if(\Illuminate\Support\Facades\Auth::user()->role == 'admin')
                             <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
@@ -192,7 +213,7 @@
                         </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" data-bs-target="#tables-nav" href="#">
+                                <a class="nav-link collapsed" data-bs-target="#tables-nav" href="#">
                                     <span>Report</span>
                                 </a>
                                     <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
@@ -207,7 +228,7 @@
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{{route('headPrintActiveStudent')}}">
+                                            <a href="{{route('headPrintActiveStudentPage')}}">
                                                 <i class="bi bi-circle"></i><span>Active Student Report</span>
                                             </a>
                                         </li>
@@ -222,12 +243,12 @@
 
                             <li class="nav-item">
                                 <a class="nav-link collapsed" href="{{route('adminTransactionPage')}}">
-                                    <span>Transaksi</span>
+                                    <span>Transaction</span>
                                 </a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link" data-bs-target="#tables-nav" href="#">
+                                <a class="nav-link collapsed" data-bs-target="#tables-nav" href="#">
                                     <span>Report</span>
                                 </a>
                                 <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
@@ -237,7 +258,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="{{route('adminPrintActiveStudent')}}">
+                                        <a href="{{route('adminPrintActiveStudentPage')}}">
                                             <i class="bi bi-circle"></i><span>Active Student Report</span>
                                         </a>
                                     </li>
@@ -255,11 +276,11 @@
                         @else
                             <li class="nav-item">
                                 <a class="nav-link collapsed" href="{{route('financeTransaction')}}">
-                                    <span>Transaksi</span>
+                                    <span>Transaction</span>
                                 </a>
                             </li>
                         <li class="nav-item">
-                            <a class="nav-link" data-bs-target="#tables-nav" href="#">
+                            <a class="nav-link collapsed" data-bs-target="#tables-nav" href="#">
                                 <span>Report</span>
                             </a>
                             <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
@@ -270,7 +291,7 @@
                                     <a href="{{route('financeTeacherReportPage')}}">
                                         <i class="bi bi-circle"></i><span>Teacher Attendence Report</span>
                                     </a>
-                                    <a href="{{route('financeStudentReport')}}">
+                                    <a href="{{route('financeStudentReportPage')}}">
                                         <i class="bi bi-circle"></i><span>Finance Active Student Report</span>
                                     </a>
                                 </li>
@@ -283,6 +304,7 @@
     </ul>
 
 </aside><!-- End Sidebar-->
+@endif
 
 <main id="main" class="main">
     @if(Session()->has('msg'))
@@ -300,11 +322,6 @@
 En Pointe International Ballet Studio</span></strong>
     </div>
     <div class="credits">
-        <!-- All the links in the footer should remain intact. -->
-        <!-- You can delete the links only if you purchased the pro version. -->
-        <!-- Licensing information: https://bootstrapmade.com/license/ -->
-        <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-        {{--        Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>--}}
     </div>
 </footer><!-- End Footer -->
 
@@ -323,6 +340,7 @@ En Pointe International Ballet Studio</span></strong>
 <!-- Template Main JS File -->
 <script src="/assets/js/main.js"></script>
 <script src="/assets/js/jquery-3.6.3.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
 </body>
 

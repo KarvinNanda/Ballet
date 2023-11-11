@@ -25,37 +25,57 @@
     <div class="row d-block p-3">
         <div class="col">
             <h2>Laporan Kelas {{$className}}</h2>
+            <h3>Guru : {{$teacher}}</h3>
         </div>
 
-        @foreach($report as $items)
-            <div class="row">
-                <div class="col ">
-                    <h3>{{$carbon::parse($items[0]->date)->format('d M Y')}}</h3>
-                </div>
-                <div class="col">
-                    <div class="col text-center">
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th>Student Name</th>
-                                <th>Description</th>
-                                <th>Notes</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($items as $item)
-                                <tr>
-                                    <td>{{$item->student_name}}</td>
-                                    <td>{{$item->description}}</td>
-                                    <td>{{$item->note != '' ?$item->note : '-' }}</td>
-                                </tr>
+        <div class="row">
+            <div class="col">
+                <div class="col text-center">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Student Name</th>
+                            @foreach($report as $items)
+                                <th>{{$carbon::parse($items[0]->date)->format('d M Y')}}</th>
                             @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach($first as $f)
+                            @php
+                                $temp = $f->student_name;
+                            @endphp
+                            <tr>
+                                <td>{{$loop->iteration}}</td>
+                                <td>{{$f->student_name}}</td>
+                                @foreach($report as $items)
+                                    @foreach($items as $item)
+                                        @if($item->description == 'Attend' && $item->student_name == $temp)
+                                            <td>V</td>
+                                        @elseif($item->description == 'Sick' && $item->student_name == $temp)
+                                            <td>S</td>
+                                        @elseif($item->description == 'Permission' && $item->student_name == $temp)
+                                            <td>I</td>
+                                        @elseif($item->description == 'Absent' && $item->student_name == $temp)
+                                            <td>A</td>
+                                        @endif
+                                    @endforeach
+                                @endforeach
+                            </tr>
+                        @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        @endforeach
+            <div class="row">
+                <h3>Catatan</h3>
+                <p>V : Hadir</p>
+                <p>S : Sakit</p>
+                <p>I : Izin</p>
+                <p>A : Absen</p>
+            </div>
+        </div>
     </div>
 </div>
 

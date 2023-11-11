@@ -15,7 +15,7 @@ class HeadTeacherController extends Controller
 {
 
     public  function index(){
-        $teachers = User::where('role','teacher')->simplePaginate(5);
+        $teachers = User::where('role','teacher')->orderBy('id','desc')->paginate(5);
         return view('head.teacher.index',compact('teachers'));
     }
 
@@ -35,7 +35,7 @@ class HeadTeacherController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $user = User::find($teacher->id);
@@ -47,7 +47,7 @@ class HeadTeacherController extends Controller
         $user->percent = $req->inputBonus;
         $user->save();
 
-        return redirect()->route('headTeacherPage');
+        return redirect()->route('headTeacherPage')->with('msg','Success Update Teacher');
     }
 
     public function insertPage(){
@@ -65,7 +65,7 @@ class HeadTeacherController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $user = new User();
@@ -76,7 +76,7 @@ class HeadTeacherController extends Controller
         $user->email = $req->inputEmail;
         $user->phone = $req->inputPhone;
         $user->password = bcrypt('ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY'));
-        $user->percent = 35;
+        $user->percent = 30;
         $user->save();
 
         $credential = [
@@ -86,20 +86,20 @@ class HeadTeacherController extends Controller
 
         Mail::to($user->email)->send(new SendingEmail($credential));
 
-        return redirect()->route('headTeacherPage');
+        return redirect()->route('headTeacherPage')->with('msg','Success Create Teacher');
     }
 
     public function search(Request $req){
         $teachers = User::where('role','teacher')
             ->where('name','like',"%$req->search%")
-            ->simplePaginate(5);
+            ->paginate(5);
         return view('head.teacher.index',compact('teachers'));
     }
 
     public function delete(User $teacher){
         $delete = User::find($teacher->id);
         $delete->delete();
-        return redirect()->back();
+        return redirect()->back()->with('msg','Success Delete Teacher');
     }
 
 

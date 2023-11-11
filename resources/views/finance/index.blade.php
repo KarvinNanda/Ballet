@@ -11,7 +11,7 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="POST" action="">
+                <form class="search-form d-flex align-items-center" method="GET" action="{{route('finance')}}">
                     @csrf
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
@@ -35,17 +35,17 @@
                                 <td>{{$stock->size}}</td>
                                 <td>{{$stock->quantity}}</td>
                                 <td>
-                                    <form action="{{route('in',$stock)}}" method="post">
+                                    <form action="{{route('in',$stock)}}" method="get">
                                         @csrf
-                                        <button type="submit" class="btn btn-warning">IN</button>
+                                        <button type="submit" class="btn btn-warning">Stock</button>
                                     </form>
                                 </td>
-                                <td>
-                                    <form action="{{route('out',$stock)}}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger">OUT</button>
-                                    </form>
-                                </td>
+{{--                                <td>--}}
+{{--                                    <form action="{{route('out',$stock)}}" method="post">--}}
+{{--                                        @csrf--}}
+{{--                                        <button type="submit" class="btn btn-danger">OUT</button>--}}
+{{--                                    </form>--}}
+{{--                                </td>--}}
 
 
                             </tr>

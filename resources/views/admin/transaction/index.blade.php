@@ -25,11 +25,11 @@
                         <tr>
                             <th scope="col">Name</th>
                             <th scope="col">Due Date</th>
-                            <th scope="col"><a href="{{route('adminTransactionSorting','price')}}">Price</a></th>
+                            <th scope="col"><a href="{{route('adminTransactionSorting',['value' => 'price','type' => $sort])}}">Price</a></th>
                             <th scope="col">Discount</th>
                             <th scope="col">Total</th>
                             <th scope="col">Payment Date</th>
-                            <th scope="col"><a href="{{route('adminTransactionSorting','payment_status')}}">Status</a></th>
+                            <th scope="col"><a href="{{route('adminTransactionSorting',['value' => 'payment_status','type' => $sort])}}">Status</a></th>
                             <th colspan="2" class="text-center" scope="col">Detail</th>
                         </tr>
                         </thead>
@@ -57,7 +57,12 @@
                                 @else
                                     <td class="text-danger font-weight-bold">{{$transaction->payment_status}}</td>
                                 @endif
-                                <td>
+                                <td class="d-flex">
+                                    <form action="{{route('adminUpdateTransaction',$transaction->id)}}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-warning me-2">Update</button>
+                                    </form>
+
                                     <form action="{{route('adminDetailTransaction',$transaction->student_id)}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-secondary">Detail</button>

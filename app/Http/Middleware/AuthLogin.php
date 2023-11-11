@@ -18,7 +18,7 @@ class AuthLogin
     public function handle(Request $request, Closure $next)
     {
         if(!Auth::check()){
-            return redirect()->back();
+            return to_route('login');
         }
         return $next($request);
     }

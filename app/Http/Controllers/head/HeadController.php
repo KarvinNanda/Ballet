@@ -21,8 +21,8 @@ class HeadController extends Controller
                 users.name as teacherName,
                 class_transactions.id as id
             ')
-            ->orderBy('schedules.date')
-            ->get();
+            ->orderBy('schedules.date','desc')
+            ->paginate(5);
         return view('head.index',compact('data'));
     }
 }

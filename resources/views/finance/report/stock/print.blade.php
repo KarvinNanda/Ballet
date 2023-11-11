@@ -47,7 +47,7 @@
                     <tr>
                         <td>{{$item[0]->stock->name}}</td>
                         <td>{{$item[0]->stock->size}}</td>
-                        <td>{{$item[0]->stock->quantity}}</td>
+                        <td>{{$item[0]->first_qty}}</td>
                         @foreach($item as $subItem)
                             @php
                                 $in+=$subItem->in;
@@ -56,7 +56,7 @@
                         @endforeach
                         <td>{{$in}}</td>
                         <td>{{$out}}</td>
-                        <td>{{$item[0]->stock->quantity + ($in - $out)}}</td>
+                        <td>{{$item[0]->first_qty + ($in - $out)}}</td>
                         @php
                             $in=$out=0;
                         @endphp

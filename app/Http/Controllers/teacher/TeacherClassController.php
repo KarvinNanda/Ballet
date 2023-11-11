@@ -24,6 +24,7 @@ class TeacherClassController extends Controller
                 COUNT(mapping_class_children.class_id) as students
             ')
             ->where('mapping_class_teachers.user_id', Auth::user()->id)
+            ->orderBy('class_types.class_name')
             ->groupBy(['class'])
             ->get()
             ->groupBy('class');
@@ -53,7 +54,9 @@ class TeacherClassController extends Controller
             ->selectRaw('
                 schedules.date as date,
                 schedules.id as id
-            ')->where('schedules.class_id', $classId)->orderBy("date")
+            ')
+            ->where('schedules.class_id', $classId)
+            ->orderBy('schedules.date','desc')
             ->get();
 
         return view('teacher.class.viewSchedule', compact('class', 'classId'));
@@ -63,7 +66,7 @@ class TeacherClassController extends Controller
     {
         $classDelete = DB::table('schedules')->where('schedules.id', $id)->where('class_id', $classId);
         $classDelete->delete();
-        return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()]);
+        return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()])->with('msg','Success Delete Schedule');
     }
 
     public function viewUpdateScheduleClass(Request $req)
@@ -77,7 +80,7 @@ class TeacherClassController extends Controller
         $schedule = Schedule::find($req->scheduleId);
         $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
-        return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()]);
+        return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()])->with('msg','Success Update Schedule');
     }
 
     public function viewaddScheduleClass(Request $req, $id)
@@ -91,7 +94,6 @@ class TeacherClassController extends Controller
     public function viewAddMultipleScheduleClass(Request $req, $id)
     {
         $classId = $id;
-        $test = Schedule::find($classId);
         return view('teacher.class.addMultipleSchedule', compact('classId'));
     }
 
@@ -119,7 +121,7 @@ class TeacherClassController extends Controller
             $schedule->save();
         }
 
-        return redirect()->route("viewScheduleClassTeacher", ['id' => $id]);
+        return redirect()->route("viewScheduleClassTeacher", ['id' => $id])->with('msg','Success Create Schedule');
     }
 
     public function addMultipleSchedule(Request $req)
@@ -134,15 +136,31 @@ class TeacherClassController extends Controller
             $date->addDay(7);
         }
 
-        return redirect()->route("viewScheduleClassTeacher", ['id' => $req->classId]);
+        return redirect()->route("viewScheduleClassTeacher", ['id' => $req->classId])->with('msg','Success Create Schedule');
     }
 
     public function viewClassSchedule(Request $request, $id)
     {
         $userId = $id;
-        $classes = ClassTransaction::whereHas('mapping', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->where('Status', 'aktif')->simplePaginate(5);
+
+        $classes = ClassTransaction::select(
+            'class_transactions.id',
+            'class_name',
+            'class_price',
+            'Status',
+            'class_type_id',
+            'student_id',
+            'class_id',
+            DB::raw('COUNT(student_id) as people_count'))
+            ->whereHas('mapping', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+            ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+            ->orderBy('class_transactions.id','desc')
+            ->groupBy('class_transactions.id')
+            ->where('Status', 'aktif')
+            ->paginate(5);
 
         return view('teacher.class.schedule', compact('classes'));
     }

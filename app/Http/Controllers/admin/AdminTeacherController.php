@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 class AdminTeacherController extends Controller
 {
     public function adminTeacherView(){
-        $teachers = User::where('role','teacher')->simplePaginate(5);
+        $teachers = User::where('role','teacher')->orderBy('id','desc')->paginate(5);
         return view('admin.teacher.adminTeacherView',compact('teachers'));
     }
 
@@ -26,14 +26,14 @@ class AdminTeacherController extends Controller
     public function search(Request $req){
         $teachers = User::where('role','teacher')
             ->where('name','like',"%$req->search%")
-            ->simplePaginate(5);
+            ->paginate(5);
         return view('admin.teacher.adminTeacherView',compact('teachers'));
     }
 
     public function delete(User $teacher){
         $delete = User::find($teacher->id);
         $delete->delete();
-        return redirect()->back();
+        return redirect()->back()->with('msg','Success Delete Data Teacher');
     }
 
     public function updatePage(User $teacher){
@@ -52,7 +52,7 @@ class AdminTeacherController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $user = User::find($teacher->id);
@@ -64,13 +64,13 @@ class AdminTeacherController extends Controller
         $user->percent = $req->inputBonus;
         $user->save();
 
-        return redirect()->route('adminTeacherView');
+        return redirect()->route('adminTeacherView')->with('msg','Success Update Data Teacher');
     }
 
     public function deleteTeacher(Request $req){
         $teacher = User::where('id','=',$req->id);
         $teacher->delete();
-        return redirect(route('admin.teacher.adminTeacherView'));
+        return redirect(route('admin.teacher.adminTeacherView'))->with('msg','Success Delete Data Teacher');
     }
 
     public function detailTeacher(User $teacher){
@@ -100,7 +100,7 @@ class AdminTeacherController extends Controller
         $user->email = $req->inputEmail;
         $user->phone = $req->inputPhone;
         $user->password = bcrypt('ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY'));
-        $user->percent = 35;
+        $user->percent = 30;
         $user->save();
 
         $credential = [
@@ -110,6 +110,6 @@ class AdminTeacherController extends Controller
 
         Mail::to('kdotchrist30@gmail.com')->send(new SendingEmail($credential));
 
-        return redirect()->route("adminTeacherView");
+        return redirect()->route("adminTeacherView")->with('msg','Success Create Data Teacher');
     }
 }

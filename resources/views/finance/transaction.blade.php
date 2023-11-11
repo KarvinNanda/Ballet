@@ -11,7 +11,7 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100">
-                <form class="search-form d-flex align-items-center" method="POST" action="{{route('searchTransaction')}}">
+                <form class="search-form d-flex align-items-center" method="get" action="{{route('searchTransaction')}}">
                     @csrf
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
@@ -45,11 +45,11 @@
                                 @else
                                     <td>Rp.{{number_format($transaction->price)}}</td>
                                 @endif
-                                <td>{{!is_null($transaction->transaction_payment) ? $carbon::parse($transaction->transaction_payment)->format('d M Y') : ''}}</td>
+                                <td>{{is_null($transaction->transaction_payment) ? 'Waiting for Payment' : $transaction->transaction_payment}}</td>
                                 <td>{{$transaction->payment_status}}</td>
                                 <td>
                                     @if($transaction->payment_status == 'Unpaid')
-                                    <form action="{{route('paidTransaction',$transaction->id)}}" method="post">
+                                    <form action="{{route('paidTransaction',$transaction->id)}}" method="get">
                                         @csrf
                                         <button type="submit" class="btn btn-warning me-2">Update</button>
                                     </form>

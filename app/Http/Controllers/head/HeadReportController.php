@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
+use App\Models\ClassType;
 use App\Models\HeaderAbsen;
 use App\Models\ReportStock;
 use App\Models\Stock;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class HeadReportController extends Controller
@@ -17,25 +19,29 @@ class HeadReportController extends Controller
             ->join('header_absens','header_absens.schedules_id','schedules.id')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->join('class_types','class_transactions.class_type_id','class_types.id')
+            ->join('mapping_class_teachers','mapping_class_teachers.class_id','schedules.class_id')
+            ->join('users','mapping_class_teachers.user_id','users.id')
             ->selectRaw('
                 class_types.class_name as class_name,
-                header_absens.id as header_id
+                class_transactions.id as class_id,
+                users.name as teacher
             ')
             ->orderBy('schedules.date')
-            ->groupBy('class_name')
+            ->groupBy('class_transactions.id')
             ->get();
         return view('head.report.class-attendence.index',compact('data'));
     }
 
-    public function printClassAttendence(HeaderAbsen $header,$className){
-        $find = HeaderAbsen::find($header->id);
+    public function printClassAttendence($header,$teacher){
 
         $firstDayOfClass = DB::table('schedules')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->join('class_types','class_transactions.class_type_id','class_types.id')
-            ->where('class_types.class_name','like',"%$className%")
+            ->where('class_transactions.id','=',$header)
             ->orderBy('schedules.date')
             ->first();
+
+        $className = $firstDayOfClass->class_name;
 
         $lastDayOfClass = Carbon::parse($firstDayOfClass->date)->addMonth(5)->lastOfMonth();
 
@@ -53,19 +59,28 @@ class HeadReportController extends Controller
                 class_types.class_name as class_name
             ')
             ->whereBetween('schedules.date',[$firstDayOfClass->date,$lastDayOfClass])
-            ->where('class_types.class_name',$className)
+            ->where('class_transactions.id',$header)
             ->orderBy('schedules.date')
             ->get()
-            ->groupBy('schedules.date');
+            ->groupBy('date');
+//        dd($report,$firstDayOfClass,$lastDayOfClass);
+        foreach($report as $items){
+            $first=$items;
+            break;
+        }
 
-        $pdf = Pdf::loadView('admin.report.class-attendence.print',compact('report','className'))
-            ->download('Laporan Absensi Siswa Kelas '.$className.' '.Carbon::now()->setTimezone("GMT+7")->format('dmY').'.pdf');
+        $pdf = Pdf::loadView('head.report.class-attendence.print',compact('report','className','first','teacher'))
+            ->setPaper('a4', 'landscape')
+            ->stream('Laporan Absensi Siswa Kelas '.$className.' '.Carbon::now()->setTimezone("GMT+7")->format('dmY').'.pdf');
         return $pdf;
     }
 
-    public function printActiveStudent(){
+    public function printActiveStudent(Request $req){
         $report = DB::table('students')
             ->join('rekenings','rekenings.bank_rek','students.bank_rek')
+            ->join('mapping_class_children','mapping_class_children.student_id','students.id')
+            ->join('class_transactions','class_transactions.id','mapping_class_children.class_id')
+            ->join('class_types','class_transactions.class_type_id','class_types.id')
             ->join('banks','rekenings.banks_id','banks.id')
             ->selectRaw('
                 students.nis,
@@ -84,16 +99,27 @@ class HeadReportController extends Controller
                 students.Email,
                 students.bank_rek,
                 rekenings.nama_pengirim,
-                banks.bank_name
+                banks.bank_name,
+                class_types.class_name
             ')
-            ->where('Status','aktif')
-            ->orderBy('LongName')
+            ->where('students.Status','aktif')
+            ->where(function ($query) use ($req) {
+                if($req->class != null){
+                    $query->where('class_types.class_name',$req->class);
+                }
+            })
+            ->orderBy('class_name')
             ->get();
 
-        $pdf = Pdf::loadView('head.report.active-student.print',compact('report'))
+        $pdf = Pdf::loadView('admin.report.active-student.print',compact('report'))
             ->setPaper('a3', 'landscape')
-            ->download('Laporan Siswa Aktif '.now()->setTimezone('GMT+7')->format('dmY').'.pdf');
+            ->stream('Laporan Siswa Aktif '.now()->setTimezone('GMT+7')->format('dmY').'.pdf');
         return $pdf;
+    }
+
+    public function printActiveStudentPage(){
+        $classes = ClassType::all();
+        return view('head.report.active-student.index',compact('classes'));
     }
 
     public function stock(){
@@ -106,18 +132,9 @@ class HeadReportController extends Controller
                 ->get()
             ->groupBy('stock_id');
         $date = $report_stock->report_date;
-        $in=$out=0;
-        foreach($report as $r){
-            foreach($r as $i){
-                $in+=$i->in;
-                $out+=$i->out;
-            }
-            Stock::where('name',$r[0]->stock->name)->update(['quantity' => $r[0]->stock->quantity + ($in-$out)]);
-            $in=$out=0;
-        }
 
         $pdf = Pdf::loadView('head.report.stock.print',compact('report','date'))
-            ->download('Laporan Stock '.Carbon::parse($report_stock->report_date)->format('dmY').'.pdf');
+            ->stream('Laporan Stock '.Carbon::parse($report_stock->report_date)->format('dmY').'.pdf');
         return $pdf;
     }
 

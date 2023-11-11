@@ -19,6 +19,7 @@ class HeadClassScheduleController extends Controller
                 schedules.id as id
             ')
             ->where('schedules.class_id', $id)->orderBy("date")
+            ->orderBy('schedules.date','desc')
             ->paginate(5);
 
         return view('head.class.viewSchedule',compact('class','classId'));
@@ -68,14 +69,14 @@ class HeadClassScheduleController extends Controller
             $schedule->save();
         }
 
-        return redirect()->route("headViewScheduleClass", ['classId' => $req->classId]);
+        return redirect()->route("headViewScheduleClass", ['classId' => $req->classId])->with('msg','Success Create Schedule');
     }
 
     public function updateSchedule(Request $req){
         $schedule = Schedule::find($req->scheduleId);
         $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
-        return redirect()->route("headClassPage");
+        return redirect()->route("headViewScheduleClass",['classId' => $schedule->class_id])->with('msg','Success Update Schedule');
     }
 
     public function addMultipleSchedule(Request $req){
@@ -90,12 +91,12 @@ class HeadClassScheduleController extends Controller
             $date->addDay(7);
         }
 
-        return redirect()->route("headViewScheduleClass", ['classId' => $req->classId]);
+        return redirect()->route("headViewScheduleClass", ['classId' => $req->classId])->with('msg','Success Create Schedule');
     }
 
     public function deleteScheduleClass($id,$classId){
         $classDelete = DB::table('schedules')->where('schedules.id',$id)->where('class_id',$classId);
         $classDelete->delete();
-        return redirect()->back();
+        return redirect()->back()->with('msg','Success Delete Schedule');
     }
 }

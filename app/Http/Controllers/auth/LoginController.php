@@ -37,16 +37,7 @@ class LoginController extends Controller
         ];
 
         if(Auth::attempt($credential,$req->remember)){
-            $user = User::find(Auth::id());
-            if($user->role == 'head'){
-                return redirect()->to('/head');
-            } else if ($user->role == 'admin'){
-                return redirect()->to('/admin');
-            } else if ($user->role == 'teacher'){
-                return redirect()->to('/teacher');
-            } else {
-                return redirect()->to('/finance');
-            }
+            return redirect()->to('/'.Auth::user()->role);
         } else {
             return redirect()->back()->withErrors(['msg' => 'User Not Found']);
         }

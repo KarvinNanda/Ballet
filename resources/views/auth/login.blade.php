@@ -48,6 +48,12 @@
                                     <h5 class="card-title text-center pb-0 fs-4">Login</h5>
                                 </div>
 
+                                @if(Session()->has('msg'))
+                                    <div class="alert alert-success" role="alert">
+                                        {{session('msg')}}
+                                    </div>
+                                @endif
+
                                 <form class="row g-3 needs-validation" action="{{route('do-login')}}" method="post">
                                     @csrf
                                     <div class="col-12">

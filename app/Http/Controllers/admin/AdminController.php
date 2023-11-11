@@ -21,8 +21,8 @@ class AdminController extends Controller
                 users.name as teacherName,
                 class_transactions.id as id
             ')
-            ->orderBy('schedules.date')
-            ->get();
+            ->orderBy('schedules.date','desc')
+            ->paginate(5);
         return view('admin.index',compact('data'));
     }
 
@@ -40,6 +40,6 @@ class AdminController extends Controller
         $type = ClassType::find($req->typeID);
         $type->class_price = $req->inputPrice;
         $type->save();
-        return redirect()->route('adminClassTypePage');
+        return redirect()->route('adminClassTypePage')->with('msg','Success Update Data Course');
     }
 }

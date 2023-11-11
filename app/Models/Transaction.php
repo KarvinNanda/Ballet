@@ -17,5 +17,5 @@ class Transaction extends Model
         return $this->belongsTo(ClassTransaction::class);
     }
 
-    protected $fillable = [];
+    protected $fillable = ['students_id'];
 }

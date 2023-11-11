@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
+use App\Models\Banks;
 use App\Models\Rekenings;
 use App\Models\Student;
 use Carbon\Carbon;
@@ -14,8 +15,10 @@ class HeadStudentController extends Controller
 {
 
     public function index(Request $request){
+        $sort = 'asc';
         $keyword = $request->query('keyword');
         $status = $request->query('status');
+        if(is_null($status))$status='all';
 
         if ($status == "all") {
             $students = DB::table('students')
@@ -46,6 +49,7 @@ class HeadStudentController extends Controller
                 ->orWhere('students.Address',"LIKE","%$keyword%")
                 ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
                 ->orWhere('banks.bank_name',"LIKE","%$keyword%")
+                ->orderBy('students.id','desc')
                 ->paginate(5);
         } else {
             $students = DB::table('students')
@@ -79,19 +83,20 @@ class HeadStudentController extends Controller
                     ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
                     ->orWhere('banks.bank_name',"LIKE","%$keyword%");
                 })
+                ->orderBy('students.id','desc')
                 ->paginate(5);
         }
 
-        return view('head.student.index',compact('students'));
+        return view('head.student.index',compact('students','sort'));
     }
 
     public function deleteStudent($studentId){
         $change = Student::find($studentId);
         $change->delete();
-        return redirect()->route("headStudentPage");
+        return redirect()->route("headStudentPage")->with('msg','Success Delete Student');
     }
 
-    public function sorting($value){
+    public function sorting($value,$type){
         $students= DB::table('students')
             ->join('rekenings','students.bank_rek','rekenings.bank_rek')
             ->join('banks','banks.id','rekenings.banks_id')
@@ -109,9 +114,10 @@ class HeadStudentController extends Controller
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
             ')
-            ->orderBy($value)
-            ->simplePaginate(5);
-        return view('head.student.index',compact('students'));
+            ->orderBy($value,$type)
+            ->paginate(5);
+        $sort = $type == 'asc' ? 'desc':'asc';
+        return view('head.student.index',compact('students','sort'));
     }
 
     public function search(Request $req){
@@ -136,7 +142,7 @@ class HeadStudentController extends Controller
                 rekenings.nama_pengirim as pengirim
             ')
                 ->WhereYear('students.Dob',"=",$curr - $req->search)
-                ->simplePaginate(5);
+                ->paginate(5);
         } else {
             $students = DB::table('students')
                 ->join('rekenings','students.bank_rek','rekenings.bank_rek')
@@ -166,7 +172,7 @@ class HeadStudentController extends Controller
                 ->orWhere('students.Address',"LIKE","%$req->search%")
                 ->orWhere('rekenings.nama_pengirim',"LIKE","%$req->search%")
                 ->orWhere('banks.bank_name',"LIKE","%$req->search%")
-                ->simplePaginate(5);
+                ->paginate(5);
         }
 
         return view('head.student.index',compact('students'));
@@ -191,7 +197,7 @@ class HeadStudentController extends Controller
                 rekenings.nama_pengirim as pengirim
             ')
             ->where('students.status','=','aktif')
-            ->simplePaginate(5);
+            ->paginate(5);
         return view('head.student.index',compact('students'));
     }
 
@@ -214,7 +220,7 @@ class HeadStudentController extends Controller
                 rekenings.nama_pengirim as pengirim
             ')
             ->where('students.status','=','non-aktif')
-            ->simplePaginate(5);
+            ->paginate(5);
         return view('head.student.index',compact('students'));
     }
 
@@ -244,10 +250,16 @@ class HeadStudentController extends Controller
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
+        if(@$req->inputBankName){
+            $bankID = Banks::updateOrCreate([
+                'bank_name' => $req->inputBankName
+            ]);
+        }
+
         $rekening = new Rekenings();
         $rekening->bank_rek = $req->inputRekening;
-        $rekening->nama_pengirim = '-';
-        $rekening->banks_id = null;
+        $rekening->nama_pengirim = $req->inputNamaPengirim;
+        $rekening->banks_id = is_null($bankID) ? null : $bankID->id;
         $rekening->save();
 
         $student = new Student();
@@ -268,24 +280,27 @@ class HeadStudentController extends Controller
         $student->Line = $req->inputInstagram ?  $req->inputLine : '-';
         $student->Status = 'aktif';
         $student->EnrollDate  = Carbon::now();
+        $student->Quota  = 0;
 
         $student->save();
 
-        return redirect()->route('headStudentPage');
+        return redirect()->route('headStudentPage')->with('msg','Success Create Student');
     }
 
-    public function ChangeNonactive(Student $student){
+    public function ChangeNonactive(Student $student,Request $req){
         $change = Student::find($student->id);
-        if($change->Status == 'aktif'){
+        if($req->stats == 'Active'){
+            $change->Status = 'aktif';
+        } else if($req->stats == 'Inactive') {
             $change->Status = 'non-aktif';
         } else {
-            $change->Status = 'aktif';
+            $change->Status = 'trial';
         }
         $change->save();
-        return redirect()->back();
+        return redirect()->back()->with('msg','Success Update Student Status');
     }
 
-    public function detailStudent(Student $student, $id){
+    public function detailStudent($id){
         $detail = DB::table('students')
             ->leftJoin('rekenings', 'students.bank_rek', 'rekenings.bank_rek')
             ->leftJoin('banks', 'banks.id', 'rekenings.banks_id')
@@ -307,40 +322,24 @@ class HeadStudentController extends Controller
                 students.Instagram as Instagram,
                 students.Line as Line,
                 students.Email as Email,
+                students.Quota as Quota,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
-            ')->where('students.id',"LIKE", $id)->first();
+            ')->where('students.id',"=", $id)->first();
 
-            if(is_null($detail)){
-            $detail = DB::table('students')
-                ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-                ->selectRaw('
-                students.id as id,
-                students.nis as nis,
-                students.Status as status,
-                students.LongName as LongName,
-                students.ShortName as ShortName,
-                students.Dob as dob,
-                students.EnrollDate as EnrollDate,
-                students.nama_orang_tua as nama_orang_tua,
-                students.Address as Address,
-                students.City as City,
-                students.kode_pos as kode_pos,
-                students.Phone1 as Phone1,
-                students.Phone2 as Phone2,
-                students.Whatsapp as Whatsapp,
-                students.Instagram as Instagram,
-                students.Line as Line,
-                students.Email as Email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
-                rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim
-            ')->where('students.LongName',"LIKE",$student->LongName)->first();
-        }
+        $courses_taken = DB::table('mapping_class_children')
+            ->join('class_transactions', 'mapping_class_children.class_id', 'class_transactions.id')
+            ->join('class_types', 'class_transactions.class_type_id', 'class_types.id')
+            ->where('mapping_class_children.student_id',"LIKE",$id)
+            ->groupBy('class_transactions.class_type_id')
+            ->get();
 
-        return view('head.student.detail', compact('detail'));
+        $detail = compact('detail');
+        $detail['courses_taken'] = $courses_taken;
+
+        return view('head.student.detail',$detail);
     }
 
     public function update(Request $request)
@@ -355,14 +354,15 @@ class HeadStudentController extends Controller
             'Phone1' => 'required|numeric|digits_between:10,12',
             'Phone2' => 'required|numeric|digits_between:10,12',
             'Whatsapp' => 'required|numeric|digits_between:10,12',
-            'rek' => 'required|numeric|digits_between:10,15',
+//            'rek' => 'required|numeric|digits_between:10,15',
             'kode_pos' => 'required|numeric|min_digits:5',
             'nis' => 'required|numeric|min_digits:10',
+            'Quota' => 'required|numeric',
         ];
 
         $validate = Validator::make($request->all(), $rules);
         if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
+            return redirect()->back()->withErrors($validate)->withInput();
         }
 
         $student = Student::find($request->id);
@@ -381,9 +381,10 @@ class HeadStudentController extends Controller
         $student->Instagram = $request->Instagram;
         $student->Line = $request->Line;
         $student->EnrollDate = $request->EnrollDate;
+        $student->Quota = $request->Quota;
 
         $student->save();
 
-        return redirect()->back();
+        return to_route('headStudentPage')->with('msg','Success Update Student');
     }
 }
