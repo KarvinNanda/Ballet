@@ -45,7 +45,8 @@
                                 <td>{{$c->nama}}</td>
                                 @if( ($carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) >= 20 && $carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) <= 39) &&
                                      $check_transaction->payment_status == 'Unpaid' &&
-                                     $c->Quota + 1 > 3 )
+                                     $c->Quota + 1 > 3 &&
+                                     !@$detail)
                                     <td colspan="3">Please Completed Payment</td>
                                 @else
                                     <td>

@@ -81,10 +81,8 @@ class FinanceController extends Controller
                 if($month + 1 > 12){
                     $q->whereRaw("month(t.transaction_date) = $month");
                     $q->whereRaw("month(t.transaction_date) = 1");
-//                    $q->whereRaw("t.payment_status = 'Paid'");
                 } else {
                     $q->whereRaw("month(t.transaction_date) between $month and ".($month+1));
-//                    $q->whereRaw("t.payment_status = 'Paid'");
                 }
             })
             ->distinct()
