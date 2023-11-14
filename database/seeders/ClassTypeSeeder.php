@@ -98,7 +98,7 @@ class ClassTypeSeeder extends Seeder
 
             [
                 'class_name' => 'Pointe Class',
-                'class_price' => 25000,
+                'class_price' => 250000,
             ],
 
 
