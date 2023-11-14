@@ -6,12 +6,19 @@ use App\Models\Buyer;
 use App\Models\ReportStock;
 use App\Models\Stock;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 class BuyerController extends Controller
 {
     public function index(Request $req){
+        if(Auth::check()){
+            Session::flush();
+            Auth::logout();
+        }
+
         $key = $req->search;
         if(!is_null($key)){
             $stocks = Stock::where('name','like',"%$key%")->orderBy('id','desc')->paginate(5);

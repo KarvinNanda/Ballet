@@ -213,7 +213,8 @@ class AdminClassTransactionController extends Controller
             ->join('students','mapping_class_children.student_id','students.id')
             ->where('class_transactions.id', $class_id)
             ->update([
-                'students.Quota' => 0
+                'students.Quota' => 0,
+                'students.is_new' => 0,
             ]);
         return redirect()->route("adminDetailClass", ['id' => $class_id])->with('msg','Success Reset Quota');
     }

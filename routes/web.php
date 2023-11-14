@@ -306,6 +306,7 @@ Route::prefix('finance')->middleware(['finance'])->group(function(){
     Route::get('/in/{stock}', [FinanceStockController::class,'in'])->name('in');
     Route::post('/out/{stock}', [FinanceStockController::class,'out'])->name('out');
     Route::post('/stock/report/{stock}/{type}', [FinanceStockController::class,'report'])->name('makeReport');
+    Route::get('/stock/sorting/{value}/{sort}', [FinanceStockController::class,'financeStock'])->name('financeStockViewSorting');
 
     Route::get('/transaction', [FinanceTransactionController::class,'index'])->name('financeTransaction');
     Route::get('/transaction/search', [FinanceTransactionController::class,'search'])->name('searchTransaction');

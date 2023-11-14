@@ -46,7 +46,9 @@
                                 @if( ($carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) >= 20 && $carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) <= 39) &&
                                      $check_transaction->payment_status == 'Unpaid' &&
                                      $c->Quota + 1 > 3 &&
-                                     !@$detail)
+                                     !@$detail &&
+                                     !str_contains($class_name,'Intensive') &&
+                                     !str_contains($class_name,'Pointe'))
                                     <td colspan="3">Please Completed Payment</td>
                                 @else
                                     <td>

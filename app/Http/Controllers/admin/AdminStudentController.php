@@ -170,6 +170,7 @@ class AdminStudentController extends Controller
         $student->Status = 'aktif';
         $student->EnrollDate  = Carbon::now();
         $student->Quota  = 0;
+        $student->is_new  = 0;
 
         $student->save();
 
@@ -319,6 +320,7 @@ class AdminStudentController extends Controller
                 students.Line as Line,
                 students.Email as Email,
                 students.Quota as Quota,
+                students.is_new,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
@@ -354,6 +356,7 @@ class AdminStudentController extends Controller
             'kode_pos' => 'required|numeric|min_digits:5',
             'nis' => 'required|numeric|min_digits:10',
             'Quota' => 'required|numeric',
+            'is_new' => 'required',
         ];
 
         $validate = Validator::make($request->all(), $rules);
@@ -378,6 +381,12 @@ class AdminStudentController extends Controller
         $student->Line = $request->Line;
         $student->EnrollDate = $request->EnrollDate;
         $student->Quota = $request->Quota;
+        if($request->is_new == 'no' || $request->is_new == 'No' || $request->is_new == 'NO'){
+            $student->is_new = 0;
+        } else {
+            $student->is_new = 1;
+        }
+
 
         $student->save();
 
