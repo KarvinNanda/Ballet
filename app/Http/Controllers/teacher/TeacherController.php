@@ -28,6 +28,7 @@ class TeacherController extends Controller
             schedules.id as schedule_id,
             COUNT(student_id) as people_count
         ')
+        ->whereDate('schedules.date','<=',now()->toDateString())
         ->orderBy('schedules.date','desc')
         ->groupBy('schedules.date')
         ->paginate(5);
@@ -61,10 +62,10 @@ class TeacherController extends Controller
         $header = DB::table('header_absens')->where('schedules_id',"=",$id)->first();
         if(!is_null($header)){
             $detail = DB::table('detail_absens')->where('header_absen_id',$header->id)->get();
-            return view('teacher.absen',compact("view","class","detail"));
+            return view('teacher.absen',compact("view","class","detail","class_name"));
         }
 
-        return view('teacher.absen',compact("view","class"));
+        return view('teacher.absen',compact("view","class","class_name"));
 
 
     }

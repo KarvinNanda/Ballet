@@ -23,9 +23,9 @@
                     <div class="container">
                         <thead>
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Size</th>
-                            <th scope="col">Quantity</th>
+                            <th scope="col"><a href="{{route("financeStockViewSorting",['value' => "name",'sort' => $sort])}}">Name</a></th>
+                            <th scope="col"><a href="{{route("financeStockViewSorting",['value' => "size",'sort' => $sort])}}">Size</a></th>
+                            <th scope="col"><a href="{{route("financeStockViewSorting",['value' => "quantity",'sort' => $sort])}}">Quantity</a></th>
                         </tr>
                         </thead>
                         <tbody>

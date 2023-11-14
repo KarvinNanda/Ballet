@@ -29,16 +29,14 @@
                             <tr>
                                 <td>
                                     {{@$item->Type->class_name}} -
-                                    @foreach (@$item->mapping as $map)
-                                        {{$map->getUser->name}}
-                                    @endforeach
+                                        {{$item->mapping[0]->getUser->name}}
                                     - {{$item->people_count}}
                                 </td>
                                 <td>{{$carbon::parse($item->date)->englishDayOfWeek}}</td>
                                 <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($item->date)->format('H:i:s')}}</td>
                                 <td>
-                                    @if($carbon::parse($item->date)->addDays(1)->toDateString() == $carbon::now()->setTimezone('GMT+7')->toDateString() || $carbon::now()->setTimezone('GMT+7')->toDateString() == $carbon::parse($item->date)->toDateString())
+                                    @if( ($carbon::parse($item->date)->addDays(1)->toDateString() == $carbon::now()->setTimezone('GMT+7')->toDateString() || $carbon::now()->setTimezone('GMT+7')->toDateString() == $carbon::parse($item->date)->toDateString()) && $carbon::now()->setTimezone('GMT+7')->format('Y-m-d H:i:s') >= $carbon::parse($item->date)->format('Y-m-d H:i:s'))
                                         <form action="{{route('viewAbsen',$item->schedule_id)}}" method="post">
                                             @csrf
                                             <button type="submit" class="btn btn-info">Attendence</button>

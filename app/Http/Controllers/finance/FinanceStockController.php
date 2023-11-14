@@ -20,6 +20,12 @@ class FinanceStockController extends Controller
         return view('finance.in-out',compact('stock','type','buyer'));
     }
 
+    public function financeStock($value,$sort){
+        $stocks = Stock::orderBy($value,$sort)->paginate(5);
+        $sort = $sort == 'asc' ? 'desc' : 'asc';
+        return view('finance.index',compact('stocks','sort'));
+    }
+
     public function out(Stock $stock){
         $type = 'out';
         return view('finance.in-out',compact('stock','type'));

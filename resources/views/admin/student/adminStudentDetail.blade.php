@@ -154,6 +154,13 @@
                     </div>
                 </div>
 
+                <div class="row mb-3">
+                    <label for="inputPhone" class="col-sm-2 col-form-label">New Student</label>
+                    <div class="col-sm-10">
+                        <input class="form-control bg-opacity-10" name="is_new" value="{{$detail->is_new == 1 ? 'Yes' : 'No'}}">
+                    </div>
+                </div>
+
                 <section class="section">
                     <div class="card">
                         <div class="card-body">
