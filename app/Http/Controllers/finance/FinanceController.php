@@ -37,6 +37,7 @@ class FinanceController extends Controller
                 (ct2.class_name like '%intensive%' and st.Quota > 0)
                 or (ct2.class_name like '%Pointe%' and st.Quota > 0)
                 or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.Quota > 5)
+                or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.is_new = 1)
             )")
             ->groupby(['month','month_num'])
             ->orderBy('month_num')
