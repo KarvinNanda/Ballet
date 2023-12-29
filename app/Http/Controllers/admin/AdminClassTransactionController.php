@@ -128,7 +128,7 @@ class AdminClassTransactionController extends Controller
 
         $class->save();
 
-        return redirect()->route('adminClassView')->with('msg','Success Create Course');
+        return redirect()->route('adminClassTypePage')->with('msg','Success Create Course');
     }
 
     public function insertPage(){

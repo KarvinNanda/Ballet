@@ -39,7 +39,8 @@
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price)}}</p>
+                            {{-- <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price)}}</p> --}}
+                            <input type="number" class="form-control" name="inputPrice" value="{{$transaction->class_price}}">
                         </div>
                     </div>
 
@@ -67,7 +68,8 @@
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Bank Account</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->bank_rek}}</p>
+                            {{-- <p class="form-control bg-success bg-opacity-10">{{$transaction->bank_rek}}</p> --}}
+                            <input type="text" class="form-control" name="inputBankAccount" value="{{$transaction->bank_rek}}">
                         </div>
                     </div>
 

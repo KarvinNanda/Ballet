@@ -63,14 +63,27 @@ class FinanceStockController extends Controller
         return view('finance.report.stock.index',compact('data'));
     }
 
-    public function printStock(ReportStock $report_stock){
-        $report = ReportStock::whereDate('report_date',$report_stock->report_date)
-            ->get()
-            ->groupBy('stock_id');
-        $date = $report_stock->report_date;
+    public function printStock(Request $req){
+        $start_date = $req->start_date." 00:00:00";
+        $end_date = $req->end_date." 23:59:59";
+        $report = ReportStock::whereBetween('report_date',[$start_date,$end_date])
+            // ->groupBy('stock_id')
+            ->selectRaw("
+                stock_id,
+                first_qty,
+                report_date,
+                sum(report_stocks.in) as in_qty,
+                sum(report_stocks.out) as out_qty
+            ")
+            ->groupBy('stock_id','first_qty','report_date')
+            ->get();
+            
+        $date = Carbon::parse($start_date)->toDateString() == Carbon::parse($end_date)->toDateString() ? Carbon::parse($start_date)->format('dmY') : Carbon::parse($start_date)->format('dmY')."-".Carbon::parse($end_date)->format('dmY');
 
-        $pdf = Pdf::loadView('finance.report.stock.print',compact('report','date'))
-            ->stream('Laporan Stock '.Carbon::parse($report_stock->report_date)->format('dmY').'.pdf');
+        $stock = Stock::all();
+
+        $pdf = Pdf::loadView('finance.report.stock.print',compact('report','start_date','end_date','stock'))
+            ->stream('Laporan Stock '.$date.'.pdf');
         return $pdf;
     }
 }

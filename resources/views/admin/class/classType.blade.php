@@ -30,12 +30,18 @@
                                 {{$type->class_name}}
                             </td>
                             <td>Rp. {{number_format($type->class_price)}}</td>
-                            <td>
+                            <td class="d-flex">
                                 <form action="{{route('adminViewChangeTypeClass')}}" method="post">
                                      @csrf
                                      <input type="hidden" name="typeID" value="{{$type->id}}">
-                                    <button type="submit" class="btn btn-warning">Update</button>
+                                    <button type="submit" class="btn btn-warning me-3">Update</button>
                                 </form>
+
+                                <form action="{{route('adminDeleteTypeClass')}}" method="post">
+                                    @csrf
+                                    <input type="hidden" name="typeID" value="{{$type->id}}">
+                                   <button type="submit" class="btn btn-danger ">Delete</button>
+                               </form>
                             </td>
                         </tr>
                     @endforeach

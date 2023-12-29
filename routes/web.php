@@ -80,6 +80,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
 
     Route::get('/class/type', [AdminController::class,'indexType'])->name('adminClassTypePage');
     Route::post('/class/type/view', [AdminController::class,'viewUpdateType'])->name('adminViewChangeTypeClass');
+    Route::post('/class/type/delete', [AdminController::class,'DeleteType'])->name('adminDeleteTypeClass');
     Route::post('/class/type/update', [AdminController::class,'updateType'])->name('adminChangeTypeClass');
 
     Route::post('/level/class', [AdminClassTransactionController::class,'levelUp'])->name('levelUp');
@@ -166,7 +167,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/class', [HeadClassController::class,'index'])->name('headClassPage');
     Route::get('/class/active', [HeadClassController::class,'active'])->name('activeClassPage');
     Route::get('/class/non/active', [HeadClassController::class,'nonActive'])->name('nonactiveClassPage');
-    Route::post('/class/non/active/{class}', [HeadClassContrheadClassTypePageoller::class,'ChangeStatus'])->name('changeStatusClass');
+    Route::post('/class/non/active/{class}', [HeadClassController::class,'ChangeStatus'])->name('changeStatusClass');
     Route::get('/class/add', [HeadClassController::class,'insertPage'])->name('headClassAddPage');
     Route::post('/class/add', [HeadClassController::class,'insert'])->name('ClassAdd');
     Route::post('/class/search', [HeadClassController::class,'search'])->name('searchClass');
@@ -178,6 +179,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
 
     Route::get('/class/type', [HeadClassController::class,'indexType'])->name('headClassTypePage');
     Route::post('/class/type/view', [HeadClassController::class,'viewUpdateType'])->name('headViewChangeTypeClass');
+    Route::post('/class/type/delete', [HeadClassController::class,'DeleteType'])->name('headDeleteTypeClass');
     Route::post('/class/type/update', [HeadClassController::class,'updateType'])->name('headChangeTypeClass');
 
     Route::post('/level/class', [HeadClassController::class,'levelUp'])->name('headLevelUp');
@@ -314,7 +316,7 @@ Route::prefix('finance')->middleware(['finance'])->group(function(){
     Route::post('/transaction/do-paid/{trans}', [FinanceTransactionController::class,'submitPaidTransaction'])->name('doPaidTransaction');
 
     Route::get('/report/stock',[FinanceStockController::class,'stock'])->name('financeStockReport');
-    Route::post('/report/stock/{report_stock}',[FinanceStockController::class,'printStock'])->name('financeStockPrintReport');
+    Route::post('/report/stock',[FinanceStockController::class,'printStock'])->name('financeStockPrintReport');
 
     Route::get('/report/teacher',[FinanceController::class,'reportTeacherPage'])->name('financeTeacherReportPage');
     Route::post('/report/teacher/{month}',[FinanceController::class,'reportTeacher'])->name('financeTeacherReport');
