@@ -266,7 +266,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/report/active/student',[HeadReportController::class,'printActiveStudentPage'])->name('headPrintActiveStudentPage');
     Route::post('/report/active/student',[HeadReportController::class,'printActiveStudent'])->name('headPrintActiveStudent');
     Route::get('/report/stock',[HeadReportController::class,'stock'])->name('headStockReport');
-    Route::post('/report/stock/{report_stock}',[HeadReportController::class,'printStock'])->name('headStockPrintReport');
+    Route::post('/report/stock',[HeadReportController::class,'printStock'])->name('headStockPrintReport');
 
     Route::post('/view/class/absen/{class}', [HeadClassController::class,'viewAbsen'])->name('headViewAbsen');
     Route::post('/view/class/getabsen/{schedule}', [HeadClassController::class,'getAbsen'])->name('headGetAbsen');
