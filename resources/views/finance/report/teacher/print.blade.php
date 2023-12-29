@@ -33,7 +33,7 @@
 
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Report Teacher Reward on {{$getmonth[0]->month}}</h2>
+            <h2>Report Teacher {{$getmonth[0]->month}}</h2>
         </div>
 
         <div class="col text-center">

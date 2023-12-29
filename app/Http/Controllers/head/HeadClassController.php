@@ -113,7 +113,7 @@ class HeadClassController extends Controller
 
         $class->save();
 
-        return redirect()->route('headClassPage')->with('msg','Success Create Course Data');
+        return redirect()->route('headClassTypePage')->with('msg','Success Create Course Data');
     }
 
     public function viewUpdateType(Request $req){
@@ -126,6 +126,11 @@ class HeadClassController extends Controller
         $type->class_price = $req->inputPrice;
         $type->save();
         return redirect()->route('headClassTypePage')->with('msg','Success Update Course Data');
+    }
+
+    public function DeleteType(Request $req){
+        $type = ClassType::find($req->typeID)->delete();
+        return redirect()->route('headClassTypePage')->with('msg','Success Delete Course Data');
     }
 
     public function active(){

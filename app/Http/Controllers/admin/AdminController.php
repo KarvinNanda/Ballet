@@ -28,7 +28,7 @@ class AdminController extends Controller
     }
 
     public function indexType(){
-        $types = ClassType::all();
+        $types = ClassType::orderBy('id','desc')->get();
         return view('admin.class.classType',compact('types'));
     }
 
@@ -42,5 +42,10 @@ class AdminController extends Controller
         $type->class_price = $req->inputPrice;
         $type->save();
         return redirect()->route('adminClassTypePage')->with('msg','Success Update Data Course');
+    }
+
+    public function DeleteType(Request $req){
+        $type = ClassType::find($req->typeID)->delete();
+        return redirect()->route('adminClassTypePage')->with('msg','Success Delete Course Data');
     }
 }

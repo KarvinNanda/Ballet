@@ -90,6 +90,11 @@ class HeadTransactionController extends Controller
         $rules=[
           'inputDisc' => 'numeric|min:0|max:100',
           'inputStatus' => 'required',
+          'inputJatuhTempo' => 'required',
+          'inputPrice' => 'required|numeric',
+          'inputBankAccount' => 'required|numeric',
+          'inputSenderName' => 'required',
+          'inputBankName' => 'required',
         ];
 
         $validate = Validator::make($req->all(),$rules);
@@ -110,6 +115,13 @@ class HeadTransactionController extends Controller
         $trans = Transaction::find($transaction->id);
         $trans->discount = $req->inputDisc;
         $trans->desc = $req->inputDesc;
+        $trans->price = $req->inputPrice;
+        $trans->transaction_date = $req->inputJatuhTempo;
+        $trans->payment_status = ucfirst($req->inputStatus);
+        if(is_null($req->inputTanggalBayar)){
+            $trans->transaction_payment = $req->inputTanggalBayar;
+            $trans->payment_status = ucfirst($req->inputStatus);
+        }
         $trans->save();
         return redirect()->route('headTransactionPage')->with('msg','Success Update Transaction');
     }

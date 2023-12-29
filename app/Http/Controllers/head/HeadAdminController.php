@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 class HeadAdminController extends Controller
 {
     public function index(){
-        $admins = User::where('role','admin')->orderBy('id','desc')->paginate(1);
+        $admins = User::where('role','admin')->orderBy('id','desc')->paginate(5);
         return view('head.admin.index',compact('admins'));
     }
 

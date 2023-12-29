@@ -24,7 +24,7 @@
 <div class="container">
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Laporan Stock Tanggal {{$carbon::parse($date)->format('d M Y')}}</h2>
+            <h2>Report Stock {{$carbon::parse($start_date)->toDateString() == $carbon::parse($end_date)->toDateString() ? $carbon::parse($start_date)->format('d M Y') : $carbon::parse($start_date)->format('d M Y')."-".$carbon::parse($end_date)->format('d M Y')}}</h2>
         </div>
 
         <div class="col text-center">
@@ -41,24 +41,32 @@
                 </thead>
                 <tbody>
                 @php
-                    $in=$out=0;
+                    $find=false;
                 @endphp
-                @foreach($report as $item)
+                @foreach($stock as $item)
                     <tr>
-                        <td>{{$item[0]->stock->name}}</td>
-                        <td>{{$item[0]->stock->size}}</td>
-                        <td>{{$item[0]->first_qty}}</td>
-                        @foreach($item as $subItem)
+                        <td>{{$item->name}}</td>
+                        <td>{{$item->size}}</td>
+                        @foreach($report as $subItem)
+                            @if($subItem->stock_id == $item->id)
+                            <td>{{$subItem->first_qty}}</td>
+                            <td>{{$subItem->in_qty}}</td>
+                            <td>{{$subItem->out_qty}}</td>
+                            <td>{{$subItem->first_qty + $subItem->in_qty - $subItem->out_qty}}</td>
                             @php
-                                $in+=$subItem->in;
-                                $out+=$subItem->out;
+                                $find=true;
                             @endphp
+                            @break
+                            @endif
                         @endforeach
-                        <td>{{$in}}</td>
-                        <td>{{$out}}</td>
-                        <td>{{$item[0]->first_qty + ($in - $out)}}</td>
+                        @if(!$find)
+                        <td>{{$item->quantity}}</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>{{$item->quantity}}</td>
+                        @endif
                         @php
-                            $in=$out=0;
+                            $find=false;
                         @endphp
                     </tr>
                 @endforeach
