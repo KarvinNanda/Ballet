@@ -24,7 +24,7 @@
 <div class="container">
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Laporan Stock Tanggal {{$carbon::parse($start_date)->toDateString() == $carbon::parse($end_date)->toDateString() ? $carbon::parse($start_date)->format('d M Y') : $carbon::parse($start_date)->format('d M Y')."-".$carbon::parse($end_date)->format('d M Y')}}</h2>
+            <h2>Report Stock {{$carbon::parse($start_date)->toDateString() == $carbon::parse($end_date)->toDateString() ? $carbon::parse($start_date)->format('d M Y') : $carbon::parse($start_date)->format('d M Y')."-".$carbon::parse($end_date)->format('d M Y')}}</h2>
         </div>
 
         <div class="col text-center">
