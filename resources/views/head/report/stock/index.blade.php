@@ -10,32 +10,27 @@
 
     <section class="section">
         <div class="card">
-            <div class="card-body">
+            <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
+                <form class="d-flex align-items-center justify-content-center gap-2" method="POST"
+                    action="{{ route('headStockPrintReport') }}">
 
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th scope="col">Date</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($data as $item)
-                            <tr>
-                                <td>{{$carbon::parse($item[0]->report_date)->format('d M Y')}}</td>
-                                <td>
-                                    <form action="{{route('headStockPrintReport',$item[0])}}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger">Report</button>
-                                    </form>
-                                </td>
-                    @endforeach
-                    </tbody>
-                </table>
-                <!-- End Table with stripped rows -->
+                    @csrf
 
+                    <label for="start_date">Start</label>
+                    <input class="form-control" type="date" id="start_date" name="start_date"
+                        value="{{ now()->SetTimeZone('GMT+7')->toDateString() }}">
+
+
+                    <label for="end_date">End</label>
+                    <input class="form-control" type="date" id="end_date" name="end_date"
+                        value="{{ now()->SetTimeZone('GMT+7')->toDateString() }}">
+
+                    <button type="submit" class="btn btn-primary text-nowrap me-3">Report</button>
+
+
+                </form>
             </div>
+            <div class="card-body"></div>
         </div>
     </section>
 

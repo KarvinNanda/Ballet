@@ -31,7 +31,7 @@
 {{--<div class="container">--}}
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Laporan Siswa Aktif</h2>
+            <h2>Report Active Student</h2>
         </div>
 
         <div class="col text-center">

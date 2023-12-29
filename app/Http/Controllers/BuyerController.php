@@ -55,6 +55,7 @@ class BuyerController extends Controller
             'name' => $req->name,
             'stock_id' => $id,
             'qty' => $req->qty,
+            'created_at' => now()->setTimezone('GMT+7')->toDateString(),
         ]);
 
         $stock = Stock::find($id);

@@ -24,8 +24,8 @@
 <div class="container">
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Laporan Kelas {{$className}}</h2>
-            <h3>Guru : {{$teacher}}</h3>
+            <h2>Report {{str_contains($className, 'Class') ? $className : $className." Class" }}</h2>
+            <h3>Teacher : {{$teacher}}</h3>
         </div>
 
             <div class="row">
@@ -69,11 +69,11 @@
                     </div>
                 </div>
                 <div class="row">
-                    <h3>Catatan</h3>
-                    <p>V : Hadir</p>
-                    <p>S : Sakit</p>
-                    <p>I : Izin</p>
-                    <p>A : Absen</p>
+                    <h3>Note</h3>
+                    <p>V : Present</p>
+                    <p>S : Sick</p>
+                    <p>I : Permission</p>
+                    <p>A : Absent</p>
                 </div>
             </div>
     </div>
