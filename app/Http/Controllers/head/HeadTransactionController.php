@@ -117,6 +117,7 @@ class HeadTransactionController extends Controller
         $trans->desc = $req->inputDesc;
         $trans->price = $req->inputPrice;
         $trans->transaction_date = $req->inputJatuhTempo;
+        $trans->transaction_type = $req->Type;
         $trans->payment_status = ucfirst($req->inputStatus);
         if(is_null($req->inputTanggalBayar)){
             $trans->transaction_payment = $req->inputTanggalBayar;

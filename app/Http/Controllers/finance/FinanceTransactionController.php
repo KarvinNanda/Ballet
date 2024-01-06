@@ -72,7 +72,8 @@ class FinanceTransactionController extends Controller
         $rules = [
             'datePaid' => 'required',
             'inputBankName' => 'required',
-            'inputSenderName' => 'required'
+            'inputSenderName' => 'required',
+            'Type' => 'required'
         ];
 
         $validate = Validator::make($req->all(),$rules);
@@ -92,6 +93,7 @@ class FinanceTransactionController extends Controller
 //        $transaction = Transaction::find($transaction->id);
         $transaction->transaction_payment = $req->datePaid;
         $transaction->payment_status = "Paid";
+        $transaction->transaction_type = $req->Type;
         $transaction->save();
         return redirect()->route('financeTransaction')->with('msg','Success Update Transaction');
     }
