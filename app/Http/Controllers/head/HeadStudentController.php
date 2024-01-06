@@ -242,7 +242,7 @@ class HeadStudentController extends Controller
             'inputWhatsapp' => 'required|numeric|digits_between:10,12',
             'inputRekening' => 'required|numeric|digits_between:10,15',
             'inputPostalCode' => 'required|numeric|min_digits:5',
-            'inputNis' => 'required|numeric|min_digits:10',
+            'inputNis' => 'required|numeric|min_digits:7',
         ];
 
         $validate = Validator::make($req->all(), $rules);

@@ -93,6 +93,13 @@
                     </div>
 
                     <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Payment Type</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="Type" value="{{$transaction->transaction_type}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Status</label>
                         <div class="col-sm-10">
                             <p class="form-control bg-success bg-opacity-10">{{$transaction->payment_status}}</p>

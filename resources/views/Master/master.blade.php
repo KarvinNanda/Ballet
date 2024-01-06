@@ -289,7 +289,7 @@
                                         <i class="bi bi-circle"></i><span>Stock Report</span>
                                     </a>
                                     <a href="{{route('financeTeacherReportPage')}}">
-                                        <i class="bi bi-circle"></i><span>Teacher Attendence Report</span>
+                                        <i class="bi bi-circle"></i><span>Teacher Report</span>
                                     </a>
                                     <a href="{{route('financeStudentReportPage')}}">
                                         <i class="bi bi-circle"></i><span>Finance Active Student Report</span>
