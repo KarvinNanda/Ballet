@@ -53,7 +53,7 @@
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Description</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->desc}}</p>
+                            <input type="text" class="form-control" name="inputDesc" value="{{$transaction->desc}}">
                         </div>
                     </div>
 

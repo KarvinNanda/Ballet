@@ -66,7 +66,7 @@ class TeacherClassController extends Controller
     {
         $classDelete = DB::table('schedules')->where('schedules.id', $id)->where('class_id', $classId);
         $classDelete->delete();
-        return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()])->with('msg','Success Delete Schedule');
+        return redirect()->route("viewScheduleClassTeacher", ['id' => $classId])->with('msg','Success Delete Schedule');
     }
 
     public function viewUpdateScheduleClass(Request $req)
@@ -80,7 +80,7 @@ class TeacherClassController extends Controller
         $schedule = Schedule::find($req->scheduleId);
         $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
-        return redirect()->route("viewAllScheduleTeacher", ['userId' => auth()->id()])->with('msg','Success Update Schedule');
+        return redirect()->route("viewScheduleClassTeacher", ['id' => $schedule->class_id])->with('msg','Success Update Schedule');
     }
 
     public function viewaddScheduleClass(Request $req, $id)

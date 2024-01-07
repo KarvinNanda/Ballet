@@ -90,7 +90,7 @@
                                     <form action="{{route('headViewScheduleClass', ['classId' => $class->id])}}" method="get">
                                         @csrf
                                         <input type="hidden" value="{{$class->id}}" name="classId">
-                                        <button type="submit" class="btn btn-secondary">Schedule</button>
+                                        <button type="submit" class="btn btn-info">Schedule</button>
                                     </form>
                                 </td>
                                 <td>

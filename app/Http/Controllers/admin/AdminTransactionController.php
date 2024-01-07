@@ -129,6 +129,8 @@ class AdminTransactionController extends Controller
         $rules=[
             'inputDisc' => 'numeric|min:0|max:100',
             'inputStatus' => 'required',
+            'inputJatuhTempo' => 'required',
+            'inputSenderName' => 'required',
         ];
 
         $validate = Validator::make($req->all(),$rules);
@@ -137,18 +139,27 @@ class AdminTransactionController extends Controller
             return redirect()->back()->withErrors($validate)->withInput();
         }
 
-        $banks = Banks::updateOrCreate([
-            'bank_name' => $req->inputBankName
-        ]);
+        if(!is_null($req->inputBankName)){
+            $banks = Banks::updateOrCreate([
+                'bank_name' => $req->inputBankName
+            ]);
+        }
 
-        DB::table('rekenings')->where('bank_rek',$transaction->Students->bank_rek)->update([
-            'banks_id' => $banks->id,
-            'nama_pengirim' => $req->inputSenderName
-        ]);
+        if(!is_null($req->inputSenderName)){
+            DB::table('rekenings')->where('bank_rek',$transaction->Students->bank_rek)->update([
+                'banks_id' => $banks->id,
+                'nama_pengirim' => $req->inputSenderName
+            ]);
+        }
 
         $trans = Transaction::find($transaction->id);
-        $trans->discount = $req->inputDisc;
+        $trans->payment_status = ucfirst($req->inputStatus);
+        if(!is_null($req->inputTanggalBayar)){
+            $trans->transaction_payment = $req->inputTanggalBayar;
+            $trans->payment_status = 'Paid';
+        }
         $trans->desc = $req->inputDesc;
+        $trans->transaction_date = $req->inputJatuhTempo;
         $trans->save();
         return redirect()->route('adminTransactionPage')->with('msg','Success Update Transaction');
     }
