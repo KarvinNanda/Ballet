@@ -55,13 +55,13 @@
                                     <form action="{{route('viewUpdateScheduleClass', ['id' => $class_id])}}" method="get">
                                         @csrf
                                         <input type="hidden" value="{{$c->id}}" name="scheduleId">
-                                        <button class="btn btn-success me-5 mt-2 mb-2">Update Schedule</button>
+                                        <button class="btn btn-warning me-5 mt-2 mb-2">Update Schedule</button>
                                     </form>
                                 </td>
                                 <td>
                                     <form action="{{route("deleteSchedule",['id'=>$c->id,'classId'=>$class_id])}}" method="get">
                                         @csrf
-                                        <button type="submit" class="btn btn-success">Delete Schedule</button>
+                                        <button type="submit" class="btn btn-danger">Delete Schedule</button>
                                     </form>
                                 </td>
                             </tr>

@@ -88,14 +88,14 @@
                                 <form action="{{route('viewScheduleClass', ['id' => $class->id])}}" method="get">
                                     @csrf
                                     <input type="hidden" value="{{$class->id}}" name="classId">
-                                    <button type="submit" class="btn btn-secondary">Schedule</button>
+                                    <button type="submit" class="btn btn-info">Schedule</button>
                                 </form>
                             </td>
                             <td>
                                 <form action="{{route('levelUp')}}" method="post">
                                     @csrf
                                     <input type="hidden" value="{{$class->id}}" name="classId">
-                                    <button type="submit" class="btn btn-success">Level Up</button>
+                                    <button type="submit" class="btn btn-info">Level Up</button>
                                 </form>
                             </td>
                             {{-- <td>

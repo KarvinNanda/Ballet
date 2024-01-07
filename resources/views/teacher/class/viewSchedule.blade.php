@@ -11,7 +11,7 @@
 
     <section class="section">
         <div class="card">
-            <div class="mt-3 w-100 d-flex justify-content-end">
+            {{-- <div class="mt-3 w-100 d-flex justify-content-end">
 
                 <form action="{{route('viewaddScheduleClass', ['id' => $classId])}}" method="get">
                     @csrf
@@ -24,7 +24,7 @@
                     <input type="hidden" value="{{$classId}}" name="classId">
                     <button class="btn btn-success me-5 mt-2 mb-2">Add Multiple Schedule</button>
                 </form>
-            </div>
+            </div> --}}
             <div class="card-body">
 
                 <!-- Table with stripped rows -->
@@ -33,19 +33,15 @@
                         <thead>
                         <tr>
                             {{-- <th scope="col">Nama Kelas</th> --}}
-                            <th scope="col">Tanggal</th>
-                            <th scope="col">Waktu</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Time</th>
                             <th scope="col">Update</th>
                             <th scope="col">Delete</th>
                         </tr>
                         </thead>
                         <tbody>
                         @if($class->isEmpty())
-                            {{-- <td>No Data</td> --}}
-                            <td>No Data</td>
-                            <td>No Data</td>
-                            <td>No Data</td>
-                            <td>No Data</td>
+                            <td colspan="4">No Data</td>
                         @else
                             @foreach($class as $c)
                             <tr>
@@ -53,16 +49,15 @@
                                 <td>{{$carbon::parse($c->date)->format('d M Y')}}</td>
                                 <td>{{$carbon::parse($c->date)->format('H:i:s')}}</td>
                                 <td>
-                                    <form action="{{route('viewUpdateScheduleClassTeacher')}}" method="post">
-                                        @csrf
+                                    <form action="{{route('viewUpdateScheduleClassTeacher')}}" method="get">
                                         <input type="hidden" value="{{$c->id}}" name="scheduleId">
-                                        <button class="btn btn-success me-5 mt-2 mb-2"> Update Schedule</button>
+                                        <button class="btn btn-warning me-5 mt-2 mb-2"> Update Schedule</button>
                                     </form>
                                 </td>
                                 <td>
                                     <form action="{{route("deleteScheduleTeacher",['id'=>$c->id,'classId'=>$classId])}}" method="get">
                                         @csrf
-                                        <button type="submit" class="btn btn-success">Delete Schedule</button>
+                                        <button type="submit" class="btn btn-danger">Delete Schedule</button>
                                     </form>
                                 </td>
                             </tr>

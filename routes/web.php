@@ -284,7 +284,7 @@ Route::prefix('teacher')->middleware(['teacher'])->group(function(){
     Route::get('/view/schedule/class/{id}', [TeacherClassController::class,'viewSchedule'])->name('viewScheduleClassTeacher');
 
     Route::get('/delete/Schedule/class/{id}/{classId}', [TeacherClassController::class,'deleteScheduleClass'])->name('deleteScheduleTeacher');
-    Route::post('/view/update/schedule/class', [TeacherClassController::class,'viewUpdateScheduleClass'])->name('viewUpdateScheduleClassTeacher');
+    Route::get('/view/update/schedule/class', [TeacherClassController::class,'viewUpdateScheduleClass'])->name('viewUpdateScheduleClassTeacher');
 
     Route::post('/update/schedule/class', [TeacherClassController::class,'updateSchedule'])->name('updateScheduleClassTeacher');
 
