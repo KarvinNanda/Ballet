@@ -40,10 +40,13 @@
                         <td>{{$admin->address}}</td>
                         <td>{{$admin->phone}}</td>
                         <td>{{$admin->email}}</td>
-                        <td>
+                        <td class="d-flex">
                             <form action="{{route('AdminDelete',$admin)}}" method="post">
                                 @csrf
-                                <button type="submit" class="btn btn-danger">Delete</button>
+                                <button type="submit" class="btn btn-danger me-3">Delete</button>
+                            </form>
+                            <form action="{{route('headAdminUpdatePage',$admin)}}" method="get">
+                                <button type="submit" class="btn btn-warning">Update</button>
                             </form>
                         </td>
                     </tr>
