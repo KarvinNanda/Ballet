@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('report_stocks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('stock_id')->references('id')->on('stocks')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->unsignedBigInteger('stock_id')->nullable();
             $table->integer('in')->nullable();
             $table->integer('out')->nullable();
-            $table->dateTime('report_date');
+            $table->dateTime('report_date')->nullable();
             $table->timestamps();
         });
     }

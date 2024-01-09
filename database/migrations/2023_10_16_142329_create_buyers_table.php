@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('buyers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('stock_id');
-            $table->string('name');
-            $table->integer('qty');
+            $table->unsignedBigInteger('stock_id')->nullable();;
+            $table->string('name')->nullable();;
+            $table->integer('qty')->nullable();;
             $table->timestamps();
         });
     }

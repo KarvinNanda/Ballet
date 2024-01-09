@@ -100,7 +100,7 @@
 
                 </table>
                 <!-- End Table with stripped rows -->
-                <div class="pagination justify-content-center mt-4">
+                <div class="pagination mt-4">
                     {{ $students->links() }}
                 </div>
             </div>

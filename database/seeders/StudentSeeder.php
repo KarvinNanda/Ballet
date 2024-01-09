@@ -34,6 +34,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@khg12',
                 'Email' => 'karv@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
 
             [
@@ -53,6 +55,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@itsj',
                 'Email' => 'jose@gmail.com',
                 'Status' => 'non-aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
 
             [
@@ -72,6 +76,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@BIi',
                 'Email' => 'Brian@gmail.com',
                 'Status' => 'non-aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
 
             // ===================================
@@ -92,6 +98,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@BIii',
                 'Email' => 'Samuel@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2340199123',
@@ -110,6 +118,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@BIi',
                 'Email' => 'Dandi@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2341299123',
@@ -128,6 +138,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@Brando',
                 'Email' => 'Brando@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2340032123',
@@ -146,6 +158,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@Mathhew',
                 'Email' => 'Mathhew@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '3340099123',
@@ -164,6 +178,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@BIi',
                 'Email' => 'Thamos@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2340055123',
@@ -182,6 +198,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@Tarius',
                 'Email' => 'Tarius@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2343759123',
@@ -200,6 +218,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@BIi',
                 'Email' => 'Michael@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2395099123',
@@ -218,6 +238,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@BIi',
                 'Email' => 'Mamer@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2340097343',
@@ -236,6 +258,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@Bimbim',
                 'Email' => 'Bimbim@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2340092963',
@@ -254,6 +278,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@BIi',
                 'Email' => 'Tanto@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
 
             //=====
@@ -274,6 +300,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@Siriend',
                 'Email' => 'Siriend@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '23400943563',
@@ -292,6 +320,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@Siviar',
                 'Email' => 'Siviar@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2340948723',
@@ -310,6 +340,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@BIi',
                 'Email' => 'Sendi@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2340396123',
@@ -328,6 +360,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@Santonus',
                 'Email' => 'Santonus@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2349489123',
@@ -346,6 +380,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@Sindera',
                 'Email' => 'Sindera@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             [
                 'nis' => '2340749323',
@@ -364,6 +400,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@Sisil',
                 'Email' => 'Sisil@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
             // ====
             [
@@ -383,6 +421,8 @@ class StudentSeeder extends Seeder
                 'Instagram' => '@BIi',
                 'Email' => 'Tantuil@gmail.com',
                 'Status' => 'aktif',
+                'Quota' => 0,
+                'is_new' => 0,
             ],
 
         ]);
