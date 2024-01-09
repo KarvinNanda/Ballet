@@ -54,6 +54,7 @@ class AdminStudentController extends Controller
                 ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
                 ->orWhere('banks.bank_name',"LIKE","%$keyword%")
                 ->orderBy('students.id','desc')
+                ->distinct()
                 ->paginate(5);
         } else {
             $students = DB::table('students')
@@ -88,6 +89,7 @@ class AdminStudentController extends Controller
                         ->orWhere('banks.bank_name',"LIKE","%$keyword%");
                 })
                 ->orderBy('students.id','desc')
+                ->distinct()
                 ->paginate(5);
         }
         return view('admin.student.adminStudentView',compact('students','sort'));

@@ -14,10 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::create('detail_absens', function (Blueprint $table) {
-            $table->foreignId('header_absen_id')->references('id')->on('header_absens')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('student_id')->references('id')->on('students')->onDelete('cascade')->onUpdate('cascade');
-            $table->primary(['header_absen_id','student_id']);
-            $table->string('Description');
+            $table->unsignedBigInteger('header_absen_id');
+            $table->unsignedBigInteger('student_id');
+            $table->string('Description')->nullable();;
             $table->string('Notes')->nullable();
             $table->timestamps();
         });

@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('header_absens', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('schedules_id')->references('id')->on('schedules')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedBigInteger('teacher_id');
+            $table->unsignedBigInteger('schedules_id')->nullable();
+            $table->unsignedBigInteger('teacher_id')->nullable();
             $table->timestamps();
         });
     }

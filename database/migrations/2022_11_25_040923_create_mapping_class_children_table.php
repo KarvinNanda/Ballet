@@ -14,9 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('mapping_class_children', function (Blueprint $table) {
-            $table->foreignId('class_id')->references('id')->on('class_transactions')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreignId('student_id')->references('id')->on('students')->onUpdate('cascade')->onDelete('cascade');
-            $table->primary(['class_id', 'student_id']);
+            $table->unsignedBigInteger('class_id');
+            $table->unsignedBigInteger('student_id');
             $table->timestamps();
         });
     }

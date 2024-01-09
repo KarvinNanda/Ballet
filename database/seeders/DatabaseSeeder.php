@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
         $this->call(ClassTypeSeeder::class);
         $this->call(ClassTransactionSeeder::class);
         $this->call(StudentSeeder::class);
-        $this->call(TransactionSeeder::class);
-        $this->call(ScheduleSeeder::class);
+        // $this->call(TransactionSeeder::class);
+        // $this->call(ScheduleSeeder::class);
         $this->call(StockSeeder::class);
 
         DB::table('users')->insert([
@@ -94,6 +94,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(MappingClassTeacherSeeder::class);
-        $this->call(MappingClassChildSeeder::class);
+        // $this->call(MappingClassChildSeeder::class);
     }
 }

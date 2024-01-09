@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('forgot_passwords', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('token');
-            $table->dateTime('expired_at');
+            $table->unsignedBigInteger('user_id')->nullable();;
+            $table->string('token')->nullable();;
+            $table->dateTime('expired_at')->nullable();;
             $table->timestamps();
         });
     }

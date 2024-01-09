@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('class_id')->references('id')->on('class_transactions')->onUpdate('cascade')->onDelete('cascade');
-            $table->dateTime('date');
+            $table->unsignedBigInteger('class_id')->nullable();
+            $table->dateTime('date')->nullable();
             $table->timestamps();
         });
     }
