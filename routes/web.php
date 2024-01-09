@@ -236,12 +236,16 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/finance/add', [HeadFinanceController::class,'insert'])->name('FinanceAdd');
     Route::post('/finance/delete/{user}', [HeadFinanceController::class,'delete'])->name('FinanceDelete');
     Route::post('/finance/search', [HeadFinanceController::class,'search'])->name('searchFinance');
+    Route::get('/finance/update/{user}', [HeadFinanceController::class,'updatePage'])->name('headFinanceUpdatePage');
+    Route::post('/finance/update/{user}', [HeadFinanceController::class,'update'])->name('headFinanceUpdate');
 
     Route::get('/admin', [HeadAdminController::class,'index'])->name('headAdminPage');
     Route::get('/admin/add', [HeadAdminController::class,'insertPage'])->name('headAdminAddPage');
     Route::post('/admin/add', [HeadAdminController::class,'insert'])->name('AdminAdd');
     Route::post('/admin/delete/{user}', [HeadAdminController::class,'delete'])->name('AdminDelete');
     Route::post('/admin/search', [HeadAdminController::class,'search'])->name('searchAdmin');
+    Route::get('/admin/update/{user}', [HeadAdminController::class,'updatePage'])->name('headAdminUpdatePage');
+    Route::post('/admin/update/{user}', [HeadAdminController::class,'update'])->name('headAdminUpdate');
 
     Route::get('/transaction', [HeadTransactionController::class,'index'])->name('headTransactionPage');
     Route::get('/transaction/sorting/{column}/{type}', [HeadTransactionController::class,'sorting'])->name('headTransactionSorting');
