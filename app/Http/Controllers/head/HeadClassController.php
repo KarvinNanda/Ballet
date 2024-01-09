@@ -396,24 +396,42 @@ class HeadClassController extends Controller
             $detail = DB::table('detail_absens')->where('header_absen_id',$header->id)->get();
             return view('head.class.absen',compact("view","class","detail"));
         }
-        return redirect()->route('headClassPage')->with('msg','Teacher havent get attendence');;
+        return view('head.class.absen',compact("view","class"));
+        // return redirect()->route('headClassPage')->with('msg','Teacher havent get attendence');;
     }
 
     public function getAbsen(Request $req, Schedule $schedule){
-        $header_id = HeaderAbsen::updateOrCreate([
-            'schedules_id' => $schedule->id,
-        ]);
+        $getTeacher = DB::table('schedules as s')
+                            ->leftJoin('class_transactions as ct','ct.id','s.class_id')
+                            ->leftJoin('mapping_class_teachers as mct','ct.id','mct.class_id')
+                            ->where('s.id',$schedule->id)->first();
+        $header_check = DB::table("header_absens")->where('schedules_id',$schedule->id)->where('teacher_id',$getTeacher->user_id)->first();
 
-//        $header_id = DB::table("header_absens")->orderBy('id','desc')->first();
+        if(is_null($header_check)){
+            $header_id = DB::table('header_absens')->insertGetId([
+                'schedules_id' => $schedule->id,
+                'teacher_id' => $getTeacher->user_id,
+            ]);
+        } else $header_id = $header_check->id;
+        $check_detail = DB::table("detail_absens")->where('header_absen_id',$header_id)->get(); 
 
         $students = Student::whereIn('nis',$req->nis)->get();
         for($i = 0;$i < count($req->nis);$i++){
-            DetailAbsen::where('header_absen_id',$header_id->id)
-                ->where('student_id',$students[$i]->id)
-                ->update([
-                'Description' => $req->check[$i] == "on" ? "Masuk" : $req->keterangan[$i],
-                'Notes' => $req->keterangan[$i] == "Ijin" ? $req->notes[$i] : '',
-            ]);
+            if(count($check_detail)){
+                DetailAbsen::where('header_absen_id',$header_id)
+                    ->where('student_id',$students[$i]->id)
+                    ->update([
+                    'Description' => $req->check[$i] == "on" ? "Masuk" : $req->keterangan[$i],
+                    'Notes' => $req->keterangan[$i] == "Ijin" ? $req->notes[$i] : '',
+                ]);
+            } else {
+                DetailAbsen::create([
+                    'Description' => $req->check[$i] == "on" ? "Masuk" : $req->keterangan[$i],
+                    'Notes' => $req->keterangan[$i] == "Ijin" ? $req->notes[$i] : '',
+                    'header_absen_id' => $header_id,
+                    'student_id' => $students[$i]->id,
+                ]);
+            }
         }
         return redirect()->route("headViewScheduleClass",['classId' => $schedule->class_id])->with('msg','Success Update Attendence');
     }
