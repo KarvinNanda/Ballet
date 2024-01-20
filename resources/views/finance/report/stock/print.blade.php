@@ -7,16 +7,22 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Report Stock</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous"> --}}
     <style>
         table, th, td {
             border: 1px solid black;
             border-collapse: collapse;
             text-align: center;
+            margin-left: auto;
+            margin-right: auto;
         }
         th, td {
             background-color: white;
             padding: 3px;
+        }
+
+        .col {
+            text-align: center;
         }
     </style>
 </head>
@@ -24,7 +30,7 @@
 <div class="container">
     <div class="row d-block p-3">
         <div class="col">
-            <h2>Report Stock {{$carbon::parse($start_date)->toDateString() == $carbon::parse($end_date)->toDateString() ? $carbon::parse($start_date)->format('d M Y') : $carbon::parse($start_date)->format('d M Y')."-".$carbon::parse($end_date)->format('d M Y')}}</h2>
+            <h2>Report Stock {{$carbon::parse($start_date)->toDateString() == $carbon::parse($end_date)->toDateString() ? $carbon::parse($start_date)->format('d M Y') : $carbon::parse($start_date)->format('d M Y')." - ".$carbon::parse($end_date)->format('d M Y')}}</h2>
         </div>
 
         <div class="col text-center">
@@ -79,7 +85,7 @@
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+{{-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script> --}}
 </body>
 </html>

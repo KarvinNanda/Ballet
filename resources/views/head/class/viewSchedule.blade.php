@@ -31,7 +31,7 @@
                             <th scope="col">Time</th>
                             <th scope="col">Update</th>
                             <th scope="col">Delete</th>
-                            <th scope="col">Attendence</th>
+                            <th scope="col">Attendance</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -62,7 +62,7 @@
                                 <td>
                                     <form action="{{route('headViewAbsen',$c->id)}}" method="post">
                                         @csrf
-                                        <button type="submit" class="btn btn-info">Attendence</button>
+                                        <button type="submit" class="btn btn-info">Attendance</button>
                                     </form>
                                 </td>
                             </tr>

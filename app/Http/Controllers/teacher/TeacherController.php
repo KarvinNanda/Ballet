@@ -104,6 +104,6 @@ class TeacherController extends Controller
             $detail->save();
             DB::table('students')->where('id',$students[$i]->id)->update(['Quota' => $students[$i]->Quota + 1]);
         }
-        return redirect()->route("teacher")->with('msg','Success Making Attendence');
+        return redirect()->route("teacher")->with('msg','Success Making Attendance');
     }
 }

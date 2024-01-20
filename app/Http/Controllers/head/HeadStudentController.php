@@ -240,7 +240,7 @@ class HeadStudentController extends Controller
             'inputDate_of_Birth' => 'required|date|before:tomorrow',
             'inputAddress' => 'required',
             'inputPhone1' => 'required|numeric|digits_between:10,12',
-            'inputPhone2' => 'required|numeric|digits_between:10,12',
+            // 'inputPhone2' => 'required|numeric|digits_between:10,12',
             'inputWhatsapp' => 'required|numeric|digits_between:10,12',
             'inputRekening' => 'required|numeric|digits_between:10,15',
             'inputPostalCode' => 'required|numeric|min_digits:5',

@@ -1,7 +1,7 @@
 @inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
-@section('title', 'Report Class Attendence')
+@section('title', 'Report Class Attendance')
 
 @section('content')
     <div class="pagetitle">
