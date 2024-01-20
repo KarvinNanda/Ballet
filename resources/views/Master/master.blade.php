@@ -219,7 +219,7 @@
                                     <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
                                         <li>
                                             <a href="{{route('headClassReport')}}">
-                                                <i class="bi bi-circle"></i><span>Class Attendence Report</span>
+                                                <i class="bi bi-circle"></i><span>Class Attendance Report</span>
                                             </a>
                                         </li>
                                         <li>
@@ -254,7 +254,7 @@
                                 <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
                                     <li>
                                         <a href="{{route('adminClassReport')}}">
-                                            <i class="bi bi-circle"></i><span>Class Attendence Report</span>
+                                            <i class="bi bi-circle"></i><span>Class Attendance Report</span>
                                         </a>
                                     </li>
                                     <li>

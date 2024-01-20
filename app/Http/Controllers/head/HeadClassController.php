@@ -421,18 +421,18 @@ class HeadClassController extends Controller
                 DetailAbsen::where('header_absen_id',$header_id)
                     ->where('student_id',$students[$i]->id)
                     ->update([
-                    'Description' => $req->check[$i] == "on" ? "Masuk" : $req->keterangan[$i],
+                    'Description' => $req->check[$i] == "on" ? "Attend" : $req->keterangan[$i],
                     'Notes' => $req->keterangan[$i] == "Ijin" ? $req->notes[$i] : '',
                 ]);
             } else {
                 DetailAbsen::create([
-                    'Description' => $req->check[$i] == "on" ? "Masuk" : $req->keterangan[$i],
+                    'Description' => $req->check[$i] == "on" ? "Attend" : $req->keterangan[$i],
                     'Notes' => $req->keterangan[$i] == "Ijin" ? $req->notes[$i] : '',
                     'header_absen_id' => $header_id,
                     'student_id' => $students[$i]->id,
                 ]);
             }
         }
-        return redirect()->route("headViewScheduleClass",['classId' => $schedule->class_id])->with('msg','Success Update Attendence');
+        return redirect()->route("headViewScheduleClass",['classId' => $schedule->class_id])->with('msg','Success Update Attendance');
     }
 }

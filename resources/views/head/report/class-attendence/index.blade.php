@@ -1,11 +1,11 @@
 @inject('carbon', 'Carbon\Carbon')
 @extends('Master.master')
 
-@section('title','Report Class Attendence')
+@section('title','Report Class Attendance')
 
 @section('content')
     <div class="pagetitle">
-        <h1>Report Class Attendence</h1>
+        <h1>Report Class Attendance</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
@@ -37,7 +37,7 @@
                                 <td>
                                     <form action="{{route('headClassPrintReport',['header' => $item->class_id,'teacher' => $item->teacher])}}" method="post">
                                         @csrf
-                                        <button type="submit" class="btn btn-danger">Report</button>
+                                        <button type="submit" class="btn btn-primary">Report</button>
                                     </form>
                                 </td>
                     @endforeach

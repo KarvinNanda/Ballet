@@ -34,6 +34,7 @@ class HeadReportController extends Controller
 
     public function printClassAttendence($header,$teacher){
 
+        // ini_set('max_execution_time',3600);
         $firstDayOfClass = DB::table('schedules')
             ->join('class_transactions','class_transactions.id','schedules.class_id')
             ->join('class_types','class_transactions.class_type_id','class_types.id')
@@ -76,6 +77,7 @@ class HeadReportController extends Controller
     }
 
     public function printActiveStudent(Request $req){
+        ini_set('max_execution_time',3600);
         $report = DB::table('students')
             ->join('rekenings','rekenings.bank_rek','students.bank_rek')
             ->join('mapping_class_children','mapping_class_children.student_id','students.id')
@@ -128,6 +130,7 @@ class HeadReportController extends Controller
     }
 
     public function printStock(Request $req){
+        // ini_set('max_execution_time',3600);
         $start_date = $req->start_date." 00:00:00";
         $end_date = $req->end_date." 23:59:59";
         $report = ReportStock::whereBetween('report_date',[$start_date,$end_date])

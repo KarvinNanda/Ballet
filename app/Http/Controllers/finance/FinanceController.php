@@ -121,6 +121,7 @@ class FinanceController extends Controller
                     $query->where('class_types.class_name',$req->class);
                 }
             })
+            ->distinct()
             ->orderBy('class','asc')
             ->get();
 

@@ -1,11 +1,11 @@
 @extends('Master.master')
 
-@section('title', 'Attendence')
+@section('title', 'Attendance')
 
 @section('content')
 
     <div class="pagetitle">
-        <h1>Attendence</h1>
+        <h1>Attendance</h1>
     </div><!-- End Page Title -->
 
     <section class="section">

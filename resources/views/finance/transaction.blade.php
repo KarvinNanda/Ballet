@@ -39,7 +39,7 @@
                                 <td>{{$transaction->LongName}}</td>
                                 <td>{{$carbon::parse($transaction->transaction_date)->format('d M Y')}}</td>
                                 <td>Rp.{{number_format($transaction->price)}}</td>
-                                <td>{{$transaction->discount == 0 ? 0 : $transaction->discount}}%</td>
+                                <td>Rp.{{number_format($transaction->discount)}}</td>
                                 @if($transaction->discount != 0)
                                     <td>Rp.{{number_format($transaction->price - (($transaction->discount/100)*$transaction->price))}}</td>
                                 @else

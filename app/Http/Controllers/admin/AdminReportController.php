@@ -73,6 +73,7 @@ class AdminReportController extends Controller
     }
 
     public function printActiveStudent(Request $req){
+        // ini_set('max_execution_time',3600);
         $report = DB::table('students')
             ->join('rekenings','rekenings.bank_rek','students.bank_rek')
             ->join('mapping_class_children','mapping_class_children.student_id','students.id')
