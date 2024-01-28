@@ -235,6 +235,7 @@ class HeadClassController extends Controller
         students.Phone1 as studentPhone,
         students.Quota as studentQuota
         ')
+        ->where('students.Status','aktif')
         ->where('class_transactions.id', $id)
         ->paginate(5, ['*'], 'students');
 
@@ -379,6 +380,8 @@ class HeadClassController extends Controller
         $class = ClassTransaction::where('id',$req->class_id)->first();
         $class->class_type_id += 1;
         $class->save();
+
+        MappingClassChild::where('class_id',$req->class_id)->delete();
         return redirect()->route("headClassPage")->with('msg','Success Level up All Student');
     }
 

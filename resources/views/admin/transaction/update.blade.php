@@ -39,14 +39,15 @@
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price)}}</p>
+                            {{-- <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price)}}</p> --}}
+                            <input type="number" class="form-control" id="price" name="inputPrice" value="{{$transaction->class_price}}">
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Discount</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->discount == 0 ? 0:$transaction->discount}}</p>
+                            <input type="text" class="form-control" id="disc" name="inputDisc" value="{{$transaction->discount}}">
                         </div>
                     </div>
 
@@ -60,7 +61,7 @@
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Total</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price - (($transaction->discount/100)*$transaction->class_price))}}</p>
+                            <p class="form-control bg-success bg-opacity-10" id="total">Rp.{{0}}</p>
                         </div>
                     </div>
 
@@ -119,5 +120,38 @@
         </div>
     </section>
 
+    <script>
+        $(document).ready(function() {
+                let price = $("#price").val();
+                let discText = $('#disc').val();
+                if(discText.includes("%")){
+                    let disc = parseInt(discText.replaceAll("%",""));
+                    console.log(disc);
+                    let total = price - (price * (disc / 100));
+                    let cur = total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replaceAll(",00","");
+                    $("#total").text(cur);
+                } else {
+                    let total = price - parseInt(discText);
+                    let cur = total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replaceAll(",00","");
+                    $("#total").text(cur);
+                }
 
+            $("#disc").on('keyup',function(){
+                let price = $("#price").val();
+                let discText = $(this).val();
+                if(discText.includes("%")){
+                    let disc = parseInt(discText.replaceAll("%",""));
+                    console.log(disc);
+                    let total = price - (price * (disc / 100));
+                    let cur = total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replaceAll(",00","");
+                    $("#total").text(cur);
+                } else {
+                    let total = price - parseInt(discText);
+                    let cur = total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replaceAll(",00","");
+                    $("#total").text(cur);
+                }
+            });
+        });
+    </script>
+    
 @endsection

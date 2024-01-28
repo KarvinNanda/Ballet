@@ -28,6 +28,7 @@ class TeacherController extends Controller
             schedules.id as schedule_id,
             COUNT(student_id) as people_count
         ')
+        ->where('class_transactions.Status','aktif')
         ->whereDate('schedules.date','<=',now()->toDateString())
         ->orderBy('schedules.date','desc')
         ->groupBy('schedules.date')
@@ -57,7 +58,7 @@ class TeacherController extends Controller
                 students.Quota
             ')
             ->where('mapping_class_children.class_id','=',$view->class_id)
-            ->where('students.Status','!=','trial')
+            ->where('students.Status','=','aktif')
             ->get();
         $header = DB::table('header_absens')->where('schedules_id',"=",$id)->first();
         if(!is_null($header)){

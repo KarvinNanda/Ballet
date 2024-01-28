@@ -161,6 +161,13 @@
                     </div>
                 </div>
 
+                <div class="row mb-3">
+                    <label for="inputPhone" class="col-sm-2 col-form-label">Status</label>
+                    <div class="col-sm-10">
+                        <input class="form-control bg-opacity-10" name="status" value="{{$detail->Status}}">
+                    </div>
+                </div>
+
                 <section class="section">
                     <div class="card">
                         <div class="card-body">
@@ -176,6 +183,50 @@
                                     <tr>
                                         <td>{{$data->class_name}}</td>
                                         <td>{{"Rp.".number_format($data->class_price)}}</td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Transactions</h5>
+
+                            <table class="table">
+                                <thead>
+                                <th>Transaction Date</th>
+                                <th>Total</th>
+                                <th>Transaction Payment Date</th>
+                                <th>Transaction Status</th>
+                                </thead>
+                                <tbody>
+                                @foreach ($transactions as $trans)
+                                    <tr>
+                                        <td>
+                                            <form action="{{route('detailTransaction',$trans->id)}}" method="post">
+                                                @csrf
+                                            </form>
+                                            <form action="{{route('detailTransaction',$trans->id)}}" method="post">
+                                                @csrf
+                                                <button type="submit" style="border : none; background : none; color:blue;">{{$trans->transaction_date}}</button>
+                                            </form>
+                                        </td>
+                                        @if(str_contains($trans->discount, '%'))
+                                        @php
+                                            $disc = str_replace("%","",$trans->discount);
+                                        @endphp
+                                            <td>
+                                                Rp.{{number_format($trans->price - (($disc/100)*$trans->price))}}
+                                            </td>
+                                        @else
+                                            <td>Rp.{{number_format($trans->price - $trans->discount)}}</td>
+                                        @endif
+                                        <td>{{is_null($trans->transaction_payment) ? 'Waiting for Payment' : $trans->transaction_payment}}</td>
+                                        <td>{{$trans->payment_status}}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>

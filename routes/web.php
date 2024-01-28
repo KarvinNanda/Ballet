@@ -51,7 +51,7 @@ Route::get('/',function (){
 });
 
 //buyer
-Route::prefix('buyer')->group(function(){
+Route::middleware(['authLogin'])->prefix('buyer')->group(function(){
     Route::get('/', [BuyerController::class,'index'])->name('buyer');
     Route::get('/sorting/{value}/{type}', [BuyerController::class,'sorting'])->name('buyerSorting');
     Route::get('/buy/{id}', [BuyerController::class,'buyingPage'])->name('buyingItem');
@@ -123,7 +123,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/student/active', [AdminStudentController::class,'active'])->name('adminStudentActive');
     Route::get('/student/non/active', [AdminStudentController::class,'nonActive'])->name('adminStudentNonActive');
     Route::post('/student/delete/{studentId}', [AdminStudentController::class,'deleteStudent'])->name('adminStudentDelete');
-    Route::post('/student/detail/{studentId}', [AdminStudentController::class,'detailStudent'])->name('adminStudentDetail');
+    Route::get('/student/detail/{studentId}', [AdminStudentController::class,'detailStudent'])->name('adminStudentDetail');
     Route::post('/student/update', [AdminStudentController::class, 'update'])->name('adminUpdateStudent');
 
     Route::get('/teacher/view', [AdminTeacherController::class,'adminTeacherView'])->name('adminTeacherView');
@@ -144,12 +144,13 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/transaction', [AdminTransactionController::class,'index'])->name('adminTransactionPage');
     Route::get('/transaction/add', [AdminTransactionController::class,'addTransaction'])->name('addTransaction');
     Route::post('/transaction/insert', [AdminTransactionController::class,'insertTransaction'])->name('insertTransaction');
-    Route::post('/transaction/search', [AdminTransactionController::class,'searchTransaction'])->name('adminSearchTransaction');
+    Route::get('/transaction/search/{sort}', [AdminTransactionController::class,'searchTransaction'])->name('adminSearchTransaction');
     Route::get('/transaction/view/paid/{transactionId}', [AdminTransactionController::class,'viewPaidTransaction'])->name('adminPaidTransaction');
     Route::post('/transaction/submit/paid/{transactionId}', [AdminTransactionController::class,'submitPaidTransaction'])->name('adminSubmitPaidTransaction');
-    Route::post('/transaction/detail/{transaction:students_id}', [AdminTransactionController::class,'detailTransaction'])->name('adminDetailTransaction');
+    Route::post('/transaction/detail/{transaction}', [AdminTransactionController::class,'detailTransaction'])->name('adminDetailTransaction');
     Route::post('/transaction/{id}', [AdminTransactionController::class,'updatePage'])->name('adminUpdateTransaction');
     Route::post('/transaction/update/{transaction}', [AdminTransactionController::class,'update'])->name('adminUpdate');
+    Route::get('/transaction/get-price', [AdminTransactionController::class,'getPrice'])->name('getPrice');
 
     Route::get('/transaction/sorting/{value}/{type}', [AdminTransactionController::class,'adminTransactionSorting'])->name('adminTransactionSorting');
 
@@ -254,7 +255,8 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/transaction/search', [HeadTransactionController::class,'search'])->name('searchTransaction');
     Route::post('/transaction/{id}', [HeadTransactionController::class,'updatePage'])->name('updateTransaction');
     Route::post('/transaction/update/{transaction}', [HeadTransactionController::class,'update'])->name('update');
-    Route::post('/transaction/detail/{transaction:students_id}', [HeadTransactionController::class,'detailTransaction'])->name('detailTransaction');
+    Route::post('/transaction/detail/{transaction}', [HeadTransactionController::class,'detailTransaction'])->name('detailTransaction');
+    Route::get('/transaction/get-price', [HeadTransactionController::class,'getPrice'])->name('getPrice');
 
     Route::get('/stock', [HeadStockController::class,'index'])->name('headStockPage');
     Route::get('/stock/add', [HeadStockController::class,'insertPage'])->name('headStockAddPage');

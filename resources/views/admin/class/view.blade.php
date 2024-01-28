@@ -70,9 +70,9 @@
                                 <form action="{{route('changeStatusClassAdmin',$class)}}" method="post">
                                     @csrf
                                     @if($class->Status == 'aktif')
-                                        <button type="submit" class="btn btn-primary">Inactive</button>
-                                    @else
                                         <button type="submit" class="btn btn-primary">Active</button>
+                                    @else
+                                        <button type="submit" class="btn btn-primary">Inactive</button>
                                     @endif
                                 </form>
                             </td>

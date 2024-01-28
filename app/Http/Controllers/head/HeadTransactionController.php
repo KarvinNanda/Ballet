@@ -5,6 +5,7 @@ namespace App\Http\Controllers\head;
 use App\Http\Controllers\Controller;
 use App\Models\Banks;
 use App\Models\ClassTransaction;
+use App\Models\ClassType;
 use App\Models\Rekenings;
 use App\Models\Student;
 use App\Models\Transaction;
@@ -30,6 +31,7 @@ class HeadTransactionController extends Controller
                 students.LongName,
                 students.id as student_id
             ')
+            ->where('students.Status','aktif')
             ->orderBy('transactions.id','desc')
             ->paginate(5);
         return view('head.transaction.index',compact('transactions','sort'));
@@ -59,7 +61,7 @@ class HeadTransactionController extends Controller
             ->leftJoin('students','students.id','transactions.students_id')
             ->leftJoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
             ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
-            ->where('transactions.students_id',$transaction->students_id)
+            ->where('transactions.id',$transaction->id)
             ->first();
         $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
         return view('head.transaction.detail',compact('detail','data'));
@@ -88,7 +90,7 @@ class HeadTransactionController extends Controller
 
     public function update(Request $req,Transaction $transaction){
         $rules=[
-          'inputDisc' => 'numeric|min:0|max:100',
+          'inputDisc' => 'required',
           'inputStatus' => 'required',
           'inputJatuhTempo' => 'required',
           'inputPrice' => 'required|numeric',
@@ -128,16 +130,27 @@ class HeadTransactionController extends Controller
     }
 
     public function addTransaction(){
-        $students = Student::all();
-        $class_transaction = ClassTransaction::all();
+        $students = Student::where('Status','aktif')->get();
+        $class_transaction = ClassType::leftJoin('class_transactions as ct','ct.class_type_id','class_types.id')
+                        ->leftJoin('mapping_class_teachers as mct','mct.class_id','ct.id')
+                        ->leftJoin('users as u','mct.user_id','u.id')
+                        ->where('ct.status','aktif')
+                        ->selectRaw('ct.id,u.name,class_types.class_name')
+                        ->get();
         return view('head.transaction.insert',compact('students','class_transaction'));
+    }
+
+    public function getPrice(Request $req){
+        $text = substr($req->text,0,strpos($req->text,'-')-1);
+        $price = ClassType::where('class_name','like',"%$text%")->first();
+        return is_null($price) ? 0 : $price->class_price;
     }
 
     public function insertTransaction(Request $req){
         $rules = [
             'nis' => 'required',
             'class' => 'required',
-            'dateTime' => 'required',
+            'dateTime' => 'required|before:tomorrow',
             'Price' => 'required|numeric',
         ];
 
@@ -151,9 +164,9 @@ class HeadTransactionController extends Controller
         $transaction->class_transactions_id = $req->class;
         $transaction->transaction_date = $req->dateTime;
         $transaction->payment_status = "Unpaid";
-        $transaction->discount = @$req->Discount ? $req->Discount : 0;
         $transaction->price = $req->Price;
-        $transaction->desc = @$req->Description ? $req->Description : '-';
+        // $transaction->discount = @$req->Discount ? $req->Discount : 0;
+        // $transaction->desc = @$req->Description ? $req->Description : '-';
 
         $transaction->save();
 

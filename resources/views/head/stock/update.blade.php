@@ -60,6 +60,7 @@
                             <th scope="col">Buyer</th>
                             <th scope="col">Total</th>
                             <th scope="col">Buy Date</th>
+                            <th scope="col">Served By</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -69,6 +70,7 @@
                                     <td>{{$b->name}}</td>
                                     <td>{{$b->qty}}</td>
                                     <td>{{$carbon::parse($b->created_at)->format('Y-m-d')}}</td>
+                                    <td>{{$b->served_by}}</td>
                                 </tr>
                             @endforeach
                         @else

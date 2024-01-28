@@ -69,10 +69,10 @@
                                 <form action="{{route('nonactiveStudent',$student->id)}}" method="post">
                                     @csrf
                                     @if($student->status == 'aktif')
-                                        <input type="submit" name="stats" class="btn btn-primary mb-2" value="Inactive"> <br>
+                                        <input type="submit" name="stats" class="btn btn-primary mb-2" value="Active"> <br>
                                         <input type="submit" name="stats" class="btn btn-info" value="Trial">
                                     @elseif($student->status == 'non-aktif')
-                                        <input type="submit" name="stats" class="btn btn-primary mb-2" value="Active"> <br>
+                                        <input type="submit" name="stats" class="btn btn-primary mb-2" value="Inactive"> <br>
                                         <input type="submit" name="stats" class="btn btn-info" value="Trial">
                                     @else
                                         <input type="submit" name="stats" class="btn btn-primary mb-2" value="Active"> <br>
