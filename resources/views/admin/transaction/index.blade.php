@@ -10,8 +10,7 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="POST" action="{{route('adminSearchTransaction')}}">
-                    @csrf
+                <form class="search-form d-flex align-items-center" method="GET" action="{{route('adminSearchTransaction',['sort' => $sort])}}">
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword" class="ms-3">
                 </form>
                 <a href="{{route("addTransaction")}}"><button class="btn btn-success me-3 mb-3 me-5"> Add Transaction</button></a>
@@ -39,11 +38,16 @@
                                 <td>{{$transaction->LongName}}</td>
                                 <td>{{\Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y')}}</td>
                                 <td>Rp.{{number_format($transaction->price)}}</td>
-                                <td>Rp.{{number_format($transaction->discount)}}</td>
-                                @if($transaction->discount != 0)
-                                    <td>Rp.{{number_format($transaction->price - (($transaction->discount/100) * $transaction->price) )}}</td>
+                                <td>{{str_contains($transaction->discount, '%') ? $transaction->discount : 'Rp '.number_format($transaction->discount) }}</td>
+                                @if(str_contains($transaction->discount, '%'))
+                                @php
+                                    $disc = str_replace("%","",$transaction->discount);
+                                @endphp
+                                    <td>
+                                        Rp.{{number_format($transaction->price - (($disc/100)*$transaction->price))}}
+                                    </td>
                                 @else
-                                    <td>Rp.{{number_format($transaction->price)}}</td>
+                                    <td>Rp.{{number_format($transaction->price - $transaction->discount)}}</td>
                                 @endif
 
                                 @if($transaction->transaction_payment == null)
@@ -52,21 +56,24 @@
                                 <td>{{\Carbon\Carbon::parse($transaction->transaction_payment)->format('d M Y')}}</td>
                                 @endif
 
-                                @if($transaction->payment_status == "lunas")
-                                <td class="text-success font-weight-bold">{{$transaction->payment_status}}</td>
-                                @else
-                                    <td class="text-danger font-weight-bold">{{$transaction->payment_status}}</td>
-                                @endif
-                                <td class="d-flex">
+                                <td>{{$transaction->payment_status}}</td>
+                                <td class="d-flex justify-content-between">
+
+                                    @if($transaction->transaction_payment == null)
                                     <form action="{{route('adminUpdateTransaction',$transaction->id)}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-warning me-2">Update</button>
                                     </form>
-
-                                    <form action="{{route('adminDetailTransaction',$transaction->student_id)}}" method="post">
+                                    @else
+                                    None
+                                    @endif
+                                    
+                                    <form action="{{route('adminDetailTransaction',$transaction->id)}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-secondary">Detail</button>
+                                        
                                     </form>
+                                    
                                 </td>
                             </tr>
                         @endforeach

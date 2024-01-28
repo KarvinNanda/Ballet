@@ -21,6 +21,7 @@ class HeadController extends Controller
                 users.name as teacherName,
                 class_transactions.id as id
             ')
+            ->where('class_transactions.Status','aktif')
             ->whereDate('schedules.date','<=',now()->toDateString())
             ->orderBy('schedules.date','desc')
             ->paginate(5);

@@ -14,11 +14,6 @@ use Illuminate\Support\Facades\Validator;
 class BuyerController extends Controller
 {
     public function index(Request $req){
-        if(Auth::check()){
-            Session::flush();
-            Auth::logout();
-        }
-
         $key = $req->search;
         if(!is_null($key)){
             $stocks = Stock::where('name','like',"%$key%")->orderBy('id','desc')->paginate(5);
@@ -50,16 +45,23 @@ class BuyerController extends Controller
         if($validate->fails()){
             return redirect()->back()->withErrors($validate)->withInput();
         }
+        $stock = Stock::find($id);
+        $find = ReportStock::where('stock_id',$stock->id)->first();
+
+        if($req->qty > $stock->quantity){
+            return redirect()->back()->withErrors(['msg' => 'Quantity is Exceed Stock']);
+        }
 
         DB::table('buyers')->insert([
             'name' => $req->name,
             'stock_id' => $id,
             'qty' => $req->qty,
+            'served_by' => Auth::user()->name,
             'created_at' => now()->setTimezone('GMT+7')->toDateString(),
         ]);
 
-        $stock = Stock::find($id);
-        $find = ReportStock::where('stock_id',$stock->id)->first();
+        // $stock = Stock::find($id);
+        // $find = ReportStock::where('stock_id',$stock->id)->first();
         if(!is_null($find)){
             DB::table('report_stocks')->insert([
                 'stock_id' => $find->stock_id,

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('transaction_date')->nullable();
             $table->date('transaction_payment')->nullable();
             $table->string('payment_status')->nullable();
-			$table->integer('discount')->nullable()->default(0);
+			$table->string('discount')->nullable();
             $table->integer('price')->nullable();
             $table->string('desc')->nullable();
             $table->timestamps();

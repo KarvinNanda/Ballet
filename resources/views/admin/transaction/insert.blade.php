@@ -1,6 +1,6 @@
 @extends('Master.master')
 
-@section('title','Add Transaction')
+@section('title', 'Add Transaction')
 
 @section('content')
     <div class="pagetitle">
@@ -13,29 +13,31 @@
                 <h5 class="card-title"></h5>
 
                 <!-- General Form Elements -->
-                <form action="{{route('insertTransaction')}}" method="post">
+                <form action="{{ route('insertTransaction') }}" method="post">
                     @csrf
                     <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">NIS</label>
+                        <label class="col-sm-2 col-form-label">Student</label>
                         <div class="col-sm-10">
-                            <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Nis - Name" name="nis">
-                            <datalist id="datalistOptions">
-                                @foreach($students as $s)
-                                    <option value="{{$s->id}}">{{$s->nis}} - {{$s->LongName}}</option>
+
+                            <select class="form-select" name="nis">
+                                <option selected value="">Please Select</option>
+                                @foreach ($students as $s)
+                                    <option value="{{ $s->id }}">{{ $s->nis }} - {{ $s->LongName }}</option>
                                 @endforeach
-                            </datalist>
+                            </select>
+
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">Class</label>
                         <div class="col-sm-10">
 
-                            <input class="form-control" list="datalistClass" id="exampleDataList" placeholder="Class" name="class">
-                            <datalist id="datalistClass">
-                                @foreach($class_transaction as $ct)
-                                    <option value="{{$ct->id}}">{{$ct->id}} - {{$ct->ClassName}}</option>
+                            <select class="form-select" name="class" id="class">
+                                <option selected value="">Please Select</option>
+                                @foreach ($class_transaction as $ct)
+                                    <option value="{{ $ct->id }}">{{ $ct->class_name }} - {{ $ct->name }}</option>
                                 @endforeach
-                            </datalist>
+                            </select>
                         </div>
                     </div>
 
@@ -49,11 +51,11 @@
                     <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" name="Price" placeholder="Price">
+                            <input type="text" class="form-control" name="Price" id="price">
                         </div>
                     </div>
 
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <label class="col-sm-2 col-form-label">Discount</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="Discount" placeholder="Discount">
@@ -65,7 +67,7 @@
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="Description" placeholder="Description">
                         </div>
-                    </div>
+                    </div> --}}
 
 
                     <div class="justify-content-end d-flex">
@@ -74,10 +76,10 @@
                         </button>
                     </div>
 
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
+                    @if ($errors->any())
+                        @foreach ($errors->all() as $error)
                             <div class="alert alert-danger" role="alert">
-                                {{$error}}
+                                {{ $error }}
                             </div>
                         @endforeach
                     @endif
@@ -87,6 +89,24 @@
             </div>
         </div>
     </section>
+
+    <script>
+        $(document).ready(function() {
+            $("#class").on('change',function() {
+                let txt = $("#class option:selected").text();
+                $.ajax({
+                    url     : '/admin/transaction/get-price',
+                    type    : 'GET',
+                    data: {
+                        'text' : txt,
+                    },
+                    success: function(data){
+                        $('#price').val(data);
+                    }
+                });
+            });
+        });
+    </script>
 
 
 @endsection

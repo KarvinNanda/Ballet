@@ -38,14 +38,14 @@
                 <div class="row mb-3">
                     <label for="inputName" class="col-sm-2 col-form-label">Price</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($detail->class_price)}}</p>
+                        <p class="form-control bg-success bg-opacity-10" id="price">Rp.{{number_format($detail->class_price)}}</p>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <label for="inputName" class="col-sm-2 col-form-label">Discount</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10">{{$detail->discount == 0 ? 0 :$detail->discount}}%</p>
+                        <p class="form-control bg-success bg-opacity-10" id="disc">{{$detail->discount == 0 ? 0 :$detail->discount}}</p>
                     </div>
                 </div>
 
@@ -59,7 +59,7 @@
                 <div class="row mb-3">
                     <label for="inputEmail" class="col-sm-2 col-form-label">Total</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($detail->class_price - (($detail->discount/100)*$detail->class_price))}}</p>
+                        <p class="form-control bg-success bg-opacity-10" id="total">Rp.{{0}}</p>
                     </div>
                 </div>
 
@@ -112,5 +112,22 @@
         </div>
     </section>
 
+    <script>
+        $(document).ready(function() {
+                let price = $("#price").text().replaceAll("Rp.","").replaceAll(",","");
+                let discText = $('#disc').text();
+                if(discText.includes("%")){
+                    let disc = parseInt(discText.replaceAll("%",""));
+                    console.log(disc);
+                    let total = price - (price * (disc / 100));
+                    let cur = total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replaceAll(",00","");
+                    $("#total").text(cur);
+                } else {
+                    let total = price - parseInt(discText);
+                    let cur = total.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replaceAll(",00","");
+                    $("#total").text(cur);
+                }
+        });
+    </script>
 
 @endsection

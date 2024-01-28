@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Banks;
 use App\Models\Rekenings;
 use App\Models\Student;
+use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -326,6 +327,7 @@ class HeadStudentController extends Controller
                 students.Line as Line,
                 students.Email as Email,
                 students.Quota as Quota,
+                students.Status as Status,
                 students.is_new,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
@@ -340,8 +342,24 @@ class HeadStudentController extends Controller
             ->groupBy('class_transactions.class_type_id')
             ->get();
 
+            $transactions = Transaction::join('students','students.id','transactions.students_id')
+            ->leftjoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->leftjoin('class_types','class_transactions.class_type_id','class_types.id')
+            ->selectRaw('
+                transactions.id,
+                transactions.transaction_date,
+                transactions.transaction_payment,
+                transactions.payment_status,
+                class_types.class_price as price,
+                transactions.discount
+            ')
+            ->where('students.id',$id)
+            ->orderBy('transactions.id','desc')
+            ->get();
+
         $detail = compact('detail');
         $detail['courses_taken'] = $courses_taken;
+        $detail['transactions'] = $transactions;
 
         return view('head.student.detail',$detail);
     }
@@ -363,6 +381,7 @@ class HeadStudentController extends Controller
             'nis' => 'required|numeric|min_digits:10',
             'Quota' => 'required|numeric',
             'is_new' => 'required',
+            'status' => 'required',
         ];
 
         $validate = Validator::make($request->all(), $rules);
@@ -387,6 +406,7 @@ class HeadStudentController extends Controller
         $student->Line = $request->Line;
         $student->EnrollDate = $request->EnrollDate;
         $student->Quota = $request->Quota;
+        $student->Status = $request->status;
         if($request->is_new == 'no' || $request->is_new == 'No' || $request->is_new == 'NO'){
             $student->is_new = 0;
         } else {

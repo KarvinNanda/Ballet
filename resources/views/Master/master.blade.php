@@ -38,7 +38,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.all.min.js"></script>
 </head>
 
-@if(\Illuminate\Support\Facades\Auth::check())
+@if(!str_contains(url()->current(),'buyer'))
 <body>
 @else
 <body class="toggle-sidebar">
@@ -55,9 +55,9 @@
             <span class="d-none d-lg-block">Hallo</span>
             @endif
         </a>
-        @if(\Illuminate\Support\Facades\Auth::check())
-            <i class="bi bi-list toggle-sidebar-btn"></i>
-        @endif
+        {{-- @if(\Illuminate\Support\Facades\Auth::check())
+        @endif --}}
+        <i class="bi bi-list toggle-sidebar-btn"></i>
 
     </div><!-- End Logo -->
 

@@ -22,6 +22,7 @@ class AdminController extends Controller
                 class_transactions.id as id
             ')
             ->whereDate('schedules.date','<=',now()->toDateString())
+            ->where('class_transactions.Status','aktif')
             ->orderBy('schedules.date','desc')
             ->paginate(5);
         return view('admin.index',compact('data'));

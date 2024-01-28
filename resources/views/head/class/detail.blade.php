@@ -97,7 +97,9 @@
                         @else
                             @foreach($students as $student)
                                 <tr>
-                                    <td>{{$student->studentName}}</td>
+                                    <td>
+                                        <a href="{{route('detailStudent',['id' => $student->id])}}">{{$student->studentName}}</a>
+                                    </td>
                                     <td>{{\Carbon\Carbon::parse($student ->studentDOB)->format('d M Y')}}</td>
                                     <td>{{$student->studentAddress}}</td>
                                     <td>{{$student->studentEmail}}</td>

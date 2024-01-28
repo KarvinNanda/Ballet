@@ -40,11 +40,16 @@
                                 <td>{{$transaction->LongName}}</td>
                                 <td>{{$carbon::parse($transaction->transaction_date)->format('d M Y')}}</td>
                                 <td>Rp.{{number_format($transaction->price)}}</td>
-                                <td>Rp.{{number_format($transaction->discount)}}</td>
-                                @if($transaction->discount != 0)
-                                    <td>Rp.{{number_format($transaction->price - (($transaction->discount/100)*$transaction->price))}}</td>
+                                <td>{{str_contains($transaction->discount, '%') ? $transaction->discount : 'Rp '.number_format($transaction->discount) }}</td>
+                                @if(str_contains($transaction->discount, '%'))
+                                @php
+                                    $disc = str_replace("%","",$transaction->discount);
+                                @endphp
+                                    <td>
+                                        Rp.{{number_format($transaction->price - (($disc/100)*$transaction->price))}}
+                                    </td>
                                 @else
-                                    <td>Rp.{{number_format($transaction->price)}}</td>
+                                    <td>Rp.{{number_format($transaction->price - $transaction->discount)}}</td>
                                 @endif
                                 <td>{{is_null($transaction->transaction_payment) ? 'Waiting for Payment' : $transaction->transaction_payment}}</td>
                                 <td>{{$transaction->payment_status}}</td>
@@ -54,7 +59,7 @@
                                         <button type="submit" class="btn btn-warning me-2">Update</button>
                                     </form>
 
-                                    <form action="{{route('detailTransaction',$transaction->student_id)}}" method="post">
+                                    <form action="{{route('detailTransaction',$transaction->id)}}" method="post">
                                         @csrf
                                         <button type="submit" class="btn btn-secondary">Detail</button>
                                     </form>
