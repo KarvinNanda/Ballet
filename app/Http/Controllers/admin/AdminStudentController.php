@@ -131,9 +131,9 @@ class AdminStudentController extends Controller
             'inputAddress' => 'required',
             'inputPhone1' => 'required|numeric|digits_between:10,12',
             'inputWhatsapp' => 'required|numeric|digits_between:10,12',
-            'inputRekening' => 'required|numeric|digits_between:10,15',
+            // 'inputRekening' => 'required|numeric|digits_between:10,15',
             'inputPostalCode' => 'required|numeric|min_digits:5',
-            'inputNis' => 'required|numeric|min_digits:7',
+            // 'inputNis' => 'required|numeric|min_digits:7',
         ];
 
         $validate = Validator::make($req->all(),$rules);
@@ -373,7 +373,7 @@ class AdminStudentController extends Controller
             'Whatsapp' => 'required|numeric|digits_between:10,12',
 //            'rek' => 'required|numeric|digits_between:10,15',
             'kode_pos' => 'required|numeric|min_digits:5',
-            'nis' => 'required|numeric|min_digits:10',
+            // 'nis' => 'required|numeric|min_digits:10',
             'Quota' => 'required|numeric',
             'is_new' => 'required',
             'status' => 'required',

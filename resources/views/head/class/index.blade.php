@@ -100,17 +100,17 @@
                                         <button type="submit" class="btn btn-info">Level Up</button>
                                     </form>
                                 </td>
-                                {{-- <td>
-                                    <form action="{{route('headResetClass',$class->id)}}" onclick="return confirm('Are you sure?')" method="get">
+                                <td>
+                                    <form action="{{route('headDeleteClass',$class->id)}}"  method="post">
                                         @csrf
-                                        <button type="submit" class="btn btn-danger">Reset Class</button>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
-                                </td> --}}
+                                </td>
                             @else
                                 <td>None</td>
                                 <td>None</td>
                                 <td>None</td>
-                                {{-- <td>None</td> --}}
+                                <td>None</td>
                             @endif
                         </tr>
                     @endforeach

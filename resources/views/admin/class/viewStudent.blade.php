@@ -3,6 +3,9 @@
 @section('title','Students List')
 
 @section('content')
+<div class="d-none">
+    {{ $keyword = request('keyword') }}
+</div>
 
     <div class="pagetitle">
         <h1>Students Tables</h1>
@@ -10,6 +13,19 @@
 
     <section class="section">
         <div class="card">
+            <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
+                <form
+                    class="d-flex align-items-center justify-content-center gap-2"
+                    method="GET"
+                    action="{{route('viewaddStudentClass',$class_id)}}"
+                >
+                    <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
+
+
+                    <button type="submit" class="btn btn-primary text-nowrap">Search</button>
+                </form>
+            </div>
+
             <div class="card-body">
 
                 <!-- Table with stripped rows -->
@@ -19,8 +35,8 @@
                         <tr>
                             <th scope="col">Name</th>
                             <th scope="col">DOB</th>
-                            <th scope="col">Age</th>
-                            <th scope="col">Parent</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Phone</th>
                             <th scope="col">Email</th>
                             <th scope="col">Action</th>
                         </tr>

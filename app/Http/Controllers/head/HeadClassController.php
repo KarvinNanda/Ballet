@@ -125,6 +125,15 @@ class HeadClassController extends Controller
         $type = ClassType::find($req->typeID);
         $type->class_price = $req->inputPrice;
         $type->save();
+
+        DB::table('transactions as t')
+        ->leftJoin('class_transactions as ct','t.class_transactions_id','ct.id')
+        ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
+        ->where('ct2.id',$req->typeID)
+        ->update([
+            't.price' => $req->inputPrice
+        ]);
+
         return redirect()->route('headClassTypePage')->with('msg','Success Update Course Data');
     }
 
@@ -239,9 +248,20 @@ class HeadClassController extends Controller
         ->where('class_transactions.id', $id)
         ->paginate(5, ['*'], 'students');
 
+        $transactions = DB::table('transactions')
+                    ->where('class_transactions_id',$class_id)
+                    ->selectRaw("
+                        students_id,
+                        sum(students_id) as paid
+                    ")
+                    ->where('payment_status','Paid')
+                    ->whereRaw('transaction_date >= curdate()')
+                    ->groupBy('students_id')
+                    ->get();
+
         $students->appends(['students' => request('students')]);
 
-        return view('head.class.detail',compact('teachers','students','id','class_name'));
+        return view('head.class.detail',compact('teachers','students','id','class_name','transactions'));
     }
 
     public function resetQuota($id){
@@ -283,10 +303,18 @@ class HeadClassController extends Controller
 
     public function viewaddStudent(Request $req){
         $class_id = $req->id;
-        $students = DB::table('students')->whereNotIn('id',function($q) use ($class_id){
+        $keyword = $req->keyword;
+        $students = DB::table('students')
+        ->whereNotIn('id',function($q) use ($class_id){
             $q->select('mapping_class_children.student_id')
-                ->from('mapping_class_children');
+                ->from('mapping_class_children')
+                ->where('mapping_class_children.class_id',$class_id);
         })
+            ->where(function ($query) use ($keyword){
+                if($keyword != '' || is_null($keyword)){
+                    $query->where('students.LongName','like',"%$keyword%");
+                }
+            })
             ->whereRaw("(students.Status = 'aktif' or students.Status = 'trial')")
             ->paginate(5);
         return view('head.class.viewStudent',compact('students','class_id'));
@@ -302,7 +330,8 @@ class HeadClassController extends Controller
             ->first();
 
         if(!is_null($check_schedule)){
-            $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
+            // $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
+            $first_month = Carbon::parse($check_schedule->date)->setTime(0,0,0);
 
 
             for ($i=0;$i<3;$i++){
@@ -320,7 +349,7 @@ class HeadClassController extends Controller
                     $trans[] = [
                         'students_id' =>$req->studentId,
                         'class_transactions_id' => $class_id,
-                        'transaction_date' => Carbon::parse($check_schedule->date)->day + 10 > 30 ? Carbon::parse($check_schedule->date)->addMonth($i+2)->setDay(10) : Carbon::parse($check_schedule->date)->addMonth($i+1)->setDay(10),
+                        'transaction_date' => Carbon::parse($check_schedule->date)->day + 10 > 30 ? Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10) : Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10),
                         'payment_status' => 'Unpaid',
                         'discount' => 0,
                         'price' => $get_class_price,
@@ -348,6 +377,47 @@ class HeadClassController extends Controller
         $teacher = DB::table('mapping_class_children')->where('class_id',$class)->where('student_id',$student);
         $teacher->delete();
         return redirect()->route("headDetailClass", ['id' => $class])->with('msg','Success Delete Student');
+    }
+
+    public function generateTransactionStudent($student, $class){
+        $get_class_price = ClassTransaction::leftJoin('class_types','class_types.id','class_transactions.class_type_id')
+            ->where('class_transactions.id',$class)->first()->class_price;
+        $check_schedule = Schedule::where('class_id',$class)
+            ->whereRaw('date  >= curdate()')
+            ->orderBy('date')
+            ->first();
+
+        if(!is_null($check_schedule)){
+            // $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
+            $first_month = Carbon::parse($check_schedule->date)->setTime(0,0,0);
+
+
+            for ($i=0;$i<3;$i++){
+                if($i==0){
+                    $trans[] = [
+                        'students_id' =>$student,
+                        'class_transactions_id' => $class,
+                        'transaction_date' => $first_month,
+                        'payment_status' => 'Unpaid',
+                        'discount' => 0,
+                        'price' => $get_class_price,
+                        'desc' => '-'
+                    ];
+                } else {
+                    $trans[] = [
+                        'students_id' =>$student,
+                        'class_transactions_id' => $class,
+                        'transaction_date' => Carbon::parse($check_schedule->date)->day + 10 > 30 ? Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10) : Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10),
+                        'payment_status' => 'Unpaid',
+                        'discount' => 0,
+                        'price' => $get_class_price,
+                        'desc' => '-'
+                    ];
+                }
+            }
+            DB::table('transactions')->insert($trans);
+        }
+        return redirect()->route("headDetailClass", ['id' => $class])->with('msg','Success Generate Transaction Student');
     }
 
     public function resetClass($id){
