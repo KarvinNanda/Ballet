@@ -98,18 +98,17 @@
                                     <button type="submit" class="btn btn-info">Level Up</button>
                                 </form>
                             </td>
+                            @else
+                            <td>None</td>
+                            <td>None</td>
+                            <td>None</td>
+                            @endif
                             <td>
                                 <form action="{{route('adminDeleteClass',$class->id)}}"  method="post">
                                     @csrf
                                     <button type="submit" class="btn btn-danger">Delete</button>
                                 </form>
                             </td>
-                            @else
-                                <td>None</td>
-                                <td>None</td>
-                                <td>None</td>
-                                <td>None</td>
-                            @endif
                         </tr>
                     @endforeach
                     </tbody>

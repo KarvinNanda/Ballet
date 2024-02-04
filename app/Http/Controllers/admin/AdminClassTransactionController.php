@@ -426,8 +426,8 @@ class AdminClassTransactionController extends Controller
         return redirect()->route("adminClassView")->with('msg','Success Reset Class');
     }
 
-    public function delete(ClassTransaction $class){
-        $delete_id = ClassTransaction::find($class->id);
+    public function delete($classId){
+        $delete_id = ClassTransaction::find($classId);
         $delete_id->delete();
         return redirect()->back()->with('msg','Success Delete Class');
     }
