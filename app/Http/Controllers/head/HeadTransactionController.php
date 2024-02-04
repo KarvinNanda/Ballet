@@ -129,6 +129,11 @@ class HeadTransactionController extends Controller
         return redirect()->route('headTransactionPage')->with('msg','Success Update Transaction');
     }
 
+    public function delete(Request $req,Transaction $transaction){
+        DB::table('transactions')->where('id',$transaction->id)->delete();
+        return redirect()->route('headTransactionPage')->with('msg','Success Delete Transaction');
+    }
+
     public function addTransaction(){
         $students = Student::where('Status','aktif')->get();
         $class_transaction = ClassType::leftJoin('class_transactions as ct','ct.class_type_id','class_types.id')

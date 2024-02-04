@@ -96,6 +96,20 @@
                             <td>No Data</td>
                         @else
                             @foreach($students as $student)
+                                @php
+                                    if($class_name == 'Pointe Class') $quota_pay = 4;
+                                    else if($class_name == 'Intensive Kids' || $class_name == 'Intensive Class')$quota_pay = 12;
+                                    else $quota_pay = 3;
+                                    if(count($transactions)){
+                                        foreach ($transactions as $t ) {
+                                            if($student->id == $t->students_id){
+                                                $quota_pay = $t->paid * 8;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                @endphp
+
                                 <tr>
                                     <td>
                                         <a href="{{route('detailStudent',['id' => $student->id])}}">{{$student->studentName}}</a>
@@ -105,16 +119,21 @@
                                     <td>{{$student->studentEmail}}</td>
                                     <td>{{$student->studentPhone}}</td>
                                     @if($class_name == 'Pointe Class')
-                                        <td>{{$student->studentQuota}} / 4</td>
+                                        <td>{{$student->studentQuota}} / {{$quota_pay}}</td>
                                     @elseif($class_name == 'Intensive Kids' || $class_name == 'Intensive Class')
-                                        <td>{{$student->studentQuota}} / 12</td>
+                                        <td>{{$student->studentQuota}} / {{$quota_pay}}</td>
                                     @else
-                                        <td>{{$student->studentQuota}} / 8</td>
+                                        <td>{{$student->studentQuota}} / {{$quota_pay}}</td>
                                     @endif
-                                    <td>
+                                    <td class="d-flex">
                                         <form action="{{route('headClassDeleteStudent',['student' => $student->id,'class' => $id])}}" method="get">
                                             @csrf
-                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                            <button type="submit" class="btn btn-danger me-2">Delete</button>
+                                        </form>
+
+                                        <form action="{{route('headClassGenerateTransactionStudent',['student' => $student->id,'class' => $id])}}" method="post">
+                                            @csrf
+                                            <button type="submit" class="btn btn-info">Generate Transaction</button>
                                         </form>
                                     </td>
                                 </tr>

@@ -83,6 +83,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::post('/class/type/delete', [AdminController::class,'DeleteType'])->name('adminDeleteTypeClass');
     Route::post('/class/type/update', [AdminController::class,'updateType'])->name('adminChangeTypeClass');
 
+    Route::post('/class/delete/{id}', [AdminClassTransactionController::class,'delete'])->name('adminDeleteClass');
     Route::post('/level/class', [AdminClassTransactionController::class,'levelUp'])->name('levelUp');
     Route::post('/level/class/student', [AdminClassTransactionController::class,'levelUpStudent'])->name('levelUpStudent');
     Route::get('/view/add/teacher/class/{id}', [AdminClassTransactionController::class,'viewaddTeacher'])->name('viewaddTeacherClass');
@@ -93,6 +94,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
 
     Route::get('/delete/TeacherClass/{teacher}/{class}',[AdminClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
 
+    Route::post('/generate-transaction/StudentClass/{student}/{class}',[AdminClassTransactionController::class,'generateTransactionStudent'])->name("classGenerateTransactionStudent");
     Route::get('/delete/StudentClass/{student}/{class}',[AdminClassTransactionController::class,'deleteStudent'])->name("classDeleteStudent");
     Route::get('/class/add', [AdminClassTransactionController::class,'insertPage'])->name('adminClassAddPage');
     Route::post('/class/add', [AdminClassTransactionController::class,'insert'])->name('adminClassAdd');
@@ -184,6 +186,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/class/type/update', [HeadClassController::class,'updateType'])->name('headChangeTypeClass');
 
     Route::post('/level/class', [HeadClassController::class,'levelUp'])->name('headLevelUp');
+    Route::post('/class/delete/{id}', [HeadClassController::class,'delete'])->name('headDeleteClass');
     Route::post('/level/class/student', [HeadClassController::class,'levelUpStudent'])->name('headLevelUpStudent');
 
     Route::get('/detail/class/reset/quota/{id}', [HeadClassController::class,'resetQuota'])->name('headResetQuota');
@@ -192,6 +195,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/view/add/student/class/{id}', [HeadClassController::class,'viewaddStudent'])->name('headViewaddStudentClass');
     Route::get('/delete/TeacherClass/{teacher}/{class}',[HeadClassController::class,'deleteTeacher'])->name("headClassDeleteTeacher");
     Route::get('/delete/StudentClass/{student}/{class}',[HeadClassController::class,'deleteStudent'])->name("headClassDeleteStudent");
+    Route::post('/generate-transaction/StudentClass/{student}/{class}',[HeadClassController::class,'generateTransactionStudent'])->name("headClassGenerateTransactionStudent");
     Route::post('/add/teacher/class', [HeadClassController::class,'addTeacher'])->name('headAddTeacherClass');
     Route::post('/add/student/class', [HeadClassController::class,'addStudent'])->name('headAddStudentClass');
     Route::get('/reset/class/{id}',[HeadClassController::class,'resetClass'])->name('headResetClass');
@@ -256,6 +260,8 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/transaction/{id}', [HeadTransactionController::class,'updatePage'])->name('updateTransaction');
     Route::post('/transaction/update/{transaction}', [HeadTransactionController::class,'update'])->name('update');
     Route::post('/transaction/detail/{transaction}', [HeadTransactionController::class,'detailTransaction'])->name('detailTransaction');
+    Route::post('/transaction/delete/{transaction}', [HeadTransactionController::class,'delete'])->name('deleteTransaction');
+    
     Route::get('/transaction/get-price', [HeadTransactionController::class,'getPrice'])->name('getPrice');
 
     Route::get('/stock', [HeadStockController::class,'index'])->name('headStockPage');

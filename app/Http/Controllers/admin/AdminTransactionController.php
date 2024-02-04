@@ -172,6 +172,7 @@ class AdminTransactionController extends Controller
         }
         $trans->desc = $req->inputDesc;
         $trans->transaction_date = $req->inputJatuhTempo;
+        $trans->discount = $req->inputDisc;
         $trans->save();
         return redirect()->route('adminTransactionPage')->with('msg','Success Update Transaction');
     }

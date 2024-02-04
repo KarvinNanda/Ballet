@@ -42,6 +42,15 @@ class AdminController extends Controller
         $type = ClassType::find($req->typeID);
         $type->class_price = $req->inputPrice;
         $type->save();
+
+        DB::table('transactions as t')
+            ->leftJoin('class_transactions as ct','t.class_transactions_id','ct.id')
+            ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
+            ->where('ct2.id',$req->typeID)
+            ->update([
+                't.price' => $req->inputPrice
+            ]);
+
         return redirect()->route('adminClassTypePage')->with('msg','Success Update Data Course');
     }
 

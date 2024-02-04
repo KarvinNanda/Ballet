@@ -61,7 +61,12 @@
 
                                     <form action="{{route('detailTransaction',$transaction->id)}}" method="post">
                                         @csrf
-                                        <button type="submit" class="btn btn-secondary">Detail</button>
+                                        <button type="submit" class="btn btn-secondary me-2">Detail</button>
+                                    </form>
+
+                                    <form action="{{route('deleteTransaction',$transaction->id)}}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-danger ">Delete</button>
                                     </form>
                                 </td>
                             </tr>
