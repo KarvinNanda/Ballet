@@ -94,9 +94,26 @@
                     </div>
 
                     <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Payment Type</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="Type" value="{{$transaction->transaction_type}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Status</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputStatus" value="{{$transaction->payment_status}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10 mb-5">
+                            <input class="form-check-input" name="all_transaction" type="checkbox" value="" id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                                All Transaction
+                            </label>
                         </div>
                     </div>
 

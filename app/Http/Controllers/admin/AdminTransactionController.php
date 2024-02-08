@@ -165,15 +165,31 @@ class AdminTransactionController extends Controller
         }
 
         $trans = Transaction::find($transaction->id);
-        $trans->payment_status = ucfirst($req->inputStatus);
-        if(!is_null($req->inputTanggalBayar)){
-            $trans->transaction_payment = $req->inputTanggalBayar;
-            $trans->payment_status = 'Paid';
+
+        if($req->has('all_transaction') && !is_null($req->inputTanggalBayar)){
+                DB::table('transactions')->where('students_id',$trans->students_id)->update([
+                    'discount' => $req->inputDisc,
+                    'desc' => $req->inputDesc,
+                    'price' => $req->inputPrice,
+                    'transaction_date' => $req->inputJatuhTempo,
+                    'transaction_type' => $req->Type,
+                    'payment_status' => 'Paid',
+                    'transaction_payment' => $req->inputTanggalBayar
+                ]);
+        } else {
+            $trans->discount = $req->inputDisc;
+            $trans->desc = $req->inputDesc;
+            $trans->price = $req->inputPrice;
+            $trans->transaction_date = $req->inputJatuhTempo;
+            $trans->transaction_type = $req->Type;
+            $trans->payment_status = ucfirst($req->inputStatus);
+            if(!is_null($req->inputTanggalBayar)){
+                $trans->transaction_payment = $req->inputTanggalBayar;
+                $trans->payment_status = 'Paid';
+            }
+            $trans->save();
         }
-        $trans->desc = $req->inputDesc;
-        $trans->transaction_date = $req->inputJatuhTempo;
-        $trans->discount = $req->inputDisc;
-        $trans->save();
+
         return redirect()->route('adminTransactionPage')->with('msg','Success Update Transaction');
     }
 
