@@ -256,7 +256,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/transaction/sorting/{column}/{type}', [HeadTransactionController::class,'sorting'])->name('headTransactionSorting');
     Route::get('/transaction/add', [HeadTransactionController::class,'addTransaction'])->name('headAddTransactionPage');
     Route::post('/transaction/add', [HeadTransactionController::class,'insertTransaction'])->name('headAddTransaction');
-    Route::post('/transaction/search', [HeadTransactionController::class,'search'])->name('searchTransaction');
+    Route::get('/transaction/search', [HeadTransactionController::class,'index'])->name('headSearchTransaction');
     Route::post('/transaction/{id}', [HeadTransactionController::class,'updatePage'])->name('updateTransaction');
     Route::post('/transaction/update/{transaction}', [HeadTransactionController::class,'update'])->name('update');
     Route::post('/transaction/detail/{transaction}', [HeadTransactionController::class,'detailTransaction'])->name('detailTransaction');

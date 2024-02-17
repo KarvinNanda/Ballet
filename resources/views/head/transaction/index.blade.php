@@ -11,8 +11,7 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="POST" action="{{route('searchTransaction')}}">
-                    @csrf
+                <form class="search-form d-flex align-items-center" method="GET" action="{{route('headSearchTransaction')}}">
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
                 <a href="{{route("headAddTransactionPage")}}"><button class="btn btn-success me-3 mb-3 me-5"> Add Transaction</button></a>

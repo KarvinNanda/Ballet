@@ -16,8 +16,9 @@ use Illuminate\Http\Request;
 class HeadTransactionController extends Controller
 {
 
-    public function index(){
+    public function index(Request $req){
         $sort = 'asc';
+        $keyword = $req->search;
         $transactions = Transaction::join('students','students.id','transactions.students_id')
             ->leftjoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
             ->leftjoin('class_types','class_transactions.class_type_id','class_types.id')
@@ -31,6 +32,11 @@ class HeadTransactionController extends Controller
                 students.LongName,
                 students.id as student_id
             ')
+            ->where(function ($query) use ($keyword){
+                if(!is_null($keyword)){
+                    $query->where('students.Longname','like',"%$keyword%");
+                }
+            })
             ->where('students.Status','aktif')
             ->orderBy('transactions.id','desc')
             ->paginate(5);
@@ -133,6 +139,7 @@ class HeadTransactionController extends Controller
             $trans->transaction_date = $req->inputJatuhTempo;
             $trans->transaction_type = $req->Type;
             $trans->payment_status = ucfirst($req->inputStatus);
+            $trans->transaction_payment = $req->inputTanggalBayar;
             if(!is_null($req->inputTanggalBayar)){
                 $trans->transaction_payment = $req->inputTanggalBayar;
                 $trans->payment_status = 'Paid';
