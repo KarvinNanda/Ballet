@@ -72,7 +72,8 @@
                     <div class="row mb-3">
                         <label for="inputPhone" class="col-sm-2 col-form-label">Bank Name</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$detail->bank}}</p>
+                            {{-- <p class="form-control bg-success bg-opacity-10">{{$detail->bank}}</p> --}}
+                            <input class="form-control bg-opacity-10" name="bank" value="{{$detail->bank}}">
                         </div>
                     </div>
                 @endif
@@ -80,14 +81,16 @@
                 <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">Sender Name</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10">{{$detail->pengirim}}</p>
+                        {{-- <p class="form-control bg-success bg-opacity-10">{{$detail->pengirim}}</p> --}}
+                        <input class="form-control bg-opacity-10" name="sender" value="{{$detail->pengirim}}">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">Account Number</label>
                     <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$detail->rek}}</p>
+                            {{-- <p class="form-control bg-success bg-opacity-10">{{$detail->rek}}</p> --}}
+                            <input class="form-control bg-opacity-10" name="accountno" value="{{$detail->rek}}">
                     </div>
                 </div>
 

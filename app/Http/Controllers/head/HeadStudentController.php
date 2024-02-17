@@ -334,6 +334,7 @@ class HeadStudentController extends Controller
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
             ')->where('students.id',"=", $id)->first();
+            // dd($detail);
 
         $courses_taken = DB::table('mapping_class_children')
             ->join('class_transactions', 'mapping_class_children.class_id', 'class_transactions.id')
@@ -382,6 +383,9 @@ class HeadStudentController extends Controller
             'Quota' => 'required|numeric',
             'is_new' => 'required',
             'status' => 'required',
+            // 'bank' => 'required',
+            'accountno' => 'required',
+            'sender' => 'required',
         ];
 
         $validate = Validator::make($request->all(), $rules);
@@ -407,13 +411,27 @@ class HeadStudentController extends Controller
         $student->EnrollDate = $request->EnrollDate;
         $student->Quota = $request->Quota;
         $student->Status = $request->status;
+        
         if($request->is_new == 'no' || $request->is_new == 'No' || $request->is_new == 'NO'){
             $student->is_new = 0;
         } else {
             $student->is_new = 1;
         }
 
+        $banks = Banks::updateOrCreate([
+            'bank_name' => $request->bank
+        ]);
+
+        DB::table('rekenings')->where('bank_rek',$student->bank_rek)->update([
+            'banks_id' => $banks->id,
+            'nama_pengirim' => $request->sender,
+            'bank_rek' => $request->accountno,
+        ]);
+
+        $student->bank_rek = $request->accountno;
+
         $student->save();
+
 
         return to_route('headStudentPage')->with('msg','Success Update Student');
     }
