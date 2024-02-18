@@ -27,7 +27,7 @@ class HeadTransactionController extends Controller
                 transactions.transaction_date,
                 transactions.transaction_payment,
                 transactions.payment_status,
-                class_types.class_price as price,
+                transactions.price as price,
                 transactions.discount,
                 students.LongName,
                 students.id as student_id
