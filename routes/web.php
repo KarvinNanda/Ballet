@@ -149,8 +149,8 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/transaction/search/{sort}', [AdminTransactionController::class,'searchTransaction'])->name('adminSearchTransaction');
     Route::get('/transaction/view/paid/{transactionId}', [AdminTransactionController::class,'viewPaidTransaction'])->name('adminPaidTransaction');
     Route::post('/transaction/submit/paid/{transactionId}', [AdminTransactionController::class,'submitPaidTransaction'])->name('adminSubmitPaidTransaction');
-    Route::post('/transaction/detail/{transaction}', [AdminTransactionController::class,'detailTransaction'])->name('adminDetailTransaction');
-    Route::post('/transaction/{id}', [AdminTransactionController::class,'updatePage'])->name('adminUpdateTransaction');
+    Route::get('/transaction/detail/{transaction}', [AdminTransactionController::class,'detailTransaction'])->name('adminDetailTransaction');
+    Route::get('/transaction/{id}', [AdminTransactionController::class,'updatePage'])->name('adminUpdateTransaction');
     Route::post('/transaction/update/{transaction}', [AdminTransactionController::class,'update'])->name('adminUpdate');
     Route::get('/transaction/get-price', [AdminTransactionController::class,'getPrice'])->name('getPrice');
 
@@ -257,9 +257,9 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/transaction/add', [HeadTransactionController::class,'addTransaction'])->name('headAddTransactionPage');
     Route::post('/transaction/add', [HeadTransactionController::class,'insertTransaction'])->name('headAddTransaction');
     Route::get('/transaction/search', [HeadTransactionController::class,'index'])->name('headSearchTransaction');
-    Route::post('/transaction/{id}', [HeadTransactionController::class,'updatePage'])->name('updateTransaction');
+    Route::get('/transaction/{id}', [HeadTransactionController::class,'updatePage'])->name('updateTransaction');
     Route::post('/transaction/update/{transaction}', [HeadTransactionController::class,'update'])->name('update');
-    Route::post('/transaction/detail/{transaction}', [HeadTransactionController::class,'detailTransaction'])->name('detailTransaction');
+    Route::get('/transaction/detail/{transaction}', [HeadTransactionController::class,'detailTransaction'])->name('detailTransaction');
     Route::post('/transaction/delete/{transaction}', [HeadTransactionController::class,'delete'])->name('deleteTransaction');
     
     Route::get('/transaction/get-price', [HeadTransactionController::class,'getPrice'])->name('getPrice');

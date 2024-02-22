@@ -158,6 +158,13 @@
                 </div>
 
                 <div class="row mb-3">
+                    <label for="inputPhone" class="col-sm-2 col-form-label">Max Quota</label>
+                    <div class="col-sm-10">
+                        <input class="form-control bg-opacity-10" name="MaxQuota" value="{{$detail->MaxQuota}}">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">New Student</label>
                     <div class="col-sm-10">
                         <input class="form-control bg-opacity-10" name="is_new" value="{{$detail->is_new == 1 ? 'Yes' : 'No'}}">
@@ -205,6 +212,7 @@
                                 <th>Total</th>
                                 <th>Transaction Payment Date</th>
                                 <th>Transaction Status</th>
+                                <th>Quota</th>
                                 </thead>
                                 <tbody>
                                 @foreach ($transactions as $trans)
@@ -230,6 +238,7 @@
                                         @endif
                                         <td>{{is_null($trans->transaction_payment) ? 'Waiting for Payment' : $trans->transaction_payment}}</td>
                                         <td>{{$trans->payment_status}}</td>
+                                        <td>{{is_null($trans->transaction_quota) ? 0 : $trans->transaction_quota}}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>

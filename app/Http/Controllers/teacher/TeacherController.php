@@ -16,11 +16,16 @@ use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
 //        dd(Carbon::parse('2023-02-10')->diffInDays('2024-01-20'));
+        $keyword = $request->query('keyword');
 
         $data = ClassTransaction::leftjoin('schedules','class_transactions.id','schedules.class_id')
         ->leftjoin('mapping_class_children','class_transactions.id','mapping_class_children.class_id')
+        ->leftjoin('mapping_class_teachers','class_transactions.id','mapping_class_teachers.class_id')
+        ->leftjoin('students','students.id','mapping_class_children.student_id')
+        ->leftjoin('users','users.id','mapping_class_teachers.user_id')
+        ->leftjoin('class_types','class_transactions.class_type_id','class_types.id')
         ->selectRaw('
             schedules.date,
             class_transactions.id as id,
@@ -29,7 +34,19 @@ class TeacherController extends Controller
             COUNT(student_id) as people_count
         ')
         ->where('class_transactions.Status','aktif')
-        ->whereDate('schedules.date','<=',now()->toDateString())
+        ->where(function ($query) use ($keyword) {
+            $query->where('students.LongName',"LIKE","%$keyword%")
+            ->orWhere('users.name',"LIKE","%$keyword%")
+            ->orWhere('class_types.class_name',"LIKE","%$keyword%");
+            // ->orWhere('students.Phone1',"LIKE","%$keyword%")
+            // ->orWhere('students.Phone2',"LIKE","%$keyword%")
+            // ->orWhere('students.bank_rek',"LIKE","%$keyword%")
+            // ->orWhere('students.nama_orang_tua',"LIKE","%$keyword%")
+            // ->orWhere('students.Address',"LIKE","%$keyword%")
+            // ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
+            // ->orWhere('banks.bank_name',"LIKE","%$keyword%");
+        })
+        // ->whereDate('schedules.date','<=',now()->toDateString())
         ->orderBy('schedules.date','desc')
         ->groupBy('schedules.date')
         ->paginate(5);

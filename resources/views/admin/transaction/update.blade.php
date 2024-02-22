@@ -66,6 +66,13 @@
                     </div>
 
                     <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Quota</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="inputQuota" value="{{$transaction->transaction_quota}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Bank Account</label>
                         <div class="col-sm-10">
                             <p class="form-control bg-success bg-opacity-10">{{$transaction->bank_rek}}</p>

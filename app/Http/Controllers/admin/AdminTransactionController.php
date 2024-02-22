@@ -143,12 +143,17 @@ class AdminTransactionController extends Controller
             'inputStatus' => 'required',
             'inputJatuhTempo' => 'required',
             'inputSenderName' => 'required',
+            'inputQuota' => 'required|numeric|min:1|max:24',
         ];
 
         $validate = Validator::make($req->all(),$rules);
 
         if($validate->fails()){
             return redirect()->back()->withErrors($validate)->withInput();
+        }
+
+        if(is_null($req->inputTanggalBayar) && ucfirst($req->inputStatus) == 'Paid'){
+            return redirect()->back()->with('msg','Please Fill the Payment Date When You Status is Paid');
         }
 
         if(!is_null($req->inputBankName)){
@@ -174,7 +179,8 @@ class AdminTransactionController extends Controller
                     'transaction_date' => $req->inputJatuhTempo,
                     'transaction_type' => $req->Type,
                     'payment_status' => 'Paid',
-                    'transaction_payment' => $req->inputTanggalBayar
+                    'transaction_payment' => $req->inputTanggalBayar,
+                    'transaction_quota' => $req->inputQuota,
                 ]);
         } else {
             $trans->discount = $req->inputDisc;
@@ -183,11 +189,19 @@ class AdminTransactionController extends Controller
             $trans->transaction_date = $req->inputJatuhTempo;
             $trans->transaction_type = $req->Type;
             $trans->payment_status = ucfirst($req->inputStatus);
+            $trans->transaction_quota = $req->inputQuota;
             if(!is_null($req->inputTanggalBayar)){
                 $trans->transaction_payment = $req->inputTanggalBayar;
                 $trans->payment_status = 'Paid';
             }
             $trans->save();
+        }
+
+        if(!is_null($req->inputTanggalBayar)){
+            $student = DB::table('students')->where('id',$trans->students_id)->first();
+            DB::table('students')->where('id',$trans->students_id)->update([
+                'MaxQuota' => $student->MaxQuota + $trans->transaction_quota
+            ]);
         }
 
         return redirect()->route('adminTransactionPage')->with('msg','Success Update Transaction');

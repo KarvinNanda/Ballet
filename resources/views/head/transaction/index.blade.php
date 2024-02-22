@@ -53,13 +53,11 @@
                                 <td>{{is_null($transaction->transaction_payment) ? 'Waiting for Payment' : $transaction->transaction_payment}}</td>
                                 <td>{{$transaction->payment_status}}</td>
                                 <td class="d-flex">
-                                    <form action="{{route('updateTransaction',$transaction->id)}}" method="post">
-                                        @csrf
+                                    <form action="{{route('updateTransaction',$transaction->id)}}" method="get">
                                         <button type="submit" class="btn btn-warning me-2">Update</button>
                                     </form>
 
-                                    <form action="{{route('detailTransaction',$transaction->id)}}" method="post">
-                                        @csrf
+                                    <form action="{{route('detailTransaction',$transaction->id)}}" method="get">
                                         <button type="submit" class="btn btn-secondary me-2">Detail</button>
                                     </form>
 

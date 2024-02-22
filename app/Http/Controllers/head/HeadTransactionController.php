@@ -100,6 +100,7 @@ class HeadTransactionController extends Controller
           'inputStatus' => 'required',
           'inputJatuhTempo' => 'required',
           'inputPrice' => 'required|numeric',
+          'inputQuota' => 'required|numeric|min:1',
         //   'inputBankAccount' => 'required|numeric',
         //   'inputSenderName' => 'required',
         //   'inputBankName' => 'required',
@@ -130,7 +131,8 @@ class HeadTransactionController extends Controller
                     'transaction_date' => $req->inputJatuhTempo,
                     'transaction_type' => $req->Type,
                     'payment_status' => 'Paid',
-                    'transaction_payment' => $req->inputTanggalBayar
+                    'transaction_payment' => $req->inputTanggalBayar,
+                    'transaction_quota' => $req->inputQuota,
                 ]);
         } else {
             $trans->discount = $req->inputDisc;
@@ -140,11 +142,18 @@ class HeadTransactionController extends Controller
             $trans->transaction_type = $req->Type;
             $trans->payment_status = ucfirst($req->inputStatus);
             $trans->transaction_payment = $req->inputTanggalBayar;
+            $trans->transaction_quota = $req->inputQuota;
             if(!is_null($req->inputTanggalBayar)){
                 $trans->transaction_payment = $req->inputTanggalBayar;
                 $trans->payment_status = 'Paid';
             }
             $trans->save();
+        }
+        if(!is_null($req->inputTanggalBayar)){
+            $student = DB::table('students')->where('id',$trans->students_id)->first();
+            DB::table('students')->where('id',$trans->students_id)->update([
+                'MaxQuota' => $student->MaxQuota + $trans->transaction_quota
+            ]);
         }
 
         return redirect()->route('headTransactionPage')->with('msg','Success Update Transaction');

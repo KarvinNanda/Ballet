@@ -60,16 +60,14 @@
                                 <td class="d-flex justify-content-between">
 
                                     @if($transaction->transaction_payment == null)
-                                    <form action="{{route('adminUpdateTransaction',$transaction->id)}}" method="post">
-                                        @csrf
+                                    <form action="{{route('adminUpdateTransaction',$transaction->id)}}" method="get">
                                         <button type="submit" class="btn btn-warning me-2">Update</button>
                                     </form>
                                     @else
                                     None
                                     @endif
                                     
-                                    <form action="{{route('adminDetailTransaction',$transaction->id)}}" method="post">
-                                        @csrf
+                                    <form action="{{route('adminDetailTransaction',$transaction->id)}}" method="get">
                                         <button type="submit" class="btn btn-secondary">Detail</button>
                                         
                                     </form>

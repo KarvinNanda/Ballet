@@ -328,6 +328,7 @@ class HeadStudentController extends Controller
                 students.Email as Email,
                 students.Quota as Quota,
                 students.Status as Status,
+                students.MaxQuota,
                 students.is_new,
                 YEAR(CURDATE()) - YEAR(students.Dob) as age,
                 rekenings.bank_rek as rek,
@@ -352,7 +353,8 @@ class HeadStudentController extends Controller
                 transactions.transaction_payment,
                 transactions.payment_status,
                 class_types.class_price as price,
-                transactions.discount
+                transactions.discount,
+                transactions.transaction_quota
             ')
             ->where('students.id',$id)
             ->orderBy('transactions.id','desc')
@@ -375,7 +377,7 @@ class HeadStudentController extends Controller
             'dob' => 'required|date|before:tomorrow',
             'Address' => 'required',
             'Phone1' => 'required|numeric|digits_between:10,12',
-            'Phone2' => 'required|numeric|digits_between:10,12',
+            // 'Phone2' => 'required|numeric|digits_between:10,12',
             'Whatsapp' => 'required|numeric|digits_between:10,12',
 //            'rek' => 'required|numeric|digits_between:10,15',
             'kode_pos' => 'required|numeric|min_digits:5',
@@ -410,6 +412,7 @@ class HeadStudentController extends Controller
         $student->Line = $request->Line;
         $student->EnrollDate = $request->EnrollDate;
         $student->Quota = $request->Quota;
+        $student->MaxQuota = $request->MaxQuota;
         $student->Status = $request->status;
         
         if($request->is_new == 'no' || $request->is_new == 'No' || $request->is_new == 'NO'){

@@ -29,7 +29,7 @@ class AdminController extends Controller
     }
 
     public function indexType(){
-        $types = ClassType::orderBy('id','desc')->get();
+        $types = ClassType::orderBy('id')->get();
         return view('admin.class.classType',compact('types'));
     }
 

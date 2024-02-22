@@ -36,7 +36,7 @@
                             <th scope="col">Date</th>
                             <th scope="col">Time</th>
                             <th scope="col">Update</th>
-                            <th scope="col">Delete</th>
+                            <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -55,10 +55,16 @@
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="{{route("deleteScheduleTeacher",['id'=>$c->id,'classId'=>$classId])}}" method="get">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger">Delete Schedule</button>
-                                    </form>
+                                    <td>
+                                        @if( ($carbon::parse($c->date)->addDays(1)->toDateString() == $carbon::now()->setTimezone('GMT+7')->toDateString() || $carbon::now()->setTimezone('GMT+7')->toDateString() == $carbon::parse($c->date)->toDateString()) && $carbon::now()->setTimezone('GMT+7')->format('Y-m-d H:i:s') >= $carbon::parse($c->date)->format('Y-m-d H:i:s'))
+                                            <form action="{{route('viewAbsen',$c->id)}}" method="post">
+                                                @csrf
+                                                <button type="submit" class="btn btn-info">Attendance</button>
+                                            </form>
+                                        @else
+                                            <p class="text-danger">None</p>
+                                        @endif
+                                    </td>
                                 </td>
                             </tr>
                             @endforeach

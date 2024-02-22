@@ -100,14 +100,14 @@
                                     if($class_name == 'Pointe Class') $quota_pay = 4;
                                     else if($class_name == 'Intensive Kids' || $class_name == 'Intensive Class')$quota_pay = 12;
                                     else $quota_pay = 3;
-                                    if(count($transactions)){
-                                        foreach ($transactions as $t ) {
-                                            if($student->id == $t->students_id){
-                                                $quota_pay = $t->paid * 8;
-                                                break;
-                                            }
-                                        }
-                                    }
+                                    // if(count($transactions)){
+                                    //     foreach ($transactions as $t ) {
+                                    //         if($student->id == $t->students_id){
+                                    //             if(!is_null($t->paid))$quota_pay = $t->paid;
+                                    //             break;
+                                    //         }
+                                    //     }
+                                    // }
                                 @endphp
 
                                 <tr>
@@ -118,13 +118,13 @@
                                     <td>{{$student->studentAddress}}</td>
                                     <td>{{$student->studentEmail}}</td>
                                     <td>{{$student->studentPhone}}</td>
-                                    @if($class_name == 'Pointe Class')
-                                        <td>{{$student->studentQuota}} / {{$quota_pay}}</td>
+                                    <td>{{$student->studentQuota}} / {{$student->studentMaxQuota == 0 ? $quota_pay : $student->studentMaxQuota}}</td>
+                                    {{-- @if($class_name == 'Pointe Class')
                                     @elseif($class_name == 'Intensive Kids' || $class_name == 'Intensive Class')
                                         <td>{{$student->studentQuota}} / {{$quota_pay}}</td>
                                     @else
                                         <td>{{$student->studentQuota}} / {{$quota_pay}}</td>
-                                    @endif
+                                    @endif --}}
                                     <td class="d-flex">
                                         <form action="{{route('headClassDeleteStudent',['student' => $student->id,'class' => $id])}}" method="get">
                                             @csrf

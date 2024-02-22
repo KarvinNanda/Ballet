@@ -155,6 +155,13 @@
                 </div>
 
                 <div class="row mb-3">
+                    <label for="inputPhone" class="col-sm-2 col-form-label">Max Quota</label>
+                    <div class="col-sm-10">
+                        <p class="form-control bg-success bg-opacity-10">{{$detail->MaxQuota}}</p>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">New Student</label>
                     <div class="col-sm-10">
                         <input class="form-control bg-opacity-10" name="is_new" value="{{$detail->is_new == 1 ? 'Yes' : 'No'}}">
@@ -202,16 +209,16 @@
                                 <th>Total</th>
                                 <th>Transaction Payment Date</th>
                                 <th>Transaction Status</th>
+                                <th>Quota</th>
                                 </thead>
                                 <tbody>
                                 @foreach ($transactions as $trans)
                                     <tr>
                                         <td>
-                                            <form action="{{route('adminDetailTransaction',$trans->id)}}" method="post">
+                                            <form action="{{route('adminDetailTransaction',$trans->id)}}" method="get">
                                                 @csrf
                                             </form>
-                                            <form action="{{route('adminDetailTransaction',$trans->id)}}" method="post">
-                                                @csrf
+                                            <form action="{{route('adminDetailTransaction',$trans->id)}}" method="get">
                                                 <button type="submit" style="border : none; background : none; color:blue;">{{$trans->transaction_date}}</button>
                                             </form>
                                         </td>
@@ -227,6 +234,7 @@
                                         @endif
                                         <td>{{is_null($trans->transaction_payment) ? 'Waiting for Payment' : $trans->transaction_payment}}</td>
                                         <td>{{$trans->payment_status}}</td>
+                                        <td>{{is_null($trans->transaction_quota) ? 0 : $trans->transaction_quota}}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>

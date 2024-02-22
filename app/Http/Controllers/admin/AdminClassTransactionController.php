@@ -197,37 +197,42 @@ class AdminClassTransactionController extends Controller
                 students.Address as studentAddress,
                 students.Email as studentEmail,
                 students.Phone1 as studentPhone,
-                students.Quota as studentQuota
+                students.Quota as studentQuota,
+                students.MaxQuota as studentMaxQuota
             ')
             ->where('students.Status','aktif')
             ->where('class_transactions.id',$id)
             ->paginate(5);
 
-         $transactions = DB::table('transactions')
-                    ->where('class_transactions_id',$class_id)
-                    ->selectRaw("
-                        students_id,
-                        sum(students_id) as paid
-                    ")
-                    ->where('payment_status','Paid')
-                    ->whereRaw('transaction_date >= curdate()')
-                    ->groupBy('students_id')
-                    ->get();
+        //  $transactions = DB::table('transactions')
+        //             ->where('class_transactions_id',$class_id)
+        //             ->selectRaw("
+        //                 students_id,
+        //                 sum(students_id) as paid
+        //             ")
+        //             ->where('payment_status','Paid')
+        //             ->whereRaw('transaction_date >= curdate()')
+        //             ->groupBy('students_id')
+        //             ->get();
 
-        return view('admin.class.detail',compact('teachers','students','class_id','class_name','transactions'));
+        return view('admin.class.detail',compact('teachers','students','class_id','class_name'));
     }
 
     public function resetQuota($id){
         $class_id = $id;
 
-        DB::table('class_transactions')
+        $data = DB::table('class_transactions')
             ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
             ->join('students','mapping_class_children.student_id','students.id')
             ->where('class_transactions.id', $class_id)
-            ->update([
-                'students.Quota' => 0,
-                'students.is_new' => 0,
+            ->get();
+        foreach($data as $d){
+            DB::table('students')->where('id',$d->student_id)->update([
+                'MaxQuota' => ($d->MaxQuota - $d->Quota),
+                'Quota' => 0,
+                'is_new' => 0,
             ]);
+        }
         return redirect()->route("adminDetailClass", ['id' => $class_id])->with('msg','Success Reset Quota');
     }
 
@@ -255,6 +260,20 @@ class AdminClassTransactionController extends Controller
         $class = ClassTransaction::where('id',$req->class_id)->first();
         $class->class_type_id += 1;
         $class->save();
+
+        $class_id = $req->class_id;
+        $data = DB::table('class_transactions')
+        ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+        ->join('students','mapping_class_children.student_id','students.id')
+        ->where('class_transactions.id', $class_id)
+        ->get();
+        foreach($data as $d){
+            DB::table('students')->where('id',$d->student_id)->update([
+                'MaxQuota' => ($d->MaxQuota - $d->Quota),
+                'Quota' => 0,
+                'is_new' => 0,
+            ]);
+        }
 
         MappingClassChild::where('class_id',$req->class_id)->delete();
         return redirect()->route("adminClassView")->with('msg','Success Level up All Student');
@@ -318,10 +337,13 @@ class AdminClassTransactionController extends Controller
     }
 
     public function addStudent(Request $req){
-
         $class_id = $req->classId;
         $get_class_price = ClassTransaction::leftJoin('class_types','class_types.id','class_transactions.class_type_id')
-            ->where('class_transactions.id',$class_id)->first()->class_price;
+            ->where('class_transactions.id',$class_id)->first();
+        $quota=0;
+        if($get_class_price->class_name == 'Pointe Class') $quota = 4;
+        else if($get_class_price->class_name == 'Intensive Kids' || $get_class_price->class_name == 'Intensive Class')$quota = 12;
+        else $quota = 8;
         $check_schedule = Schedule::where('class_id',$class_id)
             ->whereRaw('date  >= curdate()')
             ->orderBy('date')
@@ -340,8 +362,9 @@ class AdminClassTransactionController extends Controller
                         'transaction_date' => $first_month,
                         'payment_status' => 'Unpaid',
                         'discount' => 0,
-                        'price' => $get_class_price,
-                        'desc' => '-'
+                        'price' => $get_class_price->class_price,
+                        'desc' => '-',
+                        'transaction_quota' => $quota,
                     ];
                 } else {
                     $trans[] = [
@@ -350,8 +373,9 @@ class AdminClassTransactionController extends Controller
                         'transaction_date' => Carbon::parse($check_schedule->date)->day + 10 > 30 ? Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10) : Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10),
                         'payment_status' => 'Unpaid',
                         'discount' => 0,
-                        'price' => $get_class_price,
-                        'desc' => '-'
+                        'price' => $get_class_price->class_price,
+                        'desc' => '-',
+                        'transaction_quota' => $quota,
                     ];
                 }
             }
@@ -360,11 +384,11 @@ class AdminClassTransactionController extends Controller
 
         $mappingStudent = new MappingClassChild();
         $mappingStudent->student_id = $req->studentId;
-        $mappingStudent->class_id = $req->classId;
+        $mappingStudent->class_id = $class_id;
         $mappingStudent->Save();
 
 
-        return redirect()->route("adminDetailClass", ['id' => $req->classId])->with('msg','Success Add Student');
+        return redirect()->route("adminDetailClass", ['id' => $class_id])->with('msg','Success Add Student');
     }
 
     public function deleteTeacher($teacher, $class){

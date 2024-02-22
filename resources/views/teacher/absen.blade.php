@@ -37,14 +37,15 @@
                                                     ->where('students_id',$c->id)
                                                     ->where('payment_status','Unpaid')
                                                     ->orderBy('transaction_date')
-                                                    ->first()
+                                                    ->first();
+                                                    // if(is_null($check_transaction->transaction_date)) dd($check_transaction);
                             @endphp
                             <tr>
                                 <input type="hidden" value="{{$c->nis}}" name="nis[]">
                                 <td>{{$c->nis}}</td>
                                 <td>{{$c->nama}}</td>
-                                @if( ($carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) >= 20 && $carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) <= 39) &&
-                                     $check_transaction->payment_status == 'Unpaid' &&
+                                @if( ($carbon::parse($view->date)->diffInDays(@$check_transaction->transaction_date) >= 20 && $carbon::parse($view->date)->diffInDays(@$check_transaction->transaction_date) <= 39) &&
+                                     @$check_transaction->payment_status == 'Unpaid' &&
                                      $c->Quota + 1 > 3 &&
                                      !@$detail &&
                                      !str_contains($class_name,'Intensive') &&
