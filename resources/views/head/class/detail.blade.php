@@ -100,6 +100,8 @@
                                     if($class_name == 'Pointe Class') $quota_pay = 4;
                                     else if($class_name == 'Intensive Kids' || $class_name == 'Intensive Class')$quota_pay = 12;
                                     else $quota_pay = 3;
+
+
                                     // if(count($transactions)){
                                     //     foreach ($transactions as $t ) {
                                     //         if($student->id == $t->students_id){
@@ -118,7 +120,11 @@
                                     <td>{{$student->studentAddress}}</td>
                                     <td>{{$student->studentEmail}}</td>
                                     <td>{{$student->studentPhone}}</td>
+                                    @if($student->studentStatus != 'trial')
                                     <td>{{$student->studentQuota}} / {{$student->studentMaxQuota == 0 ? $quota_pay : $student->studentMaxQuota}}</td>
+                                    @else 
+                                    <td>{{$student->studentQuota}} / 2 </td>
+                                    @endif
                                     {{-- @if($class_name == 'Pointe Class')
                                     @elseif($class_name == 'Intensive Kids' || $class_name == 'Intensive Class')
                                         <td>{{$student->studentQuota}} / {{$quota_pay}}</td>

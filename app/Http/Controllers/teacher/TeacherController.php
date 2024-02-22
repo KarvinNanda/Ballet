@@ -72,7 +72,8 @@ class TeacherController extends Controller
                 students.id as id,
                 students.nis as nis,
                 students.LongName as nama,
-                students.Quota
+                students.Quota,
+                students.MaxQuota
             ')
             ->where('mapping_class_children.class_id','=',$view->class_id)
             ->where('students.Status','=','aktif')

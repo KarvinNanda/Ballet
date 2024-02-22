@@ -27,6 +27,7 @@
                         <th scope="col">Attend</th>
                         <th scope="col">Description</th>
                         <th scope="col">Notes</th>
+                        <th scope="col">Quota</th>
 
                     </tr>
                     </thead>
@@ -85,6 +86,12 @@
 
                                     </td>
                                 @endif
+                                @if (str_contains($class_name,'Intensive'))
+                                <td>{{$c->Quota}} / {{$c->MaxQuota == 0 ?  12 : $c->MaxQuota}}</td>    
+                                @elseif(str_contains($class_name,'Pointe'))
+                                <td>{{$c->Quota}} / {{$c->MaxQuota == 0 ?  4 : $c->MaxQuota}}</td>    
+                                @endif
+                                <td>{{$c->Quota}} / {{$c->MaxQuota == 0 ?  3 : $c->MaxQuota}}</td>    
                             </tr>
 
 

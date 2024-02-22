@@ -44,7 +44,7 @@ class TeacherClassController extends Controller
             ->leftJoin('class_types','class_types.id','class_transactions.class_type_id')
             ->selectRaw('
                 students.LongName as student_name,
-                YEAR(CURDATE()) - YEAR(students.dob) as student_old,
+                students.age as student_old,
                 students.dob as student_dob
             ')
             ->where('class_types.class_name','=', "$get_class->class_name")

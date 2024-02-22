@@ -118,7 +118,11 @@
                                     <td>{{$student->studentAddress}}</td>
                                     <td>{{$student->studentEmail}}</td>
                                     <td>{{$student->studentPhone}}</td>
+                                    @if($student->studentStatus != 'trial')
                                     <td>{{$student->studentQuota}} / {{$student->studentMaxQuota == 0 ? $quota_pay : $student->studentMaxQuota}}</td>
+                                    @else 
+                                    <td>{{$student->studentQuota}} / 2 </td>
+                                    @endif
                                     {{-- @if($class_name == 'Pointe Class')
                                     @elseif($class_name == 'Intensive Kids' || $class_name == 'Intensive Class')
                                         <td>{{$student->studentQuota}} / {{$quota_pay}}</td>

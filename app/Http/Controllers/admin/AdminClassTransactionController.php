@@ -187,6 +187,20 @@ class AdminClassTransactionController extends Controller
             ->where('class_transactions.id',$id)
             ->paginate(5);
 
+        $get_student_trial_to_get_out = DB::table('class_transactions')
+                ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+                ->join('students','mapping_class_children.student_id','students.id')
+                ->selectRaw('
+                students.id as id
+            ')
+            ->where('students.Status','=','trial')
+            ->where('students.Quota','>=',2)
+            ->where('class_transactions.id',$id)
+            ->get()
+            ->pluck('id');
+
+        DB::table('mapping_class_children')->whereIn('student_id',$get_student_trial_to_get_out)->delete();
+
         $students = DB::table('class_transactions')
             ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
             ->join('students','mapping_class_children.student_id','students.id')
@@ -198,9 +212,10 @@ class AdminClassTransactionController extends Controller
                 students.Email as studentEmail,
                 students.Phone1 as studentPhone,
                 students.Quota as studentQuota,
-                students.MaxQuota as studentMaxQuota
+                students.MaxQuota as studentMaxQuota,
+                students.Status as studentStatus
             ')
-            ->where('students.Status','aktif')
+            ->where('students.Status','!=','non-aktif')
             ->where('class_transactions.id',$id)
             ->paginate(5);
 
@@ -340,6 +355,7 @@ class AdminClassTransactionController extends Controller
         $class_id = $req->classId;
         $get_class_price = ClassTransaction::leftJoin('class_types','class_types.id','class_transactions.class_type_id')
             ->where('class_transactions.id',$class_id)->first();
+            $get_student = Student::where('id',$req->studentId)->first();
         $quota=0;
         if($get_class_price->class_name == 'Pointe Class') $quota = 4;
         else if($get_class_price->class_name == 'Intensive Kids' || $get_class_price->class_name == 'Intensive Class')$quota = 12;
@@ -349,7 +365,7 @@ class AdminClassTransactionController extends Controller
             ->orderBy('date')
             ->first();
 
-        if(!is_null($check_schedule)){
+        if(!is_null($check_schedule) && $get_student->Status == 'aktif'){
             // $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
             $first_month = Carbon::parse($check_schedule->date)->setTime(0,0,0);
 

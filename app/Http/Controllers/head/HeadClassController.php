@@ -243,9 +243,10 @@ class HeadClassController extends Controller
         students.Email as studentEmail,
         students.Phone1 as studentPhone,
         students.Quota as studentQuota,
-        students.MaxQuota as studentMaxQuota
+        students.MaxQuota as studentMaxQuota,
+        students.Status as studentStatus
         ')
-        ->where('students.Status','aktif')
+        ->where('students.Status','!=','non-aktif')
         ->where('class_transactions.id', $id)
         ->paginate(5, ['*'], 'students');
 
@@ -329,6 +330,8 @@ class HeadClassController extends Controller
         $class_id = $req->classId;
         $get_class_price = ClassTransaction::leftJoin('class_types','class_types.id','class_transactions.class_type_id')
             ->where('class_transactions.id',$class_id)->first();
+
+        $get_student = Student::where('id',$req->studentId)->first();
         $quota=0;
         if($get_class_price->class_name == 'Pointe Class') $quota = 4;
         else if($get_class_price->class_name == 'Intensive Kids' || $get_class_price->class_name == 'Intensive Class')$quota = 12;
@@ -338,7 +341,7 @@ class HeadClassController extends Controller
             ->orderBy('date')
             ->first();
 
-        if(!is_null($check_schedule)){
+        if(!is_null($check_schedule) && $get_student->Status == 'aktif'){
             // $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
             $first_month = Carbon::parse($check_schedule->date)->setTime(0,0,0);
 
@@ -353,7 +356,7 @@ class HeadClassController extends Controller
                         'discount' => 0,
                         'price' => $get_class_price->class_price,
                         'desc' => '-',
-                        'Quota' => $quota,
+                        'transaction_quota' => $quota,
                     ];
                 } else {
                     $trans[] = [
@@ -364,7 +367,7 @@ class HeadClassController extends Controller
                         'discount' => 0,
                         'price' => $get_class_price->class_price,
                         'desc' => '-',
-                        'Quota' => $quota,
+                        'transaction_quota' => $quota,
                     ];
                 }
             }

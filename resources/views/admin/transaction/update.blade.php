@@ -40,7 +40,7 @@
                         <label  class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
                             {{-- <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price)}}</p> --}}
-                            <input type="number" class="form-control" id="price" name="inputPrice" value="{{$transaction->class_price}}">
+                            <input type="number" class="form-control" id="price" name="inputPrice" value="{{$transaction->class_price}}" disabled>
                         </div>
                     </div>
 

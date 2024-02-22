@@ -40,7 +40,7 @@ class AdminStudentController extends Controller
                 students.Email as email,
                 students.Line as line,
                 students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
@@ -72,7 +72,7 @@ class AdminStudentController extends Controller
                 students.Email as email,
                 students.Line as line,
                 students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
@@ -109,7 +109,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -192,7 +192,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -215,7 +215,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -241,7 +241,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -261,7 +261,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -325,7 +325,7 @@ class AdminStudentController extends Controller
                 students.MaxQuota,
                 students.Status as Status,
                 students.is_new,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
