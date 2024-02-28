@@ -15,6 +15,7 @@
                 <!-- General Form Elements -->
                 <form action="{{route('update',$trans)}}" method="POST">
                     @csrf
+                    <input type="hidden" name="class_id" value="{{$transaction->class_transactions_id}}">
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">
@@ -40,7 +41,7 @@
                         <label  class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
                             {{-- <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price)}}</p> --}}
-                            <input type="number" class="form-control" id="price" name="inputPrice" value="{{$transaction->class_price}}">
+                            <input type="number" class="form-control" id="price" name="inputPrice" value="{{$transaction->price}}">
                         </div>
                     </div>
 

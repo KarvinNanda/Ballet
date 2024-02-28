@@ -46,7 +46,7 @@ class TeacherController extends Controller
             // ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
             // ->orWhere('banks.bank_name',"LIKE","%$keyword%");
         })
-        // ->whereDate('schedules.date','<=',now()->toDateString())
+        ->whereDate('schedules.date','=',now()->setTimezone("GMT+7")->toDateString())
         ->orderBy('schedules.date','desc')
         ->groupBy('schedules.date')
         ->paginate(5);

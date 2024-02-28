@@ -2,6 +2,9 @@
 @section('title','Transaction')
 
 @section('content')
+<div class="d-none">
+    {{ $keyword = request('search') }}
+</div>
 
     <div class="pagetitle">
         <h1>Transaction Tables</h1>
@@ -10,8 +13,8 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="GET" action="{{route('adminSearchTransaction',['sort' => $sort])}}">
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword" class="ms-3">
+                <form class="search-form d-flex align-items-center" method="GET" action="{{route('adminTransactionPage',['sort' => $sort])}}">
+                    <input class="form-control" type="text" name="search" placeholder="Search" value="{{$keyword}}" title="Enter search keyword">
                 </form>
                 <a href="{{route("addTransaction")}}"><button class="btn btn-success me-3 mb-3 me-5"> Add Transaction</button></a>
             </div>
@@ -80,7 +83,7 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="alert text-center" role="alert">
-                    {{$transactions->links()}}
+                    {{$transactions->appends(['search' => $keyword])->links()}}
                 </div>
             </div>
         </div>

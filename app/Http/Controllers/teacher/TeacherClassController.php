@@ -17,7 +17,10 @@ class TeacherClassController extends Controller
     {
         $data = DB::table('class_transactions')
             ->join('mapping_class_teachers', 'mapping_class_teachers.class_id', 'class_transactions.id')
-            ->join('mapping_class_children', 'mapping_class_children.class_id', 'class_transactions.id')
+            ->leftJoin('mapping_class_children',function($q){
+                $q->on('mapping_class_children.class_id','class_transactions.id')
+                    ->where('mapping_class_children.student_id','!=',0);
+            })
             ->join('class_types', 'class_transactions.class_type_id', 'class_types.id')
             ->selectRaw('
                 class_transactions.id as id,
@@ -165,11 +168,14 @@ class TeacherClassController extends Controller
             'student_id',
             'class_id',
             DB::raw('COUNT(student_id) as people_count'))
-            ->whereHas('mapping', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+            // ->whereHas('mapping', function ($query) use ($userId) {
+            //     $query->where('user_id', $userId);
+            // })
             ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
-            ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+            ->leftJoin('mapping_class_children',function($q){
+                $q->on('mapping_class_children.class_id','class_transactions.id')
+                    ->where('mapping_class_children.student_id','!=',0);
+            })
             ->HavingRaw('COUNT(student_id) > 0')
             ->orderBy('class_types.id')
             ->groupBy('class_transactions.id')

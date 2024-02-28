@@ -38,7 +38,11 @@ class HeadClassController extends Controller
                     if(!is_null($keyword)) $q->where('class_name','like',"%$keyword%");
                 })
                 ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
-                ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+                ->leftJoin('mapping_class_children',function($q){
+                    $q->on('mapping_class_children.class_id','class_transactions.id')
+                        ->where('mapping_class_children.student_id','!=',0);
+                })
+                // ->where('mapping_class_children.student_id','!=',0)
                 ->groupBy('class_transactions.id')
                 ->orderBy('class_transactions.id','desc')
                 ->paginate(5);
@@ -57,7 +61,10 @@ class HeadClassController extends Controller
                 })
                 ->where('Status', '=', $status)
                 ->leftJoin('class_types', 'class_transactions.class_type_id', 'class_types.id')
-                ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+                ->leftJoin('mapping_class_children',function($q){
+                    $q->on('mapping_class_children.class_id','class_transactions.id')
+                        ->where('mapping_class_children.student_id','!=',0);
+                })
                 ->groupBy('class_transactions.id')
                 ->orderBy('class_transactions.id','desc')
                 ->paginate(5);
@@ -187,6 +194,11 @@ class HeadClassController extends Controller
 
         $map->save();
 
+        $map2 = new MappingClassChild();
+        $map2->class_id = $class->id;
+
+        $map2->save();
+
         return redirect()->route('headClassPage')->with('msg','Success Create Class');
     }
 
@@ -243,7 +255,7 @@ class HeadClassController extends Controller
         students.Email as studentEmail,
         students.Phone1 as studentPhone,
         students.Quota as studentQuota,
-        students.MaxQuota as studentMaxQuota,
+        mapping_class_children.quota as studentMaxQuota,
         students.Status as studentStatus
         ')
         ->where('students.Status','!=','non-aktif')

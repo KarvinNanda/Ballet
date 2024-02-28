@@ -15,6 +15,7 @@
                 <!-- General Form Elements -->
                 <form action="{{route('adminUpdate',$trans)}}" method="post">
                     @csrf
+                    <input type="hidden" name="class_id" value="{{$transaction->class_transactions_id}}">
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">

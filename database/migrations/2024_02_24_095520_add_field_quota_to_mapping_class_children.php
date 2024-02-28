@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->integer('age')->nullable()->default(0);
+        Schema::table('mapping_class_children', function (Blueprint $table) {
+            $table->integer('quota')->nullable()->default(0);
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->dropColumn('age');
+        Schema::table('mapping_class_children', function (Blueprint $table) {
+            $table->dropColumn('quota');
         });
     }
 };
