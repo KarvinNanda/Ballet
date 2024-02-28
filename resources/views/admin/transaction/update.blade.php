@@ -15,6 +15,7 @@
                 <!-- General Form Elements -->
                 <form action="{{route('adminUpdate',$trans)}}" method="post">
                     @csrf
+                    <input type="hidden" name="class_id" value="{{$transaction->class_transactions_id}}">
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">
@@ -40,7 +41,7 @@
                         <label  class="col-sm-2 col-form-label">Price</label>
                         <div class="col-sm-10">
                             {{-- <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price)}}</p> --}}
-                            <input type="number" class="form-control" id="price" name="inputPrice" value="{{$transaction->class_price}}">
+                            <input type="number" class="form-control" id="price" name="inputPrice" value="{{$transaction->class_price}}" disabled>
                         </div>
                     </div>
 
@@ -62,6 +63,13 @@
                         <label  class="col-sm-2 col-form-label">Total</label>
                         <div class="col-sm-10">
                             <p class="form-control bg-success bg-opacity-10" id="total">Rp.{{0}}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Quota</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="inputQuota" value="{{$transaction->transaction_quota}}">
                         </div>
                     </div>
 
@@ -94,9 +102,26 @@
                     </div>
 
                     <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label">Payment Type</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" name="Type" value="{{$transaction->transaction_type}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Status</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" name="inputStatus" value="{{$transaction->payment_status}}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label  class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10 mb-5">
+                            <input class="form-check-input" name="all_transaction" type="checkbox" value="" id="flexCheckDefault">
+                            <label class="form-check-label" for="flexCheckDefault">
+                                All Transaction
+                            </label>
                         </div>
                     </div>
 

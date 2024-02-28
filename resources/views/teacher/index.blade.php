@@ -4,12 +4,30 @@
 @section('title','Dashboard')
 
 @section('content')
+    <div class="d-none">
+        {{ $keyword = request('keyword') }}
+        {{ $status = request('status', 'all') }}
+    </div>
+
     <div class="pagetitle">
         <h1>Today Schedule</h1>
     </div><!-- End Page Title -->
 
     <section class="section">
         <div class="card">
+
+            <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
+                <form
+                    class="d-flex align-items-center justify-content-center gap-2"
+                    method="GET"
+                    action="{{route('teacher')}}"
+                >
+                    <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
+
+                    <button type="submit" class="btn btn-primary text-nowrap">Search</button>
+                </form>
+            </div>
+
             <div class="card-body">
 
                 <!-- Table with stripped rows -->

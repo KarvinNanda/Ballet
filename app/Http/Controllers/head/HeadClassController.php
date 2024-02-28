@@ -38,7 +38,11 @@ class HeadClassController extends Controller
                     if(!is_null($keyword)) $q->where('class_name','like',"%$keyword%");
                 })
                 ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
-                ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+                ->leftJoin('mapping_class_children',function($q){
+                    $q->on('mapping_class_children.class_id','class_transactions.id')
+                        ->where('mapping_class_children.student_id','!=',0);
+                })
+                // ->where('mapping_class_children.student_id','!=',0)
                 ->groupBy('class_transactions.id')
                 ->orderBy('class_transactions.id','desc')
                 ->paginate(5);
@@ -57,7 +61,10 @@ class HeadClassController extends Controller
                 })
                 ->where('Status', '=', $status)
                 ->leftJoin('class_types', 'class_transactions.class_type_id', 'class_types.id')
-                ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
+                ->leftJoin('mapping_class_children',function($q){
+                    $q->on('mapping_class_children.class_id','class_transactions.id')
+                        ->where('mapping_class_children.student_id','!=',0);
+                })
                 ->groupBy('class_transactions.id')
                 ->orderBy('class_transactions.id','desc')
                 ->paginate(5);
@@ -88,7 +95,7 @@ class HeadClassController extends Controller
     }
 
     public function indexType(){
-        $types = ClassType::orderBy('id','desc')->paginate(5);
+        $types = ClassType::orderBy('id')->paginate(5);
         return view('head.class.classType',compact('types'));
     }
 
@@ -187,6 +194,11 @@ class HeadClassController extends Controller
 
         $map->save();
 
+        $map2 = new MappingClassChild();
+        $map2->class_id = $class->id;
+
+        $map2->save();
+
         return redirect()->route('headClassPage')->with('msg','Success Create Class');
     }
 
@@ -242,39 +254,45 @@ class HeadClassController extends Controller
         students.Address as studentAddress,
         students.Email as studentEmail,
         students.Phone1 as studentPhone,
-        students.Quota as studentQuota
+        students.Quota as studentQuota,
+        mapping_class_children.quota as studentMaxQuota,
+        students.Status as studentStatus
         ')
-        ->where('students.Status','aktif')
+        ->where('students.Status','!=','non-aktif')
         ->where('class_transactions.id', $id)
         ->paginate(5, ['*'], 'students');
 
-        $transactions = DB::table('transactions')
-                    ->where('class_transactions_id',$class_id)
-                    ->selectRaw("
-                        students_id,
-                        sum(students_id) as paid
-                    ")
-                    ->where('payment_status','Paid')
-                    ->whereRaw('transaction_date >= curdate()')
-                    ->groupBy('students_id')
-                    ->get();
+        // $transactions = DB::table('transactions')
+        //             ->where('class_transactions_id',$class_id)
+        //             ->selectRaw("
+        //                 students_id,
+        //                 sum(Quota) as paid
+        //             ")
+        //             ->where('payment_status','Paid')
+        //             // ->whereRaw('transaction_date >= curdate()')
+        //             ->groupBy('students_id')
+        //             ->get();
 
         $students->appends(['students' => request('students')]);
 
-        return view('head.class.detail',compact('teachers','students','id','class_name','transactions'));
+        return view('head.class.detail',compact('teachers','students','id','class_name'));
     }
 
     public function resetQuota($id){
         $class_id = $id;
 
-        DB::table('class_transactions')
-            ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
-            ->join('students','mapping_class_children.student_id','students.id')
-            ->where('class_transactions.id', $class_id)
-            ->update([
-                'students.Quota' => 0,
-                'students.is_new' => 0,
+        $data = DB::table('class_transactions')
+        ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+        ->join('students','mapping_class_children.student_id','students.id')
+        ->where('class_transactions.id', $class_id)
+        ->get();
+        foreach($data as $d){
+            DB::table('students')->where('id',$d->student_id)->update([
+                'MaxQuota' => ($d->MaxQuota - $d->Quota),
+                'Quota' => 0,
+                'is_new' => 0,
             ]);
+        }
 
         return redirect()->route("headDetailClass", ['id' => $class_id])->with('msg','Success Reset Quota');
     }
@@ -323,13 +341,19 @@ class HeadClassController extends Controller
     public function addStudent(Request $req){
         $class_id = $req->classId;
         $get_class_price = ClassTransaction::leftJoin('class_types','class_types.id','class_transactions.class_type_id')
-            ->where('class_transactions.id',$class_id)->first()->class_price;
+            ->where('class_transactions.id',$class_id)->first();
+
+        $get_student = Student::where('id',$req->studentId)->first();
+        $quota=0;
+        if($get_class_price->class_name == 'Pointe Class') $quota = 4;
+        else if($get_class_price->class_name == 'Intensive Kids' || $get_class_price->class_name == 'Intensive Class')$quota = 12;
+        else $quota = 8;
         $check_schedule = Schedule::where('class_id',$class_id)
             ->whereRaw('date  >= curdate()')
             ->orderBy('date')
             ->first();
 
-        if(!is_null($check_schedule)){
+        if(!is_null($check_schedule) && $get_student->Status == 'aktif'){
             // $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
             $first_month = Carbon::parse($check_schedule->date)->setTime(0,0,0);
 
@@ -342,8 +366,9 @@ class HeadClassController extends Controller
                         'transaction_date' => $first_month,
                         'payment_status' => 'Unpaid',
                         'discount' => 0,
-                        'price' => $get_class_price,
-                        'desc' => '-'
+                        'price' => $get_class_price->class_price,
+                        'desc' => '-',
+                        'transaction_quota' => $quota,
                     ];
                 } else {
                     $trans[] = [
@@ -352,8 +377,9 @@ class HeadClassController extends Controller
                         'transaction_date' => Carbon::parse($check_schedule->date)->day + 10 > 30 ? Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10) : Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10),
                         'payment_status' => 'Unpaid',
                         'discount' => 0,
-                        'price' => $get_class_price,
-                        'desc' => '-'
+                        'price' => $get_class_price->class_price,
+                        'desc' => '-',
+                        'transaction_quota' => $quota,
                     ];
                 }
             }
@@ -362,9 +388,9 @@ class HeadClassController extends Controller
 
         $mappingStudent = new MappingClassChild();
         $mappingStudent->student_id = $req->studentId;
-        $mappingStudent->class_id = $req->classId;
+        $mappingStudent->class_id = $class_id;
         $mappingStudent->Save();
-        return redirect()->route("headDetailClass", ['id' => $req->classId])->with('msg','Success Add Student');
+        return redirect()->route("headDetailClass", ['id' => $class_id])->with('msg','Success Add Student');
     }
 
     public function deleteTeacher($teacher, $class){
@@ -450,6 +476,20 @@ class HeadClassController extends Controller
         $class = ClassTransaction::where('id',$req->class_id)->first();
         $class->class_type_id += 1;
         $class->save();
+
+        $class_id = $req->class_id;
+        $data = DB::table('class_transactions')
+        ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+        ->join('students','mapping_class_children.student_id','students.id')
+        ->where('class_transactions.id', $class_id)
+        ->get();
+        foreach($data as $d){
+            DB::table('students')->where('id',$d->student_id)->update([
+                'MaxQuota' => ($d->MaxQuota - $d->Quota),
+                'Quota' => 0,
+                'is_new' => 0,
+            ]);
+        }
 
         MappingClassChild::where('class_id',$req->class_id)->delete();
         return redirect()->route("headClassPage")->with('msg','Success Level up All Student');

@@ -73,6 +73,7 @@ class FinanceTransactionController extends Controller
             'datePaid' => 'required',
             'inputBankName' => 'required',
             'inputSenderName' => 'required',
+            'inputQuota' => 'required|min:1|numeric',
             'Type' => 'required'
         ];
 
@@ -94,7 +95,13 @@ class FinanceTransactionController extends Controller
         $transaction->transaction_payment = $req->datePaid;
         $transaction->payment_status = "Paid";
         $transaction->transaction_type = $req->Type;
+        $transaction->transaction_quota = $req->inputQuota;
         $transaction->save();
+
+        $student = DB::table('students')->where('id',$transaction->students_id)->first();
+            DB::table('students')->where('id',$transaction->students_id)->update([
+                'MaxQuota' => $student->MaxQuota + $transaction->transaction_quota
+            ]);
         return redirect()->route('financeTransaction')->with('msg','Success Update Transaction');
     }
 }

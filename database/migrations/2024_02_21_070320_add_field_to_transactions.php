@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->integer('Quota')->nullable();
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->integer('transaction_quota')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->dropColumn('Quota');
+        Schema::table('transactions', function (Blueprint $table) {
+            $table->dropColumn('transaction_quota');
         });
     }
 };

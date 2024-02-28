@@ -50,7 +50,6 @@
                                 <td>
                                     @if($transaction->payment_status == 'Unpaid')
                                     <form action="{{route('paidTransaction',$transaction->id)}}" method="get">
-                                        @csrf
                                         <button type="submit" class="btn btn-warning me-2">Update</button>
                                     </form>
                                     @else

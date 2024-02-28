@@ -21,7 +21,7 @@ class AdminController extends Controller
                 users.name as teacherName,
                 class_transactions.id as id
             ')
-            ->whereDate('schedules.date','<=',now()->toDateString())
+            ->whereDate('schedules.date','<=',now()->setTimezone("GMT+7")->addDay(7)->toDateString())
             ->where('class_transactions.Status','aktif')
             ->orderBy('schedules.date','desc')
             ->paginate(5);
@@ -29,7 +29,7 @@ class AdminController extends Controller
     }
 
     public function indexType(){
-        $types = ClassType::orderBy('id','desc')->get();
+        $types = ClassType::orderBy('id')->get();
         return view('admin.class.classType',compact('types'));
     }
 

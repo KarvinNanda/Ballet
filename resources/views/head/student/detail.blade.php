@@ -72,7 +72,8 @@
                     <div class="row mb-3">
                         <label for="inputPhone" class="col-sm-2 col-form-label">Bank Name</label>
                         <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$detail->bank}}</p>
+                            {{-- <p class="form-control bg-success bg-opacity-10">{{$detail->bank}}</p> --}}
+                            <input class="form-control bg-opacity-10" name="bank" value="{{$detail->bank}}">
                         </div>
                     </div>
                 @endif
@@ -80,14 +81,16 @@
                 <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">Sender Name</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10">{{$detail->pengirim}}</p>
+                        {{-- <p class="form-control bg-success bg-opacity-10">{{$detail->pengirim}}</p> --}}
+                        <input class="form-control bg-opacity-10" name="sender" value="{{$detail->pengirim}}">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">Account Number</label>
                     <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$detail->rek}}</p>
+                            {{-- <p class="form-control bg-success bg-opacity-10">{{$detail->rek}}</p> --}}
+                            <input class="form-control bg-opacity-10" name="accountno" value="{{$detail->rek}}">
                     </div>
                 </div>
 
@@ -154,6 +157,13 @@
                     </div>
                 </div>
 
+                {{-- <div class="row mb-3">
+                    <label for="inputPhone" class="col-sm-2 col-form-label">Max Quota</label>
+                    <div class="col-sm-10">
+                        <input class="form-control bg-opacity-10" name="MaxQuota" value="{{$detail->MaxQuota}}">
+                    </div>
+                </div> --}}
+
                 <div class="row mb-3">
                     <label for="inputPhone" class="col-sm-2 col-form-label">New Student</label>
                     <div class="col-sm-10">
@@ -171,18 +181,32 @@
                 <section class="section">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">Courses Taken</h5>
+                            <div class="mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
+                                <h5 class="card-title">Courses Taken</h5>
+
+                                <a class="btn btn-success p-2 ps-3 pe-3 m-3" role="button" href="{{route('headStudentClassAddPage',$detail->id)}}">
+                                    Add Class
+                                </a>
+                            </div>
+                            
 
                             <table class="table">
                                 <thead>
                                 <th>Course Name</th>
                                 <th>Price</th>
+                                <th>Quota</th>
                                 </thead>
                                 <tbody>
                                 @foreach ($courses_taken as $data)
+                                    @php
+                                        if($data->class_name == 'Pointe Class') $quota_pay = 4;
+                                        else if($data->class_name == 'Intensive Kids' || $data->class_name == 'Intensive Class')$quota_pay = 12;
+                                        else $quota_pay = 3;
+                                    @endphp
                                     <tr>
                                         <td>{{$data->class_name}}</td>
                                         <td>{{"Rp.".number_format($data->class_price)}}</td>
+                                        <td>{{$data->quota == 0 ? $quota_pay : $data->quota}}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -199,22 +223,23 @@
                             <table class="table">
                                 <thead>
                                 <th>Transaction Date</th>
+                                <th>Class</th>
                                 <th>Total</th>
                                 <th>Transaction Payment Date</th>
                                 <th>Transaction Status</th>
+                                <th>Quota</th>
                                 </thead>
                                 <tbody>
                                 @foreach ($transactions as $trans)
                                     <tr>
                                         <td>
-                                            <form action="{{route('detailTransaction',$trans->id)}}" method="post">
-                                                @csrf
+                                            <form action="{{route('detailTransaction',$trans->id)}}" method="get">
                                             </form>
-                                            <form action="{{route('detailTransaction',$trans->id)}}" method="post">
-                                                @csrf
+                                            <form action="{{route('detailTransaction',$trans->id)}}" method="get">
                                                 <button type="submit" style="border : none; background : none; color:blue;">{{$trans->transaction_date}}</button>
                                             </form>
                                         </td>
+                                        <td>{{$trans->class_name}}</td>
                                         @if(str_contains($trans->discount, '%'))
                                         @php
                                             $disc = str_replace("%","",$trans->discount);
@@ -227,6 +252,7 @@
                                         @endif
                                         <td>{{is_null($trans->transaction_payment) ? 'Waiting for Payment' : $trans->transaction_payment}}</td>
                                         <td>{{$trans->payment_status}}</td>
+                                        <td>{{is_null($trans->transaction_quota) ? 0 : $trans->transaction_quota}}</td>
                                     </tr>
                                 @endforeach
                                 </tbody>
@@ -236,7 +262,6 @@
                 </section>
 
             </div>
-
             @if($errors->any())
                 @foreach($errors->all() as $error)
                     <div class="alert alert-danger" role="alert">

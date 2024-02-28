@@ -22,7 +22,7 @@ class HeadController extends Controller
                 class_transactions.id as id
             ')
             ->where('class_transactions.Status','aktif')
-            ->whereDate('schedules.date','<=',now()->toDateString())
+            ->whereDate('schedules.date','<=',now()->setTimezone("GMT+7")->addDay(7)->toDateString())
             ->orderBy('schedules.date','desc')
             ->paginate(5);
         return view('head.index',compact('data'));

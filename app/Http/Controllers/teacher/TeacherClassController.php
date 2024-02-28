@@ -4,6 +4,7 @@ namespace App\Http\Controllers\teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassTransaction;
+use App\Models\HeaderAbsen;
 use App\Models\Schedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -16,7 +17,10 @@ class TeacherClassController extends Controller
     {
         $data = DB::table('class_transactions')
             ->join('mapping_class_teachers', 'mapping_class_teachers.class_id', 'class_transactions.id')
-            ->join('mapping_class_children', 'mapping_class_children.class_id', 'class_transactions.id')
+            ->leftJoin('mapping_class_children',function($q){
+                $q->on('mapping_class_children.class_id','class_transactions.id')
+                    ->where('mapping_class_children.student_id','!=',0);
+            })
             ->join('class_types', 'class_transactions.class_type_id', 'class_types.id')
             ->selectRaw('
                 class_transactions.id as id,
@@ -24,7 +28,7 @@ class TeacherClassController extends Controller
                 COUNT(mapping_class_children.class_id) as students
             ')
             ->where('mapping_class_teachers.user_id', Auth::user()->id)
-            ->orderBy('class_types.class_name')
+            ->orderBy('class_types.id')
             ->groupBy(['class'])
             ->get()
             ->groupBy('class');
@@ -33,15 +37,20 @@ class TeacherClassController extends Controller
 
     public function viewDetail(Request $request)
     {
+        $get_class = DB::table('class_transactions as ct')
+                        ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
+                        ->where('ct.id', $request->id)->first();
+
         $data = DB::table('class_transactions')
             ->join('mapping_class_children', 'mapping_class_children.class_id', 'class_transactions.id')
             ->join('students', 'mapping_class_children.student_id', 'students.id')
+            ->leftJoin('class_types','class_types.id','class_transactions.class_type_id')
             ->selectRaw('
                 students.LongName as student_name,
-                YEAR(CURDATE()) - YEAR(students.dob) as student_old,
+                students.age as student_old,
                 students.dob as student_dob
             ')
-            ->where('mapping_class_children.class_id', $request->id)
+            ->where('class_types.class_name','=', "$get_class->class_name")
             ->get();
         return view('teacher.class.detail', compact('data'));
     }
@@ -50,12 +59,16 @@ class TeacherClassController extends Controller
     {
         $classId = $id;
         $class = DB::table('schedules')
-            ->join('class_transactions', 'class_transactions.id', 'schedules.class_id')
+            // ->join('class_transactions', 'class_transactions.id', 'schedules.class_id')
             ->selectRaw('
                 schedules.date as date,
                 schedules.id as id
             ')
             ->where('schedules.class_id', $classId)
+            // ->whereNotIn('schedules.id',function($q){
+            //     $q->select('schedules_id')
+            //         ->from('header_absens');
+            // })
             ->orderBy('schedules.date','desc')
             ->get();
 
@@ -71,7 +84,10 @@ class TeacherClassController extends Controller
 
     public function viewUpdateScheduleClass(Request $req)
     {
+        // dd($req->all());
         $schedule = Schedule::find($req->scheduleId);
+        $header_check = HeaderAbsen::where('schedules_id',$req->scheduleId)->first();
+        if(!is_null($header_check)) return redirect()->back()->with('msg','This Schedule Already get Attendence');
         return view('teacher.class.viewUpdateSchedule', compact('schedule'));
     }
 
@@ -152,15 +168,19 @@ class TeacherClassController extends Controller
             'student_id',
             'class_id',
             DB::raw('COUNT(student_id) as people_count'))
-            ->whereHas('mapping', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+            // ->whereHas('mapping', function ($query) use ($userId) {
+            //     $query->where('user_id', $userId);
+            // })
             ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
-            ->leftJoin('mapping_class_children', 'class_transactions.id', 'mapping_class_children.class_id')
-            ->orderBy('class_transactions.id','desc')
+            ->leftJoin('mapping_class_children',function($q){
+                $q->on('mapping_class_children.class_id','class_transactions.id')
+                    ->where('mapping_class_children.student_id','!=',0);
+            })
+            ->HavingRaw('COUNT(student_id) > 0')
+            ->orderBy('class_types.id')
             ->groupBy('class_transactions.id')
             ->where('Status', 'aktif')
-            ->paginate(5);
+            ->paginate(20);
 
         return view('teacher.class.schedule', compact('classes'));
     }

@@ -27,6 +27,7 @@
                         <th scope="col">Attend</th>
                         <th scope="col">Description</th>
                         <th scope="col">Notes</th>
+                        <th scope="col">Quota</th>
 
                     </tr>
                     </thead>
@@ -37,14 +38,15 @@
                                                     ->where('students_id',$c->id)
                                                     ->where('payment_status','Unpaid')
                                                     ->orderBy('transaction_date')
-                                                    ->first()
+                                                    ->first();
+                                                    // if(is_null($check_transaction->transaction_date)) dd($check_transaction);
                             @endphp
                             <tr>
                                 <input type="hidden" value="{{$c->nis}}" name="nis[]">
                                 <td>{{$c->nis}}</td>
                                 <td>{{$c->nama}}</td>
-                                @if( ($carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) >= 20 && $carbon::parse($view->date)->diffInDays($check_transaction->transaction_date) <= 39) &&
-                                     $check_transaction->payment_status == 'Unpaid' &&
+                                @if( ($carbon::parse($view->date)->diffInDays(@$check_transaction->transaction_date) >= 20 && $carbon::parse($view->date)->diffInDays(@$check_transaction->transaction_date) <= 39) &&
+                                     @$check_transaction->payment_status == 'Unpaid' &&
                                      $c->Quota + 1 > 3 &&
                                      !@$detail &&
                                      !str_contains($class_name,'Intensive') &&
@@ -84,6 +86,12 @@
 
                                     </td>
                                 @endif
+                                @if (str_contains($class_name,'Intensive'))
+                                <td>{{$c->Quota}} / {{$c->MaxQuota == 0 ?  12 : $c->MaxQuota}}</td>    
+                                @elseif(str_contains($class_name,'Pointe'))
+                                <td>{{$c->Quota}} / {{$c->MaxQuota == 0 ?  4 : $c->MaxQuota}}</td>    
+                                @endif
+                                <td>{{$c->Quota}} / {{$c->MaxQuota == 0 ?  3 : $c->MaxQuota}}</td>    
                             </tr>
 
 

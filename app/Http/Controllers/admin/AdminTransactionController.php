@@ -16,8 +16,9 @@ use Illuminate\Support\Facades\Validator;
 
 class AdminTransactionController extends Controller
 {
-    public function index(){
+    public function index(Request $req){
         $sort = 'asc';
+        $keyword = $req->search;
         $transactions = DB::table('transactions')
             ->join('students','students.id','transactions.students_id')
             ->leftjoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
@@ -27,14 +28,19 @@ class AdminTransactionController extends Controller
                 transactions.transaction_date,
                 transactions.transaction_payment,
                 transactions.payment_status,
-                class_types.class_price as price,
+                transactions.price as price,
                 transactions.discount,
                 students.LongName,
                 students.id as student_id
             ')
+            ->where(function ($query) use ($keyword){
+                if(!is_null($keyword)){
+                    $query->where('students.Longname','like',"%$keyword%");
+                }
+            })
             ->where('students.Status','aktif')
             ->orderBy('transactions.id','desc')
-            ->paginate(5);
+            ->paginate(20);
         return view('admin.transaction.index',compact('transactions','sort'));
     }
 
@@ -53,7 +59,7 @@ class AdminTransactionController extends Controller
                    transactions.payment_status as payment_status,
                    students.id as student_id
             ')->orderBy($value,$type)
-            ->paginate(5);
+            ->paginate(20);
         $sort = $type == 'asc' ? 'desc' : 'asc';
         return view('admin.transaction.index',compact('transactions','sort'));
     }
@@ -107,7 +113,7 @@ class AdminTransactionController extends Controller
             ->join('students','students.id','transactions.students_id')
             ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
             ->where('students.LongName','LIKE','%'.$req->search.'%')
-            ->paginate(5);
+            ->paginate(20);
         return view('admin.transaction.index',compact('transactions','sort'));
     }
 
@@ -143,12 +149,17 @@ class AdminTransactionController extends Controller
             'inputStatus' => 'required',
             'inputJatuhTempo' => 'required',
             'inputSenderName' => 'required',
+            'inputQuota' => 'required|numeric|min:1|max:24',
         ];
 
         $validate = Validator::make($req->all(),$rules);
 
         if($validate->fails()){
             return redirect()->back()->withErrors($validate)->withInput();
+        }
+
+        if(is_null($req->inputTanggalBayar) && ucfirst($req->inputStatus) == 'Paid'){
+            return redirect()->back()->with('msg','Please Fill the Payment Date When You Status is Paid');
         }
 
         if(!is_null($req->inputBankName)){
@@ -165,15 +176,101 @@ class AdminTransactionController extends Controller
         }
 
         $trans = Transaction::find($transaction->id);
-        $trans->payment_status = ucfirst($req->inputStatus);
-        if(!is_null($req->inputTanggalBayar)){
-            $trans->transaction_payment = $req->inputTanggalBayar;
-            $trans->payment_status = 'Paid';
+
+        if($req->has('all_transaction') && !is_null($req->inputTanggalBayar)){
+                DB::table('transactions')
+                    ->where('students_id',$trans->students_id)
+                    ->where('class_transactions_id',$req->class_id)
+                    ->update([
+                    'discount' => $req->inputDisc,
+                    'desc' => $req->inputDesc,
+                    'price' => $req->inputPrice,
+                    'transaction_date' => $req->inputJatuhTempo,
+                    'transaction_type' => $req->Type,
+                    'payment_status' => 'Paid',
+                    'transaction_payment' => $req->inputTanggalBayar,
+                    'transaction_quota' => $req->inputQuota,
+                ]);
+
+                $get_trans_paid = DB::table('transactions')
+                        ->where('students_id',$trans->students_id)
+                        ->where('class_transactions_id',$req->class_id)
+                        ->where('payment_status','Paid')
+                        ->where(function ($query) {
+                            if(now()->setTimezone("GMT+7")->month == 1 || now()->setTimezone("GMT+7")->month == 2 || now()->setTimezone("GMT+7")->month == 3){
+                                $query->whereRaw("month(transaction_date) between 1 and 3");
+                            }
+                            if(now()->setTimezone("GMT+7")->month == 4 || now()->setTimezone("GMT+7")->month == 6 || now()->setTimezone("GMT+7")->month == 5){
+                                $query->whereRaw("month(transaction_date) between 4 and 6");
+                            }
+                            if(now()->setTimezone("GMT+7")->month == 7 || now()->setTimezone("GMT+7")->month == 8 || now()->setTimezone("GMT+7")->month == 9){
+                                $query->whereRaw("month(transaction_date) between 7 and 9");
+                            }
+                            if(now()->setTimezone("GMT+7")->month == 10 || now()->setTimezone("GMT+7")->month == 11 || now()->setTimezone("GMT+7")->month == 12){
+                                $query->whereRaw("month(transaction_date) between 10 and 12");
+                            }
+                        })
+                        ->selectRaw("sum(transaction_quota) as quota")
+                        ->first();
+
+                        $student_quota_class = DB::table('mapping_class_children')
+                            ->where('id',$trans->students_id)
+                            ->where('class_id',$req->class_id)
+                            ->selectRaw("sum(quota) as Quota")
+                            ->first();
+                            DB::table('mapping_class_children')
+                                ->where('id',$trans->students_id)
+                                ->where('class_id',$req->class_id)
+                                ->update([
+                                'quota' => $student_quota_class->Quota + $get_trans_paid->quota
+                            ]);
+                        $student_all_quota_class = DB::table('mapping_class_children')
+                            ->where('id',$trans->students_id)
+                            ->selectRaw("sum(quota) as Quota")
+                            ->first();
+
+                        DB::table('students')->where('id',$trans->students_id)->update([
+                            'MaxQuota' => $student_all_quota_class->Quota
+                        ]);
+        } else {
+            $trans->discount = $req->inputDisc;
+            $trans->desc = $req->inputDesc;
+            $trans->price = $req->inputPrice;
+            $trans->transaction_date = $req->inputJatuhTempo;
+            $trans->transaction_type = $req->Type;
+            $trans->payment_status = ucfirst($req->inputStatus);
+            $trans->transaction_quota = $req->inputQuota;
+            if(!is_null($req->inputTanggalBayar)){
+                $trans->transaction_payment = $req->inputTanggalBayar;
+                $trans->payment_status = 'Paid';
+            }
+            $trans->save();
         }
-        $trans->desc = $req->inputDesc;
-        $trans->transaction_date = $req->inputJatuhTempo;
-        $trans->discount = $req->inputDisc;
-        $trans->save();
+
+        if(!is_null($req->inputTanggalBayar) && !$req->has('all_transaction')){
+            $student_quota_class = DB::table('mapping_class_children')
+                            ->where('id',$trans->students_id)
+                            ->where('class_id',$req->class_id)
+                            ->selectRaw("sum(quota) as Quota")
+                            ->first();
+
+                            DB::table('mapping_class_children')
+                                ->where('id',$trans->students_id)
+                                ->where('class_id',$req->class_id)
+                                ->update([
+                                'quota' => $student_quota_class->Quota + $get_trans_paid->quota
+                            ]);
+                            
+                        $student_all_quota_class = DB::table('mapping_class_children')
+                            ->where('id',$trans->students_id)
+                            ->selectRaw("sum(quota) as Quota")
+                            ->first();
+
+                        DB::table('students')->where('id',$trans->students_id)->update([
+                            'MaxQuota' => $student_all_quota_class->Quota
+                        ]);
+        }
+
         return redirect()->route('adminTransactionPage')->with('msg','Success Update Transaction');
     }
 

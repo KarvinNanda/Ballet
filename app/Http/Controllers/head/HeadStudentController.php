@@ -4,7 +4,10 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banks;
+use App\Models\ClassTransaction;
+use App\Models\MappingClassChild;
 use App\Models\Rekenings;
+use App\Models\Schedule;
 use App\Models\Student;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -36,7 +39,7 @@ class HeadStudentController extends Controller
                 students.Email as email,
                 students.Line as line,
                 students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
@@ -68,7 +71,7 @@ class HeadStudentController extends Controller
                 students.Email as email,
                 students.Line as line,
                 students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
@@ -93,6 +96,115 @@ class HeadStudentController extends Controller
         return view('head.student.index',compact('students','sort'));
     }
 
+    public function insertClassPage($studentId){
+        $classes = DB::table('mapping_class_children as mcc')
+                    ->where('mcc.student_id',$studentId)
+                    ->selectRaw("mcc.class_id,mcc.student_id")
+                    ->distinct()->get();
+                    // dd($classes);
+
+        if(count($classes) > 0){
+            // dd('123');
+            $data = DB::table('class_transactions as ct')
+                        // ->leftJoin('schedules as s','ct.id','s.class_id')
+                        ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
+                        // ->leftJoin('mapping_class_children as mcc',function($q) use ($studentId){
+                        //     $q->on('mcc.class_id','ct.id')
+                        //     ->where('mcc.student_id','!=',$studentId);
+                        // })
+                        ->leftJoin('mapping_class_children as mcc','mcc.class_id','ct.id')
+                        ->leftJoin('mapping_class_teachers as mct','mct.class_id','ct.id')
+                        ->leftJoin('users as u','mct.user_id','u.id')
+                        ->whereNotIn('ct.id',$classes->pluck('class_id')->toArray())
+                        // ->whereNotNull('class_name')
+                        ->HavingRaw('count(mcc.student_id) > 0')
+                        ->selectRaw("ct.id,ct2.class_name,u.name as user,count(mcc.student_id) as students")
+                        ->where('mcc.student_id','!=',0)
+                        ->groupBy('ct.id','ct2.class_name','u.name')
+                        ->distinct()
+                        ->get();
+        } else {
+            $data = DB::table('class_transactions as ct')
+                        ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
+                        // ->leftJoin('schedules as s','ct.id','s.class_id')
+                        // ->leftJoin('mapping_class_children as mcc',function($q) use ($studentId){
+                        //     $q->on('mcc.class_id','ct.id')
+                        //     ->where('mcc.student_id','!=',$studentId);
+                        // })
+                        ->leftJoin('mapping_class_children as mcc','mcc.class_id','ct.id')
+                        ->leftJoin('mapping_class_teachers as mct','mct.class_id','ct.id')
+                        ->leftJoin('users as u','mct.user_id','u.id')
+                        // ->whereNotIn('mcc.class_id',$classes->pluck('class_id'))
+                        // ->whereNotNull('ct.id')
+                        ->HavingRaw('count(mcc.student_id) > 0')
+                        ->selectRaw("ct.id,ct2.class_name,u.name as user,count(mcc.student_id) as students")
+                        ->where('mcc.student_id','!=',0)
+                        ->groupBy('ct.id','ct2.class_name','u.name')
+                        ->distinct()
+                        ->get();
+        } 
+        if(count($data) == 0){
+            return redirect()->route("adminStudentDetail", ['studentId' => $studentId])->with('msg','No Classes Available');
+        }
+        $schedules = DB::table('schedules')->whereIn('class_id',$data->pluck('id')->toArray())->select('class_id')->distinct()->get()->pluck('class_id')->toArray();
+        return view('head.student.class',compact('data','studentId','schedules'));
+    }
+
+    public function insertClass($class_id,$studentId){
+        $get_class_price = ClassTransaction::leftJoin('class_types','class_types.id','class_transactions.class_type_id')
+            ->where('class_transactions.id',$class_id)->first();
+
+        $get_student = Student::where('id',$studentId)->first();
+        $quota=0;
+        if($get_class_price->class_name == 'Pointe Class') $quota = 4;
+        else if($get_class_price->class_name == 'Intensive Kids' || $get_class_price->class_name == 'Intensive Class')$quota = 12;
+        else $quota = 8;
+        $check_schedule = Schedule::where('class_id',$class_id)
+            ->whereRaw('date  >= curdate()')
+            ->orderBy('date')
+            ->first();
+
+        if(!is_null($check_schedule) && $get_student->Status == 'aktif'){
+            // $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
+            $first_month = Carbon::parse($check_schedule->date)->setTime(0,0,0);
+
+
+            for ($i=0;$i<3;$i++){
+                if($i==0){
+                    $trans[] = [
+                        'students_id' => $studentId,
+                        'class_transactions_id' => $class_id,
+                        'transaction_date' => $first_month,
+                        'payment_status' => 'Unpaid',
+                        'discount' => 0,
+                        'price' => $get_class_price->class_price,
+                        'desc' => '-',
+                        'transaction_quota' => $quota,
+                    ];
+                } else {
+                    $trans[] = [
+                        'students_id' => $studentId,
+                        'class_transactions_id' => $class_id,
+                        'transaction_date' => Carbon::parse($check_schedule->date)->day + 10 > 30 ? Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10) : Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10),
+                        'payment_status' => 'Unpaid',
+                        'discount' => 0,
+                        'price' => $get_class_price->class_price,
+                        'desc' => '-',
+                        'transaction_quota' => $quota,
+                    ];
+                }
+            }
+            DB::table('transactions')->insert($trans);
+        }
+
+        $mappingStudent = new MappingClassChild();
+        $mappingStudent->student_id = $studentId;
+        $mappingStudent->class_id = $class_id;
+        $mappingStudent->Save();
+
+        return redirect()->route("detailStudent", ['id' => $studentId])->with('msg','Success Add Student into Class');
+    }
+
     public function deleteStudent($studentId){
         $change = Student::find($studentId);
         $change->delete();
@@ -112,7 +224,7 @@ class HeadStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -140,7 +252,7 @@ class HeadStudentController extends Controller
                 students.Email as email,
                 students.Line as line,
                 students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
@@ -161,7 +273,7 @@ class HeadStudentController extends Controller
                 students.Email as email,
                 students.Line as line,
                 students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
@@ -182,49 +294,34 @@ class HeadStudentController extends Controller
     }
 
     public function active(){
-        $students = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->selectRaw('
-                students.id as id,
-                students.Status as status,
-                students.LongName as name,
-                students.Dob as dob,
-                students.nama_orang_tua as ortu,
-                students.Address as alamat,
-                students.Phone1 as phone,
-                students.Email as email,
-                students.Line as line,
-                students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
-                rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim
-            ')
-            ->where('students.status','=','aktif')
-            ->paginate(5);
-        return view('head.student.index',compact('students'));
+        $class = ClassTransaction::select("id")->distinct()->get();
+        $data = [];
+        foreach($class as $c){
+            $data[] = [
+                'class_id' => $c->id
+            ];
+        }
+        DB::table('mapping_class_children')->insert($data);
+
+        return redirect()->back();
     }
 
     public function nonActive(){
         $students = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->selectRaw('
-                students.id as id,
-                students.Status as status,
-                students.LongName as name,
-                students.Dob as dob,
-                students.nama_orang_tua as ortu,
-                students.Address as alamat,
-                students.Phone1 as phone,
-                students.Email as email,
-                students.Line as line,
-                students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
-                rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim
-            ')
-            ->where('students.status','=','non-aktif')
-            ->paginate(5);
-        return view('head.student.index',compact('students'));
+                    ->selectRaw("
+                        id,
+                        DATEDIFF(curdate(), Dob) / 365 as age
+                    ")
+                    ->get();
+        foreach($students as $s){
+            // Log::info(round($s->age)." = ".$s->age);
+            DB::table('students')
+            ->where('id',$s->id)->update([
+                'age' => round($s->age)
+            ]);
+        }
+
+        return redirect()->back();
     }
 
     public function insertPage(){
@@ -328,12 +425,14 @@ class HeadStudentController extends Controller
                 students.Email as Email,
                 students.Quota as Quota,
                 students.Status as Status,
+                students.MaxQuota,
                 students.is_new,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
             ')->where('students.id',"=", $id)->first();
+            // dd($detail);
 
         $courses_taken = DB::table('mapping_class_children')
             ->join('class_transactions', 'mapping_class_children.class_id', 'class_transactions.id')
@@ -350,8 +449,10 @@ class HeadStudentController extends Controller
                 transactions.transaction_date,
                 transactions.transaction_payment,
                 transactions.payment_status,
-                class_types.class_price as price,
-                transactions.discount
+                transactions.price as price,
+                class_types.class_name,
+                transactions.discount,
+                transactions.transaction_quota
             ')
             ->where('students.id',$id)
             ->orderBy('transactions.id','desc')
@@ -374,7 +475,7 @@ class HeadStudentController extends Controller
             'dob' => 'required|date|before:tomorrow',
             'Address' => 'required',
             'Phone1' => 'required|numeric|digits_between:10,12',
-            'Phone2' => 'required|numeric|digits_between:10,12',
+            // 'Phone2' => 'required|numeric|digits_between:10,12',
             'Whatsapp' => 'required|numeric|digits_between:10,12',
 //            'rek' => 'required|numeric|digits_between:10,15',
             'kode_pos' => 'required|numeric|min_digits:5',
@@ -382,6 +483,9 @@ class HeadStudentController extends Controller
             'Quota' => 'required|numeric',
             'is_new' => 'required',
             'status' => 'required',
+            // 'bank' => 'required',
+            'accountno' => 'required',
+            'sender' => 'required',
         ];
 
         $validate = Validator::make($request->all(), $rules);
@@ -406,14 +510,29 @@ class HeadStudentController extends Controller
         $student->Line = $request->Line;
         $student->EnrollDate = $request->EnrollDate;
         $student->Quota = $request->Quota;
+        $student->MaxQuota = $request->MaxQuota;
         $student->Status = $request->status;
+        
         if($request->is_new == 'no' || $request->is_new == 'No' || $request->is_new == 'NO'){
             $student->is_new = 0;
         } else {
             $student->is_new = 1;
         }
 
+        $banks = Banks::updateOrCreate([
+            'bank_name' => $request->bank
+        ]);
+
+        DB::table('rekenings')->where('bank_rek',$student->bank_rek)->update([
+            'banks_id' => $banks->id,
+            'nama_pengirim' => $request->sender,
+            'bank_rek' => $request->accountno,
+        ]);
+
+        $student->bank_rek = $request->accountno;
+
         $student->save();
+
 
         return to_route('headStudentPage')->with('msg','Success Update Student');
     }

@@ -4,7 +4,10 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Banks;
+use App\Models\ClassTransaction;
+use App\Models\MappingClassChild;
 use App\Models\Rekenings;
+use App\Models\Schedule;
 use App\Models\Student;
 use App\Models\Transaction;
 use Carbon\Carbon;
@@ -40,7 +43,7 @@ class AdminStudentController extends Controller
                 students.Email as email,
                 students.Line as line,
                 students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
@@ -72,7 +75,7 @@ class AdminStudentController extends Controller
                 students.Email as email,
                 students.Line as line,
                 students.Instagram as instagram,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim
             ')
@@ -96,6 +99,119 @@ class AdminStudentController extends Controller
         return view('admin.student.adminStudentView',compact('students','sort'));
     }
 
+    public function insertClassPage($studentId){
+
+        $classes = DB::table('mapping_class_children as mcc')
+                    ->where('mcc.student_id',$studentId)
+                    ->selectRaw("mcc.class_id,mcc.student_id")
+                    ->distinct()->get();
+                    // dd($classes);
+
+        if(count($classes) > 0){
+            // dd('123');
+            $data = DB::table('class_transactions as ct')
+                        // ->leftJoin('schedules as s','ct.id','s.class_id')
+                        ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
+                        // ->leftJoin('mapping_class_children as mcc',function($q) use ($studentId){
+                        //     $q->on('mcc.class_id','ct.id')
+                        //     ->where('mcc.student_id','!=',$studentId);
+                        // })
+                        ->leftJoin('mapping_class_children as mcc','mcc.class_id','ct.id')
+                        ->leftJoin('mapping_class_teachers as mct','mct.class_id','ct.id')
+                        ->leftJoin('users as u','mct.user_id','u.id')
+                        ->whereNotIn('ct.id',$classes->pluck('class_id')->toArray())
+                        // ->whereNotNull('class_name')
+                        ->HavingRaw('count(mcc.student_id) > 0')
+                        ->selectRaw("ct.id,ct2.class_name,u.name as user,count(mcc.student_id) as students")
+                        ->where('mcc.student_id','!=',0)
+                        ->groupBy('ct.id','ct2.class_name','u.name')
+                        ->distinct()
+                        ->orderBy('ct2.id')
+                        ->get();
+        } else {
+            $data = DB::table('class_transactions as ct')
+                        ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
+                        // ->leftJoin('schedules as s','ct.id','s.class_id')
+                        // ->leftJoin('mapping_class_children as mcc',function($q) use ($studentId){
+                        //     $q->on('mcc.class_id','ct.id')
+                        //     ->where('mcc.student_id','!=',$studentId);
+                        // })
+                        ->leftJoin('mapping_class_children as mcc','mcc.class_id','ct.id')
+                        ->leftJoin('mapping_class_teachers as mct','mct.class_id','ct.id')
+                        ->leftJoin('users as u','mct.user_id','u.id')
+                        // ->whereNotIn('mcc.class_id',$classes->pluck('class_id'))
+                        // ->whereNotNull('ct.id')
+                        ->HavingRaw('count(mcc.student_id) > 0')
+                        ->selectRaw("ct.id,ct2.class_name,u.name as user,count(mcc.student_id) as students")
+                        ->where('mcc.student_id','!=',0)
+                        ->groupBy('ct.id','ct2.class_name','u.name')
+                        ->distinct()
+                        ->orderBy('ct2.id')
+                        ->get();
+        } 
+        if(count($data) == 0){
+            return redirect()->route("adminStudentDetail", ['studentId' => $studentId])->with('msg','No Classes Available');
+        }
+        $schedules = DB::table('schedules')->whereIn('class_id',$data->pluck('id')->toArray())->select('class_id')->distinct()->get()->pluck('class_id')->toArray();
+
+        return view('admin.student.class',compact('data','studentId','schedules'));
+    }
+
+    public function insertClass($class_id,$studentId){
+        $get_class_price = ClassTransaction::leftJoin('class_types','class_types.id','class_transactions.class_type_id')
+            ->where('class_transactions.id',$class_id)->first();
+
+        $get_student = Student::where('id',$studentId)->first();
+        $quota=0;
+        if($get_class_price->class_name == 'Pointe Class') $quota = 4;
+        else if($get_class_price->class_name == 'Intensive Kids' || $get_class_price->class_name == 'Intensive Class')$quota = 12;
+        else $quota = 8;
+        $check_schedule = Schedule::where('class_id',$class_id)
+            ->whereRaw('date  >= curdate()')
+            ->orderBy('date')
+            ->first();
+
+        if(!is_null($check_schedule) && $get_student->Status == 'aktif'){
+            // $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
+            $first_month = Carbon::parse($check_schedule->date)->setTime(0,0,0);
+
+
+            for ($i=0;$i<3;$i++){
+                if($i==0){
+                    $trans[] = [
+                        'students_id' => $studentId,
+                        'class_transactions_id' => $class_id,
+                        'transaction_date' => $first_month,
+                        'payment_status' => 'Unpaid',
+                        'discount' => 0,
+                        'price' => $get_class_price->class_price,
+                        'desc' => '-',
+                        'transaction_quota' => $quota,
+                    ];
+                } else {
+                    $trans[] = [
+                        'students_id' => $studentId,
+                        'class_transactions_id' => $class_id,
+                        'transaction_date' => Carbon::parse($check_schedule->date)->day + 10 > 30 ? Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10) : Carbon::parse($check_schedule->date)->addMonth($i)->setDay(10),
+                        'payment_status' => 'Unpaid',
+                        'discount' => 0,
+                        'price' => $get_class_price->class_price,
+                        'desc' => '-',
+                        'transaction_quota' => $quota,
+                    ];
+                }
+            }
+            DB::table('transactions')->insert($trans);
+        }
+
+        $mappingStudent = new MappingClassChild();
+        $mappingStudent->student_id = $studentId;
+        $mappingStudent->class_id = $class_id;
+        $mappingStudent->Save();
+
+        return redirect()->route("adminStudentDetail", ['studentId' => $studentId])->with('msg','Success Add Student into Class');
+    }
+
     public function adminStudentViewSorting($value,$type){
         $students = DB::table('students')
             ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
@@ -109,7 +225,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -192,7 +308,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -215,7 +331,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -241,7 +357,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -261,7 +377,7 @@ class AdminStudentController extends Controller
                 students.Address as alamat,
                 students.Phone1 as phone,
                 students.Email as email,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -322,9 +438,10 @@ class AdminStudentController extends Controller
                 students.Line as Line,
                 students.Email as Email,
                 students.Quota as Quota,
+                students.MaxQuota,
                 students.Status as Status,
                 students.is_new,
-                YEAR(CURDATE()) - YEAR(students.Dob) as age,
+                students.age,
                 rekenings.bank_rek as rek,
                 rekenings.nama_pengirim as pengirim,
                 banks.bank_name as bank
@@ -345,8 +462,10 @@ class AdminStudentController extends Controller
                 transactions.transaction_date,
                 transactions.transaction_payment,
                 transactions.payment_status,
-                class_types.class_price as price,
-                transactions.discount
+                transactions.price as price,
+                class_types.class_name,
+                transactions.discount,
+                transactions.transaction_quota
             ')
             ->where('students.id',$studentId)
             ->orderBy('transactions.id','desc')
@@ -369,7 +488,7 @@ class AdminStudentController extends Controller
             'dob' => 'required|date|before:tomorrow',
             'Address' => 'required',
             'Phone1' => 'required|numeric|digits_between:10,12',
-            'Phone2' => 'required|numeric|digits_between:10,12',
+            // 'Phone2' => 'required|numeric|digits_between:10,12',
             'Whatsapp' => 'required|numeric|digits_between:10,12',
 //            'rek' => 'required|numeric|digits_between:10,15',
             'kode_pos' => 'required|numeric|min_digits:5',
@@ -401,6 +520,7 @@ class AdminStudentController extends Controller
         $student->Line = $request->Line;
         $student->EnrollDate = $request->EnrollDate;
         $student->Quota = $request->Quota;
+        $student->MaxQuota = $request->MaxQuota;
         $student->Status = $request->status;
         if($request->is_new == 'no' || $request->is_new == 'No' || $request->is_new == 'NO'){
             $student->is_new = 0;
