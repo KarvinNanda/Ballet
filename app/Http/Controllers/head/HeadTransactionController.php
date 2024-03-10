@@ -159,18 +159,18 @@ class HeadTransactionController extends Controller
                         ->first();
 
                         $student_quota_class = DB::table('mapping_class_children')
-                            ->where('id',$trans->students_id)
+                            ->where('student_id',$trans->students_id)
                             ->where('class_id',$req->class_id)
                             ->selectRaw("sum(quota) as Quota")
                             ->first();
                             DB::table('mapping_class_children')
-                                ->where('id',$trans->students_id)
+                                ->where('student_id',$trans->students_id)
                                 ->where('class_id',$req->class_id)
                                 ->update([
                                 'quota' => $student_quota_class->Quota + $get_trans_paid->quota
                             ]);
                         $student_all_quota_class = DB::table('mapping_class_children')
-                            ->where('id',$trans->students_id)
+                            ->where('student_id',$trans->students_id)
                             ->selectRaw("sum(quota) as Quota")
                             ->first();
 
@@ -194,20 +194,41 @@ class HeadTransactionController extends Controller
         }
         if(!is_null($req->inputTanggalBayar) && !$req->has('all_transaction')){
             $student_quota_class = DB::table('mapping_class_children')
-                            ->where('id',$trans->students_id)
+                            ->where('student_id',$trans->students_id)
                             ->where('class_id',$req->class_id)
                             ->selectRaw("sum(quota) as Quota")
                             ->first();
 
+                            $get_trans_paid = DB::table('transactions')
+                        ->where('students_id',$trans->students_id)
+                        ->where('class_transactions_id',$req->class_id)
+                        ->where('payment_status','Paid')
+                        ->where(function ($query) {
+                            if(now()->setTimezone("GMT+7")->month == 1 || now()->setTimezone("GMT+7")->month == 2 || now()->setTimezone("GMT+7")->month == 3){
+                                $query->whereRaw("month(transaction_date) between 1 and 3");
+                            }
+                            if(now()->setTimezone("GMT+7")->month == 4 || now()->setTimezone("GMT+7")->month == 6 || now()->setTimezone("GMT+7")->month == 5){
+                                $query->whereRaw("month(transaction_date) between 4 and 6");
+                            }
+                            if(now()->setTimezone("GMT+7")->month == 7 || now()->setTimezone("GMT+7")->month == 8 || now()->setTimezone("GMT+7")->month == 9){
+                                $query->whereRaw("month(transaction_date) between 7 and 9");
+                            }
+                            if(now()->setTimezone("GMT+7")->month == 10 || now()->setTimezone("GMT+7")->month == 11 || now()->setTimezone("GMT+7")->month == 12){
+                                $query->whereRaw("month(transaction_date) between 10 and 12");
+                            }
+                        })
+                        ->selectRaw("sum(transaction_quota) as quota")
+                        ->first();
+
                             DB::table('mapping_class_children')
-                                ->where('id',$trans->students_id)
+                                ->where('student_id',$trans->students_id)
                                 ->where('class_id',$req->class_id)
                                 ->update([
                                 'quota' => $student_quota_class->Quota + $get_trans_paid->quota
                             ]);
                             
                         $student_all_quota_class = DB::table('mapping_class_children')
-                            ->where('id',$trans->students_id)
+                            ->where('student_id',$trans->students_id)
                             ->selectRaw("sum(quota) as Quota")
                             ->first();
 
