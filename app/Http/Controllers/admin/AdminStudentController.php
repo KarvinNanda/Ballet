@@ -171,6 +171,8 @@ class AdminStudentController extends Controller
             ->orderBy('date')
             ->first();
 
+        dd($check_schedule,$get_student);
+
         if(!is_null($check_schedule) && $get_student->Status == 'aktif'){
             // $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
             $first_month = Carbon::parse($check_schedule->date)->setTime(0,0,0);
@@ -289,6 +291,7 @@ class AdminStudentController extends Controller
         $student->EnrollDate  = Carbon::now();
         $student->Quota  = 0;
         $student->is_new  = 0;
+        $student->age  = round(now()->diff($req->inputDate_of_Birth)->days / 365);
 
         $student->save();
 
