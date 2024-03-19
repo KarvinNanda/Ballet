@@ -195,7 +195,6 @@ class HeadStudentController extends Controller
                 }
             }
             DB::table('transactions')->insert($trans);
-        }
 
         $mappingStudent = new MappingClassChild();
         $mappingStudent->student_id = $studentId;
@@ -203,6 +202,11 @@ class HeadStudentController extends Controller
         $mappingStudent->Save();
 
         return redirect()->route("detailStudent", ['id' => $studentId])->with('msg','Success Add Student into Class');
+        }
+
+        return redirect()->route("detailStudent", ['id' => $studentId])->with('msg',"Schedule Class Doesn't Greater Than Today or Student Status is not Active");
+
+        
     }
 
     public function deleteStudent($studentId){
@@ -382,6 +386,7 @@ class HeadStudentController extends Controller
         $student->EnrollDate  = Carbon::now();
         $student->Quota  = 0;
         $student->is_new  = 0;
+        $student->age  = round(now()->diff($req->inputDate_of_Birth)->days / 365);
 
         $student->save();
 

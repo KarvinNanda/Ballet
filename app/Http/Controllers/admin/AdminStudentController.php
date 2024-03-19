@@ -171,6 +171,8 @@ class AdminStudentController extends Controller
             ->orderBy('date')
             ->first();
 
+        dd($check_schedule,$get_student);
+
         if(!is_null($check_schedule) && $get_student->Status == 'aktif'){
             // $first_month = Carbon::parse($check_schedule->date)->addMonth(1)->addDays(10)->setTime(0,0,0);
             $first_month = Carbon::parse($check_schedule->date)->setTime(0,0,0);
@@ -202,14 +204,18 @@ class AdminStudentController extends Controller
                 }
             }
             DB::table('transactions')->insert($trans);
-        }
 
-        $mappingStudent = new MappingClassChild();
+            $mappingStudent = new MappingClassChild();
         $mappingStudent->student_id = $studentId;
         $mappingStudent->class_id = $class_id;
         $mappingStudent->Save();
 
         return redirect()->route("adminStudentDetail", ['studentId' => $studentId])->with('msg','Success Add Student into Class');
+        }
+
+        return redirect()->route("adminStudentDetail", ['studentId' => $studentId])->with('msg',"Schedule Class Doesn't Greater Than Today or Student Status is not Active");
+
+        
     }
 
     public function adminStudentViewSorting($value,$type){
@@ -289,6 +295,7 @@ class AdminStudentController extends Controller
         $student->EnrollDate  = Carbon::now();
         $student->Quota  = 0;
         $student->is_new  = 0;
+        $student->age  = round(now()->diff($req->inputDate_of_Birth)->days / 365);
 
         $student->save();
 
