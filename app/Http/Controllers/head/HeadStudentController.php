@@ -386,6 +386,7 @@ class HeadStudentController extends Controller
         $student->EnrollDate  = Carbon::now();
         $student->Quota  = 0;
         $student->is_new  = 0;
+        $student->age  = round(now()->diff($req->inputDate_of_Birth)->days / 365);
 
         $student->save();
 
