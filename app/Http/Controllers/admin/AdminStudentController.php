@@ -204,14 +204,18 @@ class AdminStudentController extends Controller
                 }
             }
             DB::table('transactions')->insert($trans);
-        }
 
-        $mappingStudent = new MappingClassChild();
+            $mappingStudent = new MappingClassChild();
         $mappingStudent->student_id = $studentId;
         $mappingStudent->class_id = $class_id;
         $mappingStudent->Save();
 
         return redirect()->route("adminStudentDetail", ['studentId' => $studentId])->with('msg','Success Add Student into Class');
+        }
+
+        return redirect()->route("adminStudentDetail", ['studentId' => $studentId])->with('msg',"Schedule Class Doesn't Greater Than Today or Student Status is not Active");
+
+        
     }
 
     public function adminStudentViewSorting($value,$type){

@@ -404,15 +404,19 @@ class AdminClassTransactionController extends Controller
                 }
             }
             DB::table('transactions')->insert($trans);
+
+            $mappingStudent = new MappingClassChild();
+            $mappingStudent->student_id = $req->studentId;
+            $mappingStudent->class_id = $class_id;
+            $mappingStudent->Save();
+
+
+            return redirect()->route("adminDetailClass", ['id' => $class_id])->with('msg','Success Add Student');
         }
 
-        $mappingStudent = new MappingClassChild();
-        $mappingStudent->student_id = $req->studentId;
-        $mappingStudent->class_id = $class_id;
-        $mappingStudent->Save();
+        return redirect()->route("adminDetailClass", ['id' => $class_id])->with('msg',"Schedule Class Doesn't Greater Than Today or Student Status is not Active");
 
-
-        return redirect()->route("adminDetailClass", ['id' => $class_id])->with('msg','Success Add Student');
+        
     }
 
     public function deleteTeacher($teacher, $class){
