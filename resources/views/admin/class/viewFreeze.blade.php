@@ -1,6 +1,6 @@
 @extends('Master.master')
 
-@section('title','Class List')
+@section('title','Class Freeze List')
 
 @section('content')
     <div class="d-none">
@@ -18,20 +18,20 @@
                 <form
                     class="d-flex align-items-center justify-content-center gap-2"
                     method="GET"
-                    action="{{route('adminClassView')}}"
+                    action="{{route('adminClassFreezeView')}}"
                 >
                     <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
 
                     @csrf
-                    <select class="form-select" name="status">
+                    {{-- <select class="form-select" name="status">
                         <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All</option>
                         <option value="aktif" {{ $status == 'aktif' ? 'selected' : '' }}>Active</option>
                         <option value="non-aktif" {{ $status == 'non-aktif' ? 'selected' : '' }}>Non Active</option>
-                    </select>
+                    </select> --}}
 
                     <button type="submit" class="btn btn-primary text-nowrap">Apply Filters</button>
                 </form>
-                    <a href="{{route('adminClassAddPage')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Class</button></a>
+                    {{-- <a href="{{route('adminClassAddPage')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Class</button></a> --}}
             </div>
             <div class="card-body">
 
@@ -41,20 +41,9 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">
-                            <a href="{{route("viewClassSorting",['value' =>"class_name",'type' => $sort])}}">
-                                Class Name
-                            </a>
-                        </th>
+                        <th scope="col">Class Name</th>
                         <th scope="col">Price</th>
-                        <th scope="col">
-                            <a href="{{route("viewClassSorting",['value' =>"class_name",'type' => $sort])}}">
-                                Action
-                            </a>
-                        </th>
                         <th scope="col">Detail</th>
-                        <th scope="col">Schedule Detail</th>
-                        <th scope="col">Action</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -66,49 +55,19 @@
                                 - {{$class->people_count}}
                             </td>
                             <td>Rp.{{number_format($class->price)}}</td>
-                            <td>
-                                <form action="{{route('changeStatusClassAdmin',$class)}}" method="post">
-                                    @csrf
-                                    @if($class->Status == 'aktif')
-                                        <button type="submit" class="btn btn-primary">Active</button>
-                                    @else
-                                        <button type="submit" class="btn btn-primary">Inactive</button>
-                                    @endif
-                                </form>
-                            </td>
                             @if($class->Status == 'aktif')
                             <td>
 {{--                                <form action="{{route('adminDetailClass')}}" method="get">--}}
 {{--                                    @csrf--}}
 {{--                                    <input type="hidden" value="{{$class->id}}" name="classId">--}}
-                                    <a href="{{route('adminDetailClass', ['id' => $class->id])}}"><button type="submit" class="btn btn-secondary">Detail</button></a>
+                                    <a href="{{route('adminDetailClassFreeze', ['id' => $class->id])}}"><button type="submit" class="btn btn-secondary">Detail</button></a>
 {{--                                </form>--}}
-                            </td>
-                            <td>
-                                <form action="{{route('viewScheduleClass', ['id' => $class->id])}}" method="get">
-                                    @csrf
-                                    <input type="hidden" value="{{$class->id}}" name="classId">
-                                    <button type="submit" class="btn btn-info">Schedule</button>
-                                </form>
-                            </td>
-                            <td>
-                                <form action="{{route('levelUpStudent')}}" method="post">
-                                    @csrf
-                                    <input type="hidden" value="{{$class->id}}" name="classId">
-                                    <button type="submit" class="btn btn-info">Freeze</button>
-                                </form>
                             </td>
                             @else
                             <td>None</td>
                             <td>None</td>
                             <td>None</td>
                             @endif
-                            <td>
-                                <form action="{{route('adminDeleteClass',$class->id)}}"  method="post">
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
-                            </td>
                         </tr>
                     @endforeach
                     </tbody>

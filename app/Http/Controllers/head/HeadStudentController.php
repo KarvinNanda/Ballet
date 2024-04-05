@@ -310,6 +310,22 @@ class HeadStudentController extends Controller
         return redirect()->back();
     }
 
+    public function active2(){
+        $class = DB::table('class_transactions as ct')
+                    ->join('class_types as ct2','ct2.id','ct.class_type_id')
+                    ->selectRaw('ct.id,ct2.class_price')
+                    ->distinct()
+                    ->get();
+
+                    foreach($class as $c){
+                        DB::table('class_transactions')->where('id',$c->id)->update([
+                            'price' => $c->class_price
+                        ]);
+                    }
+
+        return redirect()->back();
+    }
+
     public function nonActive(){
         $students = DB::table('students')
                     ->selectRaw("

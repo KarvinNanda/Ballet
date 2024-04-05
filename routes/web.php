@@ -67,6 +67,9 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/', [AdminController::class,'index'])->name('admin');
     Route::post('/class/search', [AdminClassTransactionController::class,'search'])->name('adminSearchClass');
 
+    Route::get('/view/class/freeze', [AdminClassTransactionController::class,'viewClassFreeze'])->name('adminClassFreezeView');
+    Route::get('/detail/class/freeze/{id}', [AdminClassTransactionController::class,'detailClassFreeze'])->name('adminDetailClassFreeze');
+
     Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
     Route::get('/view/class/sorting/{value}/{type}', [AdminClassTransactionController::class,'viewClassSorting'])->name('viewClassSorting');
 
@@ -169,6 +172,11 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
 //head
 Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/', [HeadController::class,'index'])->name('head');
+
+    Route::get('/view/class/freeze', [HeadClassController::class,'viewClassFreeze'])->name('headClassFreezeView');
+    Route::get('/detail/class/freeze/{id}', [HeadClassController::class,'detailClassFreeze'])->name('headDetailClassFreeze');
+    Route::get('/update/class/freeze/{id}', [HeadClassController::class,'updateClassFreezePage'])->name('headUpdateClassFreezePage');
+    Route::post('/update/class/freeze/{id}', [HeadClassController::class,'updateClassFreeze'])->name('headUpdateClassFreeze');
 
     Route::get('/class', [HeadClassController::class,'index'])->name('headClassPage');
     Route::get('/class/active', [HeadClassController::class,'active'])->name('activeClassPage');
@@ -288,6 +296,9 @@ Route::prefix('head')->middleware(['head'])->group(function(){
 
     Route::post('/view/class/absen/{class}', [HeadClassController::class,'viewAbsen'])->name('headViewAbsen');
     Route::post('/view/class/getabsen/{schedule}', [HeadClassController::class,'getAbsen'])->name('headGetAbsen');
+
+    Route::get('/report/teacher',[HeadReportController::class,'reportTeacherPage'])->name('headTeacherReportPage');
+    Route::post('/report/teacher/{month}',[HeadReportController::class,'reportTeacher'])->name('headTeacherReport');
 });
 
 // teacher

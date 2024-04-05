@@ -47,8 +47,10 @@ class AdminController extends Controller
             ->leftJoin('class_transactions as ct','t.class_transactions_id','ct.id')
             ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
             ->where('ct2.id',$req->typeID)
+            ->where('ct.is_freeze','!=',1)
             ->update([
-                't.price' => $req->inputPrice
+                't.price' => $req->inputPrice,
+                'ct.price' => $req->inputPrice
             ]);
 
         return redirect()->route('adminClassTypePage')->with('msg','Success Update Data Course');

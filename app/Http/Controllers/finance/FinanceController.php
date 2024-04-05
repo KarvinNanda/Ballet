@@ -63,13 +63,13 @@ class FinanceController extends Controller
                 st.LongName as studentName,
                 u.name as teacherName,
                 ct2.class_name,
-                ct2.class_price,
+                ct.price,
                 st.Quota as meet,
                 case
-                 when ct2.class_name = 'Intensive Class' then (ct2.class_price / 12)
-                    when ct2.class_name = 'Intensive Kids' then (ct2.class_price / 12)
-                    when ct2.class_name = 'Pointe Class' then (ct2.class_price / 4)
-                    else (ct2.class_price / 8)
+                 when ct2.class_name = 'Intensive Class' then (ct.price / 12)
+                    when ct2.class_name = 'Intensive Kids' then (ct.price / 12)
+                    when ct2.class_name = 'Pointe Class' then (ct.price / 4)
+                    else (ct.price / 8)
                 end as paid,
                 u.percent as teacher_reward
             ")
@@ -89,7 +89,7 @@ class FinanceController extends Controller
                 }
             })
             ->distinct()
-            ->orderBy('ct2.class_price')
+            ->orderBy('ct.price')
             ->get()
             ->groupBy('teacherName');
 

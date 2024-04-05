@@ -19,6 +19,186 @@ use Illuminate\Support\Facades\Validator;
 
 class HeadClassController extends Controller
 {
+
+    public function updateClassFreezePage($id){
+        $class_id = $id;
+        $class = DB::table('class_transactions as ct')
+            ->join('class_types as ct2','ct2.id','ct.class_type_id')
+            ->join('mapping_class_teachers as mct','mct.class_id','ct.id')
+            ->join('users as u','mct.user_id','u.id')
+            ->selectRaw("
+                ct.price,
+                ct2.class_name,
+                u.name 
+            ")
+            ->where('ct.id',$class_id)
+            ->first();
+        return view('head.class.update',compact('class','class_id'));
+    }
+
+    public function updateClassFreeze(Request $req,$id){
+        $rules = [
+            'inputPrice' => 'required|numeric'
+        ];
+
+        $validate = Validator::make($req->all(),$rules);
+        if($validate->fails()){
+            return redirect()->back()->withErrors($validate)->withInput();
+        }
+
+        $class_id = $id;
+        $price = $req->inputPrice;
+        DB::table('class_transactions as ct')
+            ->where('ct.id',$class_id)
+            ->update([
+                'price' => $price
+            ]);
+        return redirect()->route('headClassFreezeView')->with('msg','Success Update Class Freeze Data');
+    }
+
+    public function detailClassFreeze($id){
+        $class_id = $id;
+        $check_schedule = Schedule::where('class_id',$class_id)->first();
+        if(is_null($check_schedule)) return redirect()->back()->with('msg','Please Create Schedule First');
+        $class_name = DB::table('class_transactions')
+            ->leftJoin('class_types','class_types.id','class_transactions.class_type_id')
+            ->where('class_transactions.id',$class_id)
+        ->first()->class_name;
+
+
+        $teachers = DB::table('class_transactions')
+            ->join('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
+            ->join('users','mapping_class_teachers.user_id','users.id')
+            ->selectRaw('
+                users.id as id,
+                users.name as teacherName,
+                users.dob as teacherDOB,
+                users.address as teacherAddress,
+                users.email as teacherEmail,
+                users.phone as teacherPhone
+            ')
+            ->where('class_transactions.id',$id)
+            ->paginate(5);
+
+        $get_student_trial_to_get_out = DB::table('class_transactions')
+                ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+                ->join('students','mapping_class_children.student_id','students.id')
+                ->selectRaw('
+                students.id as id
+            ')
+            ->where('students.Status','=','trial')
+            ->where('students.Quota','>=',2)
+            ->where('class_transactions.id',$id)
+            ->get()
+            ->pluck('id');
+
+        DB::table('mapping_class_children')->whereIn('student_id',$get_student_trial_to_get_out)->delete();
+
+        $students = DB::table('class_transactions')
+            ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+            ->join('students','mapping_class_children.student_id','students.id')
+            ->selectRaw('
+                students.id as id,
+                students.LongName as studentName,
+                students.Dob as studentDOB,
+                students.Address as studentAddress,
+                students.Email as studentEmail,
+                students.Phone1 as studentPhone,
+                students.Quota as studentQuota,
+                mapping_class_children.quota as studentMaxQuota,
+                students.Status as studentStatus
+            ')
+            ->where('students.Status','!=','non-aktif')
+            ->where('class_transactions.id',$id)
+            ->paginate(5);
+
+        //  $transactions = DB::table('transactions')
+        //             ->where('class_transactions_id',$class_id)
+        //             ->selectRaw("
+        //                 students_id,
+        //                 sum(students_id) as paid
+        //             ")
+        //             ->where('payment_status','Paid')
+        //             ->whereRaw('transaction_date >= curdate()')
+        //             ->groupBy('students_id')
+        //             ->get();
+
+        return view('head.class.detailFreeze',compact('teachers','students','class_id','class_name'));
+    }
+
+    public function viewClassFreeze(Request $request)
+    {
+        $sort = 'asc';
+        $keyword = $request->query('keyword');
+        $status = $request->query('status');
+        if(is_null($status))$status='all';
+        if ($status == "all") {
+            $classes = ClassTransaction::select(
+                'class_transactions.id',
+                'class_name',
+                'price',
+                'class_transactions.Status',
+                'class_type_id',
+                'student_id',
+                'mapping_class_children.class_id',
+                DB::raw('COUNT(student_id) as people_count'))
+                ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+                ->leftJoin('mapping_class_children',function($q){
+                    $q->on('mapping_class_children.class_id','class_transactions.id')
+                        ->where('mapping_class_children.student_id','!=',0);
+                })
+                ->leftJoin('students','mapping_class_children.student_id','students.id')
+                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','students.id')
+                ->leftJoin('users','users.id','mapping_class_teachers.user_id')
+                ->where(function($q) use ($keyword){
+                    if(!is_null($keyword)){
+                        $q->where('class_name','like',"%$keyword%")
+                            ->orWhere('users.name','like',"%$keyword%")
+                            ->orWhere('students.LongName','like',"%$keyword%");
+                    } 
+                })
+                ->where('class_transactions.is_freeze','=',1)
+                // ->where('mapping_class_children.student_id','!=',0)
+                ->orderBy('class_transactions.id','desc')
+                ->groupBy('class_transactions.id')
+                ->paginate(5);
+        } else{
+            $classes = ClassTransaction::select(
+                'class_transactions.id',
+                'class_name',
+                'price',
+                'class_transactions.Status',
+                'class_type_id',
+                'student_id',
+                'mapping_class_children.class_id',
+                DB::raw('COUNT(student_id) as people_count'))
+                ->where(function($q) use ($keyword){
+                    if(!is_null($keyword)) $q->where('class_name','like',"%$keyword%");
+                })
+                ->where('Status','=',$status)
+                ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+                ->leftJoin('mapping_class_children',function($q){
+                    $q->on('mapping_class_children.class_id','class_transactions.id')
+                        ->where('mapping_class_children.student_id','!=',0);
+                })
+                ->where(function($q) use ($keyword){
+                    if(!is_null($keyword)){
+                        $q->where('class_name','like',"%$keyword%")
+                            ->orWhere('users.name','like',"%$keyword%")
+                            ->orWhere('students.LongName','like',"%$keyword%");
+                    } 
+                })
+                ->where('class_transactions.is_freeze','=',1)
+                // ->where('mapping_class_children.student_id','!=',0)
+                ->orderBy('class_transactions.id','desc')
+                ->groupBy('class_transactions.id')
+                ->paginate(5);
+        }
+
+
+        return view('head.class.viewFreeze', compact('classes','sort'));
+    }
+
     public function index(Request $request){
         $sort = 'asc';
         $keyword = $request->query('keyword');
@@ -29,44 +209,61 @@ class HeadClassController extends Controller
                 'class_transactions.id',
                 'class_name',
                 'class_price',
-                'Status',
+                'class_transactions.Status',
                 'class_type_id',
                 'student_id',
-                'class_id',
+                'mapping_class_children.class_id',
                 DB::raw('COUNT(student_id) as people_count'))
-                ->where(function($q) use ($keyword){
-                    if(!is_null($keyword)) $q->where('class_name','like',"%$keyword%");
-                })
                 ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
                 ->leftJoin('mapping_class_children',function($q){
                     $q->on('mapping_class_children.class_id','class_transactions.id')
                         ->where('mapping_class_children.student_id','!=',0);
                 })
+                ->leftJoin('students','mapping_class_children.student_id','students.id')
+                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','students.id')
+                ->leftJoin('users','users.id','mapping_class_teachers.user_id')
+                ->where(function($q) use ($keyword){
+                    if(!is_null($keyword)){
+                        $q->where('class_name','like',"%$keyword%")
+                            ->orWhere('users.name','like',"%$keyword%")
+                            ->orWhere('students.LongName','like',"%$keyword%");
+                    } 
+                })
+                ->where('class_transactions.is_freeze','!=',1)
                 // ->where('mapping_class_children.student_id','!=',0)
-                ->groupBy('class_transactions.id')
                 ->orderBy('class_transactions.id','desc')
+                ->groupBy('class_transactions.id')
                 ->paginate(5);
-        } else {
+        } else{
             $classes = ClassTransaction::select(
                 'class_transactions.id',
                 'class_name',
                 'class_price',
-                'Status',
+                'class_transactions.Status',
                 'class_type_id',
                 'student_id',
-                'class_id',
+                'mapping_class_children.class_id',
                 DB::raw('COUNT(student_id) as people_count'))
                 ->where(function($q) use ($keyword){
                     if(!is_null($keyword)) $q->where('class_name','like',"%$keyword%");
                 })
-                ->where('Status', '=', $status)
-                ->leftJoin('class_types', 'class_transactions.class_type_id', 'class_types.id')
+                ->where('Status','=',$status)
+                ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
                 ->leftJoin('mapping_class_children',function($q){
                     $q->on('mapping_class_children.class_id','class_transactions.id')
                         ->where('mapping_class_children.student_id','!=',0);
                 })
-                ->groupBy('class_transactions.id')
+                ->where(function($q) use ($keyword){
+                    if(!is_null($keyword)){
+                        $q->where('class_name','like',"%$keyword%")
+                            ->orWhere('users.name','like',"%$keyword%")
+                            ->orWhere('students.LongName','like',"%$keyword%");
+                    } 
+                })
+                ->where('class_transactions.is_freeze','!=',1)
+                // ->where('mapping_class_children.student_id','!=',0)
                 ->orderBy('class_transactions.id','desc')
+                ->groupBy('class_transactions.id')
                 ->paginate(5);
         }
 
@@ -137,9 +334,11 @@ class HeadClassController extends Controller
         ->leftJoin('class_transactions as ct','t.class_transactions_id','ct.id')
         ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
         ->where('ct2.id',$req->typeID)
-        ->update([
-            't.price' => $req->inputPrice
-        ]);
+        ->where('ct.is_freeze','!=',1)
+            ->update([
+                't.price' => $req->inputPrice,
+                'ct.price' => $req->inputPrice
+            ]);
 
         return redirect()->route('headClassTypePage')->with('msg','Success Update Course Data');
     }
@@ -181,10 +380,13 @@ class HeadClassController extends Controller
         if($validate->fails()){
             return redirect()->back()->withErrors($validate)->withInput();
         }
+        $course = DB::table('class_types')->where('id',$req->inputType)->first();
 
         $class = new ClassTransaction();
-        $class->class_type_id = $req->inputType;
+        $class->class_type_id = $course->id;
         $class->Status = 'aktif';
+        $class->is_freeze = 0;
+        $class->price = $course->class_price;
 
         $class->save();
 
