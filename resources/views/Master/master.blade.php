@@ -144,6 +144,11 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a href="{{route('adminClassFreezeView')}}">
+                                        <i class="bi bi-circle"></i><span>Class Freeze Data</span>
+                                    </a>
+                                </li>
+                                <li>
                                     <a href="{{route('adminClassTypePage')}}">
                                         <i class="bi bi-circle"></i><span>Course Data</span>
                                     </a>
@@ -169,6 +174,11 @@
                                 <li>
                                     <a href="{{route('headClassPage')}}">
                                         <i class="bi bi-circle"></i><span>Class Data</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{route('headClassFreezeView')}}">
+                                        <i class="bi bi-circle"></i><span>Class Freeze Data</span>
                                     </a>
                                 </li>
                                 <li>
@@ -217,6 +227,11 @@
                                     <span>Report</span>
                                 </a>
                                     <ul id="tables-nav" class="nav-content" data-bs-parent="#sidebar-nav">
+                                        <li>
+                                            <a href="{{route('headTeacherReportPage')}}">
+                                                <i class="bi bi-circle"></i><span>Teacher Report</span>
+                                            </a>
+                                        </li>
                                         <li>
                                             <a href="{{route('headClassReport')}}">
                                                 <i class="bi bi-circle"></i><span>Class Attendance Report</span>

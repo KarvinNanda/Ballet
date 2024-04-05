@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/class-suit', [HeadStudentController::class,'active']);
+Route::get('/class-price-suit', [HeadStudentController::class,'active2']);
 Route::get('/age-suit', [HeadStudentController::class,'nonActive']);
 
 Route::get('/transaction-suit', [HeadTransactionController::class,'Suit']);

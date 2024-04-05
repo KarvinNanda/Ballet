@@ -154,4 +154,81 @@ class HeadReportController extends Controller
         return $pdf;
     }
 
+    public function reportTeacherPage(){
+        $data = DB::table('schedules as s')
+            ->join('header_absens as ha','ha.schedules_id','s.id')
+            ->join('class_transactions as ct','ct.id','s.class_id')
+            ->join('class_types as ct2','ct.class_type_id','ct2.id')
+            ->join('mapping_class_children as mcc','s.class_id','mcc.class_id')
+            ->join('students as st','st.id','mcc.student_id')
+            ->selectRaw('
+                count(*) as id,
+                monthname(date) as month,
+                month(date) as month_num
+            ')
+            ->whereRaw("(
+                (ct2.class_name like '%intensive%' and st.Quota > 0)
+                or (ct2.class_name like '%Pointe%' and st.Quota > 0)
+                or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.Quota > 5)
+                or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.is_new = 1)
+            )")
+            ->groupby(['month','month_num'])
+            ->orderBy('month_num')
+            ->get();
+
+            return view('head.report.teacher.index',compact('data'));
+    }
+
+    public function reportTeacher($month){
+        $first = now()->setTimezone('GMT+7')->firstOfMonth()->setMonth($month);
+        $last = now()->setTimezone('GMT+7')->lastOfMonth()->setMonth($month);
+        $getmonth = DB::select(DB::raw("select monthname('$first') as month"));
+
+        $report = DB::table('header_absens as ha')
+            ->join('schedules as s','s.id','ha.schedules_id')
+            ->join('users as u','u.id','ha.teacher_id')
+            ->join('mapping_class_children as mcc','s.class_id','mcc.class_id')
+            ->join('students as st','st.id','mcc.student_id')
+            ->join('transactions as t','mcc.student_id','t.students_id')
+            ->join('class_transactions as ct','ct.id','s.class_id')
+            ->join('class_types as ct2','ct.class_type_id','ct2.id')
+            ->selectRaw("
+                st.LongName as studentName,
+                u.name as teacherName,
+                ct2.class_name,
+                ct.price,
+                st.Quota as meet,
+                case
+                 when ct2.class_name = 'Intensive Class' then (ct.price / 12)
+                    when ct2.class_name = 'Intensive Kids' then (ct.price / 12)
+                    when ct2.class_name = 'Pointe Class' then (ct.price / 4)
+                    else (ct.price / 8)
+                end as paid,
+                u.percent as teacher_reward
+            ")
+            ->whereBetween('s.date',[$first,$last])
+            ->whereRaw("(
+                (ct2.class_name like '%intensive%' and st.Quota > 0)
+                or (ct2.class_name like '%Pointe%' and st.Quota > 0)
+                or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.Quota > 5)
+                or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.is_new = 1)
+            )")
+            ->where(function($q) use ($month){
+                if($month + 1 > 12){
+                    $q->whereRaw("month(t.transaction_date) = $month");
+                    $q->whereRaw("month(t.transaction_date) = 1");
+                } else {
+                    $q->whereRaw("month(t.transaction_date) between $month and ".($month+1));
+                }
+            })
+            ->distinct()
+            ->orderBy('ct.price')
+            ->get()
+            ->groupBy('teacherName');
+
+        $pdf = Pdf::loadView('head.report.teacher.print',compact('report','getmonth'))
+            ->stream('Laporan Kehadiran Guru '.now()->setTimezone("GMT+7")->format('dmY').'.pdf');
+        return $pdf;
+    }
+
 }
