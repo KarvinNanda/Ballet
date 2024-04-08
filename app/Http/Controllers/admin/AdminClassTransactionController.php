@@ -127,6 +127,7 @@ class AdminClassTransactionController extends Controller
                     } 
                 })
                 ->where('class_transactions.is_freeze','!=',1)
+                ->where('students.Status','!=','non-aktif')
                 // ->where('mapping_class_children.student_id','!=',0)
                 ->orderBy('class_transactions.id','desc')
                 ->groupBy('class_transactions.id')
@@ -158,6 +159,7 @@ class AdminClassTransactionController extends Controller
                     } 
                 })
                 ->where('class_transactions.is_freeze','!=',1)
+                ->where('students.Status','!=','non-aktif')
                 // ->where('mapping_class_children.student_id','!=',0)
                 ->orderBy('class_transactions.id','desc')
                 ->groupBy('class_transactions.id')
