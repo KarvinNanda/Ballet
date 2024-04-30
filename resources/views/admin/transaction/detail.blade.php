@@ -38,7 +38,7 @@
                 <div class="row mb-3">
                     <label for="inputName" class="col-sm-2 col-form-label">Price</label>
                     <div class="col-sm-10">
-                        <p class="form-control bg-success bg-opacity-10" id="price">Rp.{{number_format($detail->class_price)}}</p>
+                        <p class="form-control bg-success bg-opacity-10" id="price">Rp.{{number_format($detail->price)}}</p>
                     </div>
                 </div>
 

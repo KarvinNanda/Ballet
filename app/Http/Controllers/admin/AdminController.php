@@ -50,7 +50,7 @@ class AdminController extends Controller
             ->where('ct.is_freeze','!=',1)
             ->update([
                 't.price' => $req->inputPrice,
-                'ct.price' => $req->inputPrice
+                'ct.class_transaction_price' => $req->inputPrice
             ]);
 
         return redirect()->route('adminClassTypePage')->with('msg','Success Update Data Course');

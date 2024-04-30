@@ -64,7 +64,7 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="alert text-center" role="alert">
-                    {{$students->links()}}
+                    {{$students->appends(['keyword' => $keyword])->links()}}
                 </div>
             </div>
         </div>

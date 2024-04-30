@@ -22,7 +22,6 @@
                 >
                     <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
 
-                    @csrf
                     <select class="form-select" name="status">
                         <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All</option>
                         <option value="aktif" {{ $status == 'aktif' ? 'selected' : '' }}>Active</option>
@@ -101,7 +100,7 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="pagination mt-4">
-                    {{ $students->links() }}
+                    {{$students->appends(['keyword' => $keyword])->links()}} 
                 </div>
             </div>
         </div>

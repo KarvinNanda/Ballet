@@ -27,7 +27,7 @@ class HeadClassController extends Controller
             ->join('mapping_class_teachers as mct','mct.class_id','ct.id')
             ->join('users as u','mct.user_id','u.id')
             ->selectRaw("
-                ct.price,
+                ct.class_transaction_price,
                 ct2.class_name,
                 u.name 
             ")
@@ -51,7 +51,7 @@ class HeadClassController extends Controller
         DB::table('class_transactions as ct')
             ->where('ct.id',$class_id)
             ->update([
-                'price' => $price
+                'class_transaction_price' => $price
             ]);
         return redirect()->route('headClassFreezeView')->with('msg','Success Update Class Freeze Data');
     }
@@ -136,7 +136,7 @@ class HeadClassController extends Controller
             $classes = ClassTransaction::select(
                 'class_transactions.id',
                 'class_name',
-                'price',
+                'class_transaction_price',
                 'class_transactions.Status',
                 'class_type_id',
                 'student_id',
@@ -166,7 +166,7 @@ class HeadClassController extends Controller
             $classes = ClassTransaction::select(
                 'class_transactions.id',
                 'class_name',
-                'price',
+                'class_transaction_price',
                 'class_transactions.Status',
                 'class_type_id',
                 'student_id',
@@ -208,18 +208,21 @@ class HeadClassController extends Controller
             $classes = ClassTransaction::select(
                 'class_transactions.id',
                 'class_name',
-                'class_price',
+                'class_transaction_price',
                 'class_transactions.Status',
                 'class_type_id',
                 'student_id',
                 'mapping_class_children.class_id',
-                DB::raw('COUNT(student_id) as people_count'))
+                DB::raw('COUNT(students.id) as people_count'))
                 ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
                 ->leftJoin('mapping_class_children',function($q){
                     $q->on('mapping_class_children.class_id','class_transactions.id')
                         ->where('mapping_class_children.student_id','!=',0);
                 })
-                ->leftJoin('students','mapping_class_children.student_id','students.id')
+                ->leftJoin('students',function($q){
+                    $q->on('mapping_class_children.student_id','students.id')
+                        ->where('students.Status','!=','non-aktif');
+                })
                 ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','students.id')
                 ->leftJoin('users','users.id','mapping_class_teachers.user_id')
                 ->where(function($q) use ($keyword){
@@ -230,8 +233,6 @@ class HeadClassController extends Controller
                     } 
                 })
                 ->where('class_transactions.is_freeze','!=',1)
-                ->where('students.Status','!=','non-aktif')
-                // ->where('mapping_class_children.student_id','!=',0)
                 ->orderBy('class_transactions.id','desc')
                 ->groupBy('class_transactions.id')
                 ->paginate(5);
@@ -239,21 +240,23 @@ class HeadClassController extends Controller
             $classes = ClassTransaction::select(
                 'class_transactions.id',
                 'class_name',
-                'class_price',
+                'class_transaction_price',
                 'class_transactions.Status',
                 'class_type_id',
                 'student_id',
                 'mapping_class_children.class_id',
-                DB::raw('COUNT(student_id) as people_count'))
-                ->where(function($q) use ($keyword){
-                    if(!is_null($keyword)) $q->where('class_name','like',"%$keyword%");
-                })
-                ->where('Status','=',$status)
+                DB::raw('COUNT(students.id) as people_count'))
                 ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
                 ->leftJoin('mapping_class_children',function($q){
                     $q->on('mapping_class_children.class_id','class_transactions.id')
                         ->where('mapping_class_children.student_id','!=',0);
                 })
+                ->leftJoin('students',function($q){
+                    $q->on('mapping_class_children.student_id','students.id')
+                        ->where('students.Status','!=','non-aktif');
+                })
+                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','students.id')
+                ->leftJoin('users','users.id','mapping_class_teachers.user_id')
                 ->where(function($q) use ($keyword){
                     if(!is_null($keyword)){
                         $q->where('class_name','like',"%$keyword%")
@@ -262,8 +265,6 @@ class HeadClassController extends Controller
                     } 
                 })
                 ->where('class_transactions.is_freeze','!=',1)
-                ->where('students.Status','!=','non-aktif')
-                // ->where('mapping_class_children.student_id','!=',0)
                 ->orderBy('class_transactions.id','desc')
                 ->groupBy('class_transactions.id')
                 ->paginate(5);
@@ -339,7 +340,7 @@ class HeadClassController extends Controller
         ->where('ct.is_freeze','!=',1)
             ->update([
                 't.price' => $req->inputPrice,
-                'ct.price' => $req->inputPrice
+                'ct.class_transaction_price' => $req->inputPrice
             ]);
 
         return redirect()->route('headClassTypePage')->with('msg','Success Update Course Data');
@@ -388,7 +389,7 @@ class HeadClassController extends Controller
         $class->class_type_id = $course->id;
         $class->Status = 'aktif';
         $class->is_freeze = 0;
-        $class->price = $course->class_price;
+        $class->class_transaction_price = $course->class_price;
 
         $class->save();
 

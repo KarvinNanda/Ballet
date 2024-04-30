@@ -319,6 +319,27 @@ class HeadStudentController extends Controller
 
                     foreach($class as $c){
                         DB::table('class_transactions')->where('id',$c->id)->update([
+                            'class_transaction_price' => $c->class_price
+                        ]);
+                    }
+
+        return redirect()->back();
+    }
+
+    public function active3(){
+        $class = DB::table('class_transactions as ct')
+                    ->join('class_types as ct2','ct2.id','ct.class_type_id')
+                    ->selectRaw('ct.id,ct2.class_price')
+                    ->distinct()
+                    ->where('ct.is_freeze','!=',1)
+                    ->get();
+
+                    foreach($class as $c){
+                        DB::table('class_transactions')->where('id',$c->id)->update([
+                            'class_transaction_price' => $c->class_price
+                        ]);
+
+                        DB::table('transactions')->where('class_transactions_id',$c->id)->update([
                             'price' => $c->class_price
                         ]);
                     }

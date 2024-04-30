@@ -54,7 +54,7 @@
                                 {{$class->mapping[0]->getUser->name}}
                                 - {{$class->people_count}}
                             </td>
-                            <td>Rp.{{number_format($class->price)}}</td>
+                            <td>Rp.{{number_format($class->class_transaction_price)}}</td>
                             @if($class->Status == 'aktif')
                             <td>
 {{--                                <form action="{{route('adminDetailClass')}}" method="get">--}}
@@ -74,7 +74,7 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="alert text-center" role="alert">
-                    {{$classes->links()}}
+                    {{$classes->appends(['keyword' => $keyword])->links()}}
                 </div>
             </div>
         </div>

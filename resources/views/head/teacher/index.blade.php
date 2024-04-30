@@ -3,6 +3,9 @@
 @section('title','Teacher List')
 
 @section('content')
+<div class="d-none">
+    {{ $keyword = request('search') }}
+</div>
 
     <div class="pagetitle">
         <h1>Teacher Tables</h1>
@@ -60,7 +63,7 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="alert text-center" role="alert">
-                    {{$teachers->links()}}
+                    {{$teachers->appends(['search'=>$keyword])->links()}}
                 </div>
             </div>
         </div>
