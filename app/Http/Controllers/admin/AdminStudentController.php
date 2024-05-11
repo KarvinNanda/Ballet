@@ -419,10 +419,11 @@ class AdminStudentController extends Controller
     public function deleteStudent($studentId){
         $change = Student::find($studentId);
         $change->delete();
-        return redirect()->route("adminStudentView")->with('msg','Success Delete Data Student');
+        return redirect()->back()->with('msg','Success Delete Data Student');
     }
 
     public function detailStudent($studentId){
+        $return_url = url()->previous();
         $detail = DB::table('students')
             ->leftJoin('rekenings','students.bank_rek','rekenings.bank_rek')
             ->leftJoin('banks','banks.id','rekenings.banks_id')
@@ -481,6 +482,7 @@ class AdminStudentController extends Controller
         $detail = compact('detail');
         $detail['courses_taken'] = $courses_taken;
         $detail['transactions'] = $transactions;
+        $detail['return_url'] = $return_url;
 
         return view('admin.student.adminStudentDetail', $detail);
     }
@@ -538,6 +540,6 @@ class AdminStudentController extends Controller
 
         $student->save();
 
-        return to_route('adminStudentView')->with('msg','Success Update Data Student');;
+        return redirect()->to($request->return_url)->with('msg','Success Update Data Student');;
     }
 }

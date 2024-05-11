@@ -21,6 +21,7 @@ class HeadClassController extends Controller
 {
 
     public function updateClassFreezePage($id){
+        $return_url = url()->previous();
         $class_id = $id;
         $class = DB::table('class_transactions as ct')
             ->join('class_types as ct2','ct2.id','ct.class_type_id')
@@ -33,7 +34,7 @@ class HeadClassController extends Controller
             ")
             ->where('ct.id',$class_id)
             ->first();
-        return view('head.class.update',compact('class','class_id'));
+        return view('head.class.update',compact('class','class_id','return_url'));
     }
 
     public function updateClassFreeze(Request $req,$id){
@@ -53,7 +54,7 @@ class HeadClassController extends Controller
             ->update([
                 'class_transaction_price' => $price
             ]);
-        return redirect()->route('headClassFreezeView')->with('msg','Success Update Class Freeze Data');
+        return redirect()->to($req->return_url)->with('msg','Success Update Class Freeze Data');
     }
 
     public function detailClassFreeze($id){
@@ -324,8 +325,9 @@ class HeadClassController extends Controller
     }
 
     public function viewUpdateType(Request $req){
+        $return_url = url()->previous();
         $type = ClassType::find($req->typeID);
-        return view('head.class.classTypeUpdate',compact('type'));
+        return view('head.class.classTypeUpdate',compact('type','return_url'));
     }
 
     public function updateType(Request $req){
@@ -343,12 +345,12 @@ class HeadClassController extends Controller
                 'ct.class_transaction_price' => $req->inputPrice
             ]);
 
-        return redirect()->route('headClassTypePage')->with('msg','Success Update Course Data');
+        return redirect()->to($req->return_url)->with('msg','Success Update Course Data');
     }
 
     public function DeleteType(Request $req){
         $type = ClassType::find($req->typeID)->delete();
-        return redirect()->route('headClassTypePage')->with('msg','Success Delete Course Data');
+        return redirect()->back()->with('msg','Success Delete Course Data');
     }
 
     public function active(){
@@ -661,6 +663,7 @@ class HeadClassController extends Controller
     }
 
     public function levelUp(Request $req){
+        $return_url = url()->previous();
         $class_id = $req->classId;
 
         $students = DB::table('class_transactions')
@@ -681,26 +684,30 @@ class HeadClassController extends Controller
     }
 
     public function levelUpStudent(Request $req){
-        $class = ClassTransaction::where('id',$req->class_id)->first();
-        $class->class_type_id += 1;
-        $class->save();
+        // $class = ClassTransaction::where('id',$req->class_id)->first();
+        // $class->class_type_id += 1;
+        // $class->save();
 
-        $class_id = $req->class_id;
-        $data = DB::table('class_transactions')
-        ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
-        ->join('students','mapping_class_children.student_id','students.id')
-        ->where('class_transactions.id', $class_id)
-        ->get();
-        foreach($data as $d){
-            DB::table('students')->where('id',$d->student_id)->update([
-                'MaxQuota' => ($d->MaxQuota - $d->Quota),
-                'Quota' => 0,
-                'is_new' => 0,
-            ]);
-        }
+        // $class_id = $req->class_id;
+        // $data = DB::table('class_transactions')
+        // ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
+        // ->join('students','mapping_class_children.student_id','students.id')
+        // ->where('class_transactions.id', $class_id)
+        // ->get();
+        // foreach($data as $d){
+        //     DB::table('students')->where('id',$d->student_id)->update([
+        //         'MaxQuota' => ($d->MaxQuota - $d->Quota),
+        //         'Quota' => 0,
+        //         'is_new' => 0,
+        //     ]);
+        // }
+        $class_id = $req->classId;
+        DB::table('class_transactions')->where('id', $class_id)->update([
+            'is_freeze' => 1
+        ]);
 
-        MappingClassChild::where('class_id',$req->class_id)->delete();
-        return redirect()->route("headClassPage")->with('msg','Success Level up All Student');
+        // MappingClassChild::where('class_id',$req->class_id)->delete();
+        return redirect()->to($req->return_url)->with('msg','Success Level up All Student');
     }
 
     public function viewAbsen($id){

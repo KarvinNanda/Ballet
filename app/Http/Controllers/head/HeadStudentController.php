@@ -212,7 +212,7 @@ class HeadStudentController extends Controller
     public function deleteStudent($studentId){
         $change = Student::find($studentId);
         $change->delete();
-        return redirect()->route("headStudentPage")->with('msg','Success Delete Student');
+        return redirect()->back()->with('msg','Success Delete Student');
     }
 
     public function sorting($value,$type){
@@ -444,6 +444,7 @@ class HeadStudentController extends Controller
     }
 
     public function detailStudent($id){
+        $return_url = url()->previous();
         $detail = DB::table('students')
             ->leftJoin('rekenings', 'students.bank_rek', 'rekenings.bank_rek')
             ->leftJoin('banks', 'banks.id', 'rekenings.banks_id')
@@ -503,6 +504,8 @@ class HeadStudentController extends Controller
         $detail = compact('detail');
         $detail['courses_taken'] = $courses_taken;
         $detail['transactions'] = $transactions;
+        $detail['return_url'] = $return_url;
+        
 
         return view('head.student.detail',$detail);
     }
@@ -576,6 +579,6 @@ class HeadStudentController extends Controller
         $student->save();
 
 
-        return to_route('headStudentPage')->with('msg','Success Update Student');
+        return redirect()->to($request->return_url)->with('msg','Success Update Student');
     }
 }

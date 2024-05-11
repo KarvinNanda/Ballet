@@ -16,6 +16,7 @@
                 <form action="{{route('headChangeTypeClass')}}" method="post">
                     @csrf
                     <input type="hidden" name="typeID" value="{{$type->id}}">
+                    <input type="hidden" name="return_url" value="{{$return_url}}">
                     <div class="row mb-3">
                         <label  class="col-sm-2 col-form-label">Class Type Name</label>
                         <div class="col-sm-10">

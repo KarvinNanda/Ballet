@@ -428,6 +428,7 @@ class AdminClassTransactionController extends Controller
     }
 
     public function levelUp(Request $req){
+        $return_url = url()->previous();
         $class_id = $req->classId;
 
         $students = DB::table('class_transactions')
@@ -444,7 +445,7 @@ class AdminClassTransactionController extends Controller
             ->where('class_transactions.id',$req->classId)
             ->paginate(5);
 
-        return view('admin.class.levelUp',compact('students','class_id'));
+        return view('admin.class.levelUp',compact('students','class_id','return_url'));
     }
 
     public function levelUpStudent(Request $req){
@@ -473,7 +474,7 @@ class AdminClassTransactionController extends Controller
 
         // MappingClassChild::where('class_id',$req->class_id)->delete();
 
-        return redirect()->route("adminClassView")->with('msg','Success Freeze Class');
+        return redirect()->to($req->return_url)->with('msg','Success Freeze Class');
     }
 
     public function ChangeStatus(ClassTransaction $class){

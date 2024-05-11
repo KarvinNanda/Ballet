@@ -15,9 +15,10 @@ use Illuminate\Support\Facades\Validator;
 class FinanceStockController extends Controller
 {
     public function in(Stock $stock){
+        $return_url = url()->previous();
         $type = 'in';
         $buyer = Buyer::where('stock_id',$stock->id)->paginate(5);
-        return view('finance.in-out',compact('stock','type','buyer'));
+        return view('finance.in-out',compact('stock','type','buyer','return_url'));
     }
 
     public function financeStock($value,$sort){
@@ -55,7 +56,7 @@ class FinanceStockController extends Controller
             'quantity' => $type == 'in' ? $stock->quantity + $req->in_out : $stock->quantity - $req->in_out
         ]);
 
-        return to_route('finance')->with('msg','Success Update Stock');
+        return redirect()->to($req->return_url)->with('msg','Success Update Stock');
     }
 
     public function stock(){

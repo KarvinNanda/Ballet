@@ -54,7 +54,7 @@
                         </th>
                         <th scope="col">Detail</th>
                         <th scope="col">Schedule Detail</th>
-                        <th scope="col">Level Up</th>
+                        <th scope="col">Action</th>
                         {{-- <th scope="col">Reset</th> --}}
                     </tr>
                     </thead>
@@ -96,7 +96,7 @@
                                     <form action="{{route('headLevelUp')}}" method="post">
                                         @csrf
                                         <input type="hidden" value="{{$class->id}}" name="classId">
-                                        <button type="submit" class="btn btn-info">Level Up</button>
+                                        <button type="submit" class="btn btn-info">Freeze</button>
                                     </form>
                                 </td>
                                 @else

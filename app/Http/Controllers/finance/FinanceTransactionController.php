@@ -56,6 +56,7 @@ class FinanceTransactionController extends Controller
     }
 
     public function viewPaidTransaction(Transaction $transaction){
+        $return_url = url()->previous();
         $trans = $transaction->id;
         $transaction = Transaction::select('*')
             ->leftJoin('students','students.id','transactions.students_id')
@@ -64,7 +65,7 @@ class FinanceTransactionController extends Controller
             ->where('transactions.id',$trans)
             ->first();
         $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
-        return view('finance.paid',compact('transaction','data','trans'));
+        return view('finance.paid',compact('transaction','data','trans','return_url'));
     }
 
     public function submitPaidTransaction($trans,Request $req){
@@ -102,6 +103,6 @@ class FinanceTransactionController extends Controller
             DB::table('students')->where('id',$transaction->students_id)->update([
                 'MaxQuota' => $student->MaxQuota + $transaction->transaction_quota
             ]);
-        return redirect()->route('financeTransaction')->with('msg','Success Update Transaction');
+        return redirect()->to($req->return_url)->with('msg','Success Update Transaction');
     }
 }

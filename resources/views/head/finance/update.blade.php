@@ -15,6 +15,7 @@
                 <!-- General Form Elements -->
                 <form action="{{route('headFinanceUpdate',$user)}}" method="post">
                     @csrf
+                    <input type="hidden" name="return_url" value="{{$return_url}}">
                     <div class="row mb-3">
                         <label for="inputName" class="col-sm-2 col-form-label">Name</label>
                         <div class="col-sm-10">

@@ -133,6 +133,7 @@ class AdminTransactionController extends Controller
     }
 
     public function updatePage($trans){
+        $return_url = url()->previous();
         $transaction = Transaction::select('*')
             ->leftJoin('students','students.id','transactions.students_id')
             ->leftJoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
@@ -140,7 +141,7 @@ class AdminTransactionController extends Controller
             ->where('transactions.id',$trans)
             ->first();
         $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
-        return view('admin.transaction.update',compact('transaction','data','trans'));
+        return view('admin.transaction.update',compact('transaction','data','trans','return_url'));
     }
 
     public function update(Request $req,Transaction $transaction){
@@ -292,7 +293,7 @@ class AdminTransactionController extends Controller
                         ]);
         }
 
-        return redirect()->route('adminTransactionPage')->with('msg','Success Update Transaction');
+        return redirect()->to($req->return_url)->with('msg','Success Update Transaction');
     }
 
     public function submitPaidTransaction($transactionId,Request $req){

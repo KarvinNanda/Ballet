@@ -34,8 +34,9 @@ class AdminController extends Controller
     }
 
     public function viewUpdateType(Request $req){
+        $return_url = url()->previous();
         $type = ClassType::find($req->typeID);
-        return view('admin.class.classTypeUpdate',compact('type'));
+        return view('admin.class.classTypeUpdate',compact('type','return_url'));
     }
 
     public function updateType(Request $req){
@@ -53,11 +54,11 @@ class AdminController extends Controller
                 'ct.class_transaction_price' => $req->inputPrice
             ]);
 
-        return redirect()->route('adminClassTypePage')->with('msg','Success Update Data Course');
+        return redirect()->to($req->return_url)->with('msg','Success Update Data Course');
     }
 
     public function DeleteType(Request $req){
         $type = ClassType::find($req->typeID)->delete();
-        return redirect()->route('adminClassTypePage')->with('msg','Success Delete Course Data');
+        return redirect()->back()->with('msg','Success Delete Course Data');
     }
 }

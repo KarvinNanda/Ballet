@@ -31,8 +31,9 @@ class BuyerController extends Controller
     }
 
     public function buyingPage($id){
+        $return_url = url()->previous();
         $stock = Stock::find($id);
-        return view('buyer.buy',compact('stock'));
+        return view('buyer.buy',compact('stock','return_url'));
     }
 
     public function buying(Request $req,$id){
@@ -82,6 +83,6 @@ class BuyerController extends Controller
             'quantity' =>  $stock->quantity - $req->qty,
         ]);
 
-        return to_route('buyer')->with(['msg' => 'Thank You']);
+        return redirect()->to($req->return_url)->with(['msg' => 'Thank You']);
     }
 }

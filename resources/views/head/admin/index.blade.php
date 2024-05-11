@@ -58,7 +58,7 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="alert text-center" role="alert">
-                    {{$admins->append(['search' => $keyword])links()}}
+                    {{$admins->appends(['search' => $keyword])->links()}}
                 </div>
             </div>
         </div>
