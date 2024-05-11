@@ -13,7 +13,7 @@
         <div class="card">
             <form action="{{route('getAbsen',$view)}}" method="post">
                 @csrf
-
+            <input type="hidden" name="return_url" value="{{$return_url}}">
             <div class="card-body">
 
 

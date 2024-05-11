@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class HeadTransactionController extends Controller
 {
@@ -84,6 +85,7 @@ class HeadTransactionController extends Controller
     }
 
     public function updatePage($trans){
+        $return_url = url()->previous();
         $transaction = Transaction::select('*')
             ->leftJoin('students','students.id','transactions.students_id')
             ->leftJoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
@@ -91,7 +93,7 @@ class HeadTransactionController extends Controller
             ->where('transactions.id',$trans)
             ->first();
         $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
-        return view('head.transaction.update',compact('transaction','data','trans'));
+        return view('head.transaction.update',compact('transaction','data','trans','return_url'));
     }
 
     public function update(Request $req,Transaction $transaction){
@@ -237,12 +239,12 @@ class HeadTransactionController extends Controller
                         ]);
         }
 
-        return redirect()->route('headTransactionPage')->with('msg','Success Update Transaction');
+        return redirect()->to($req->return_url)->with('msg','Success Update Transaction');
     }
 
     public function delete(Request $req,Transaction $transaction){
         DB::table('transactions')->where('id',$transaction->id)->delete();
-        return redirect()->route('headTransactionPage')->with('msg','Success Delete Transaction');
+        return redirect()->back()->with('msg','Success Delete Transaction');
     }
 
     public function Suit(){

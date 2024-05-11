@@ -18,7 +18,8 @@ class HeadAdminController extends Controller
     }
 
     public function updatePage(User $user){
-        return view('head.admin.update',compact('user'));
+        $return_url = url()->previous();
+        return view('head.admin.update',compact('user','return_url'));
     }
 
     public function update(Request $req,User $user){
@@ -45,7 +46,7 @@ class HeadAdminController extends Controller
         $user->percent = $req->inputBonus;
         $user->save();
 
-        return redirect()->route('headAdminPage')->with('msg','Success Update Teacher');
+        return redirect()->to($req->return_url)->with('msg','Success Update Admin');
     }
 
     public function insertPage(){
@@ -94,7 +95,7 @@ class HeadAdminController extends Controller
     public function delete(User $user){
         $user = User::find($user->id);
         $user->delete();
-        return redirect()->route('headAdminPage')->with('msg','Success Delete Admin');
+        return redirect()->back()->with('msg','Success Delete Admin');
     }
 
 

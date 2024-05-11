@@ -212,7 +212,7 @@ class HeadStudentController extends Controller
     public function deleteStudent($studentId){
         $change = Student::find($studentId);
         $change->delete();
-        return redirect()->route("headStudentPage")->with('msg','Success Delete Student');
+        return redirect()->back()->with('msg','Success Delete Student');
     }
 
     public function sorting($value,$type){
@@ -319,6 +319,27 @@ class HeadStudentController extends Controller
 
                     foreach($class as $c){
                         DB::table('class_transactions')->where('id',$c->id)->update([
+                            'class_transaction_price' => $c->class_price
+                        ]);
+                    }
+
+        return redirect()->back();
+    }
+
+    public function active3(){
+        $class = DB::table('class_transactions as ct')
+                    ->join('class_types as ct2','ct2.id','ct.class_type_id')
+                    ->selectRaw('ct.id,ct2.class_price')
+                    ->distinct()
+                    ->where('ct.is_freeze','!=',1)
+                    ->get();
+
+                    foreach($class as $c){
+                        DB::table('class_transactions')->where('id',$c->id)->update([
+                            'class_transaction_price' => $c->class_price
+                        ]);
+
+                        DB::table('transactions')->where('class_transactions_id',$c->id)->update([
                             'price' => $c->class_price
                         ]);
                     }
@@ -423,6 +444,7 @@ class HeadStudentController extends Controller
     }
 
     public function detailStudent($id){
+        $return_url = url()->previous();
         $detail = DB::table('students')
             ->leftJoin('rekenings', 'students.bank_rek', 'rekenings.bank_rek')
             ->leftJoin('banks', 'banks.id', 'rekenings.banks_id')
@@ -482,6 +504,8 @@ class HeadStudentController extends Controller
         $detail = compact('detail');
         $detail['courses_taken'] = $courses_taken;
         $detail['transactions'] = $transactions;
+        $detail['return_url'] = $return_url;
+        
 
         return view('head.student.detail',$detail);
     }
@@ -555,6 +579,6 @@ class HeadStudentController extends Controller
         $student->save();
 
 
-        return to_route('headStudentPage')->with('msg','Success Update Student');
+        return redirect()->to($request->return_url)->with('msg','Success Update Student');
     }
 }

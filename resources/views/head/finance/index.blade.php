@@ -4,6 +4,10 @@
 @section('title','Finance List')
 
 @section('content')
+<div class="d-none">
+    {{ $keyword = request('search') }}
+</div>
+
     <div class="pagetitle">
         <h1>Finance Tables</h1>
     </div><!-- End Page Title -->
@@ -55,7 +59,7 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="alert text-center" role="alert">
-                    {{$finances->links()}}
+                    {{$finances->appends(['search' => $keyword])->links()}}
                 </div>
             </div>
         </div>

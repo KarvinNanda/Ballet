@@ -7,6 +7,7 @@
     <form action="{{route('headLevelUpStudent')}}" method="post">
         @csrf
         <input type="hidden" name="class_id" value="{{$class_id}}">
+        <input type="hidden" name="return_url" value="{{$return_url}}">
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">

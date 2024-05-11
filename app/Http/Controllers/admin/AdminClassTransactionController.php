@@ -32,7 +32,7 @@ class AdminClassTransactionController extends Controller
             $classes = ClassTransaction::select(
                 'class_transactions.id',
                 'class_name',
-                'price',
+                'class_transaction_price',
                 'class_transactions.Status',
                 'class_type_id',
                 'student_id',
@@ -62,7 +62,7 @@ class AdminClassTransactionController extends Controller
             $classes = ClassTransaction::select(
                 'class_transactions.id',
                 'class_name',
-                'price',
+                'class_transaction_price',
                 'class_transactions.Status',
                 'class_type_id',
                 'student_id',
@@ -105,18 +105,54 @@ class AdminClassTransactionController extends Controller
             $classes = ClassTransaction::select(
                 'class_transactions.id',
                 'class_name',
-                'price',
+                'class_transaction_price',
                 'class_transactions.Status',
                 'class_type_id',
                 'student_id',
                 'mapping_class_children.class_id',
-                DB::raw('COUNT(student_id) as people_count'))
+                DB::raw('COUNT(students.id) as people_count'))
                 ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
                 ->leftJoin('mapping_class_children',function($q){
                     $q->on('mapping_class_children.class_id','class_transactions.id')
                         ->where('mapping_class_children.student_id','!=',0);
                 })
-                ->leftJoin('students','mapping_class_children.student_id','students.id')
+                ->leftJoin('students',function($q){
+                    $q->on('mapping_class_children.student_id','students.id')
+                        ->where('students.Status','!=','non-aktif');
+                })
+                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','students.id')
+                ->leftJoin('users','users.id','mapping_class_teachers.user_id')
+                ->where(function($q) use ($keyword){
+                    if(!is_null($keyword)){
+                        $q->where('users.name','like',"%$keyword%")
+                            ->orWhere('class_name','like',"%$keyword%")
+                            ->orWhere('students.LongName','like',"%$keyword%");
+                    } 
+                })
+                ->where('class_transactions.is_freeze','!=',1)
+                ->orderBy('class_transactions.id','desc')
+                ->groupBy('class_transactions.id')
+                ->paginate(5);
+                
+        } else{
+            $classes = ClassTransaction::select(
+                'class_transactions.id',
+                'class_name',
+                'class_transaction_price',
+                'class_transactions.Status',
+                'class_type_id',
+                'student_id',
+                'mapping_class_children.class_id',
+                DB::raw('COUNT(students.id) as people_count'))
+                ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
+                ->leftJoin('mapping_class_children',function($q){
+                    $q->on('mapping_class_children.class_id','class_transactions.id')
+                        ->where('mapping_class_children.student_id','!=',0);
+                })
+                ->leftJoin('students',function($q){
+                    $q->on('mapping_class_children.student_id','students.id')
+                        ->where('students.Status','!=','non-aktif');
+                })
                 ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','students.id')
                 ->leftJoin('users','users.id','mapping_class_teachers.user_id')
                 ->where(function($q) use ($keyword){
@@ -127,44 +163,11 @@ class AdminClassTransactionController extends Controller
                     } 
                 })
                 ->where('class_transactions.is_freeze','!=',1)
-                // ->where('mapping_class_children.student_id','!=',0)
-                ->orderBy('class_transactions.id','desc')
-                ->groupBy('class_transactions.id')
-                ->paginate(5);
-        } else{
-            $classes = ClassTransaction::select(
-                'class_transactions.id',
-                'class_name',
-                'price',
-                'class_transactions.Status',
-                'class_type_id',
-                'student_id',
-                'mapping_class_children.class_id',
-                DB::raw('COUNT(student_id) as people_count'))
-                ->where(function($q) use ($keyword){
-                    if(!is_null($keyword)) $q->where('class_name','like',"%$keyword%");
-                })
-                ->where('Status','=',$status)
-                ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
-                ->leftJoin('mapping_class_children',function($q){
-                    $q->on('mapping_class_children.class_id','class_transactions.id')
-                        ->where('mapping_class_children.student_id','!=',0);
-                })
-                ->where(function($q) use ($keyword){
-                    if(!is_null($keyword)){
-                        $q->where('class_name','like',"%$keyword%")
-                            ->orWhere('users.name','like',"%$keyword%")
-                            ->orWhere('students.LongName','like',"%$keyword%");
-                    } 
-                })
-                ->where('class_transactions.is_freeze','!=',1)
-                // ->where('mapping_class_children.student_id','!=',0)
                 ->orderBy('class_transactions.id','desc')
                 ->groupBy('class_transactions.id')
                 ->paginate(5);
         }
-
-
+        
         return view('admin.class.view', compact('classes','sort'));
     }
 
@@ -252,7 +255,7 @@ class AdminClassTransactionController extends Controller
         $class->class_type_id = $course->id;
         $class->Status = 'aktif';
         $class->is_freeze = 0;
-        $class->price = $course->class_price;
+        $class->class_transaction_price = $course->class_price;
 
         $class->save();
 
@@ -425,6 +428,7 @@ class AdminClassTransactionController extends Controller
     }
 
     public function levelUp(Request $req){
+        $return_url = url()->previous();
         $class_id = $req->classId;
 
         $students = DB::table('class_transactions')
@@ -441,7 +445,7 @@ class AdminClassTransactionController extends Controller
             ->where('class_transactions.id',$req->classId)
             ->paginate(5);
 
-        return view('admin.class.levelUp',compact('students','class_id'));
+        return view('admin.class.levelUp',compact('students','class_id','return_url'));
     }
 
     public function levelUpStudent(Request $req){
@@ -470,7 +474,7 @@ class AdminClassTransactionController extends Controller
 
         // MappingClassChild::where('class_id',$req->class_id)->delete();
 
-        return redirect()->route("adminClassView")->with('msg','Success Freeze Class');
+        return redirect()->to($req->return_url)->with('msg','Success Freeze Class');
     }
 
     public function ChangeStatus(ClassTransaction $class){

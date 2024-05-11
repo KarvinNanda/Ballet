@@ -74,11 +74,11 @@
                             <tr>
                                 <td>{{ $i->studentName }}</td>
                                 <td>{{ $i->class_name }}</td>
-                                <td>Rp.{{ number_format($i->price) }}</td>
+                                <td>Rp.{{ number_format($i->class_transaction_price) }}</td>
                                 <td>{{ $i->meet }}</td>
                                 <td>Rp.{{ number_format($i->paid) }}</td>
                                 @if ($i->class_name == 'Intensive Kids')
-                                    <td>Rp.{{ number_format($i->price / 4) }}</td>
+                                    <td>Rp.{{ number_format($i->class_transaction_price / 4) }}</td>
                                 @else
                                     <td>Rp.{{ number_format(($i->paid * $i->meet * $i->teacher_reward) / 100) }}</td>
                                 @endif

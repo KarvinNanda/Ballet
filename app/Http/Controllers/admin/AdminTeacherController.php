@@ -37,7 +37,8 @@ class AdminTeacherController extends Controller
     }
 
     public function updatePage(User $teacher){
-        return view('admin.teacher.update',compact('teacher'));
+        $return_url = url()->previous();
+        return view('admin.teacher.update',compact('teacher','return_url'));
     }
 
     public function update(Request $req,User $teacher){
@@ -64,13 +65,13 @@ class AdminTeacherController extends Controller
         $user->percent = $req->inputBonus;
         $user->save();
 
-        return redirect()->route('adminTeacherView')->with('msg','Success Update Data Teacher');
+        return redirect()->to($req->return_url)->with('msg','Success Update Data Teacher');
     }
 
     public function deleteTeacher(Request $req){
         $teacher = User::where('id','=',$req->id);
         $teacher->delete();
-        return redirect(route('admin.teacher.adminTeacherView'))->with('msg','Success Delete Data Teacher');
+        return redirect()->back()->with('msg','Success Delete Data Teacher');
     }
 
     public function detailTeacher(User $teacher){

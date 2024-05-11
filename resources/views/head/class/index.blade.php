@@ -21,8 +21,7 @@
                     action="{{route('headClassPage')}}"
                 >
                     <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
-
-                    @csrf
+                    
                     <select class="form-select" name="status">
                         <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All</option>
                         <option value="aktif" {{ $status == 'aktif' ? 'selected' : '' }}>Active</option>
@@ -55,7 +54,7 @@
                         </th>
                         <th scope="col">Detail</th>
                         <th scope="col">Schedule Detail</th>
-                        <th scope="col">Level Up</th>
+                        <th scope="col">Action</th>
                         {{-- <th scope="col">Reset</th> --}}
                     </tr>
                     </thead>
@@ -67,7 +66,7 @@
                                 {{$class->mapping[0]->getUser->name}}
                                 - {{$class->people_count}}
                             </td>
-                            <td>Rp.{{number_format($class->Type->class_price)}}</td>
+                            <td>Rp.{{number_format($class->class_transaction_price)}}</td>
                             <td>
                                 <form action="{{route('changeStatusClass',$class)}}" method="post">
                                     @csrf
@@ -97,7 +96,7 @@
                                     <form action="{{route('headLevelUp')}}" method="post">
                                         @csrf
                                         <input type="hidden" value="{{$class->id}}" name="classId">
-                                        <button type="submit" class="btn btn-info">Level Up</button>
+                                        <button type="submit" class="btn btn-info">Freeze</button>
                                     </form>
                                 </td>
                                 @else
@@ -117,7 +116,7 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="alert text-center" role="alert">
-                    {{$classes->links()}}
+                    {{$classes->appends(['keyword' => $keyword])->links()}}
                 </div>
             </div>
         </div>

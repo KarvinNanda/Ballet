@@ -11,6 +11,7 @@
         <form class="card" method="post" action="{{route('adminUpdateStudent')}}">
             @csrf
             <input type="hidden" name="id" value={{$detail->id}}>
+            <input type="hidden" name="return_url" value={{$return_url}}>
             <div class="card-body">
                 <div class="row mb-3">
                     <label for="inputName" class="col-sm-2 col-form-label">NIS</label>

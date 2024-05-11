@@ -40,6 +40,7 @@
                 <div class="w-50 justify-content-end">
                     <form action="{{route('buying',$stock->id)}}" method="post">
                         @csrf
+                        <input type="hidden" name="return_url" value="{{$return_url}}">
                         <div class="row mb-3">
                             <label for="name" class="col-sm-2 col-form-label">Name</label>
                             <div class="col-sm-10">

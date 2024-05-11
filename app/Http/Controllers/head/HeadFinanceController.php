@@ -18,7 +18,8 @@ class HeadFinanceController extends Controller
     }
 
     public function updatePage(User $user){
-        return view('head.finance.update',compact('user'));
+        $return_url = url()->previous();
+        return view('head.finance.update',compact('user','return_url'));
     }
 
     public function update(Request $req,User $user){
@@ -45,7 +46,7 @@ class HeadFinanceController extends Controller
         $user->percent = $req->inputBonus;
         $user->save();
 
-        return redirect()->route('headFinancePage')->with('msg','Success Update Teacher');
+        return redirect()->to($req->return_url)->with('msg','Success Update Teacher');
     }
 
     public function insertPage(){
@@ -94,6 +95,6 @@ class HeadFinanceController extends Controller
     public function delete(User $user){
         $user = User::find($user->id);
         $user->delete();
-        return to_route('headFinancePage')->with('msg','Success Create Finance Data');
+        return redirect()->back()->with('msg','Success Create Finance Data');
     }
 }

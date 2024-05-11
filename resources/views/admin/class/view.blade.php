@@ -22,7 +22,6 @@
                 >
                     <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
 
-                    @csrf
                     <select class="form-select" name="status">
                         <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All</option>
                         <option value="aktif" {{ $status == 'aktif' ? 'selected' : '' }}>Active</option>
@@ -65,7 +64,7 @@
                                 {{$class->mapping[0]->getUser->name}}
                                 - {{$class->people_count}}
                             </td>
-                            <td>Rp.{{number_format($class->price)}}</td>
+                            <td>Rp.{{number_format($class->class_transaction_price)}}</td>
                             <td>
                                 <form action="{{route('changeStatusClassAdmin',$class)}}" method="post">
                                     @csrf
@@ -115,7 +114,7 @@
                 </table>
                 <!-- End Table with stripped rows -->
                 <div class="alert text-center" role="alert">
-                    {{$classes->links()}}
+                    {{$classes->appends(['keyword' => $keyword])->links()}}
                 </div>
             </div>
         </div>

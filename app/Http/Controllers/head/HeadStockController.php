@@ -55,8 +55,9 @@ class HeadStockController extends Controller
     }
 
     public function updatePage(Stock $stock){
+        $return_url = url()->previous();
         $buyer = Buyer::where('stock_id',$stock->id)->paginate(5);
-        return view('head.stock.update',compact('stock','buyer'));
+        return view('head.stock.update',compact('stock','buyer','return_url'));
     }
 
     public function update(Request $req,Stock $stock){
@@ -78,12 +79,12 @@ class HeadStockController extends Controller
         $stock->quantity = $req->inputQty;
         $stock->save();
 
-        return redirect()->route('headStockPage')->with('msg','Success Update Stock');
+        return redirect()->to($req->return_url)->with('msg','Success Update Stock');
     }
 
     public function delete(Stock $stock){
         $stock = Stock::find($stock->id);
         $stock->delete();
-        return redirect()->route('headStockPage')->with('msg','Success Delete Stock');
+        return redirect()->back()->with('msg','Success Delete Stock');
     }
 }

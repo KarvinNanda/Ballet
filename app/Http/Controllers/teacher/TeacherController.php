@@ -59,6 +59,7 @@ class TeacherController extends Controller
     }
 
     public function viewAbsen($id){
+        $return_url = url()->previous();
         $view = Schedule::find($id);
         $class_name = DB::table('class_transactions')
             ->leftJoin('schedules','class_transactions.id','schedules.class_id')
@@ -81,10 +82,10 @@ class TeacherController extends Controller
         $header = DB::table('header_absens')->where('schedules_id',"=",$id)->first();
         if(!is_null($header)){
             $detail = DB::table('detail_absens')->where('header_absen_id',$header->id)->get();
-            return view('teacher.absen',compact("view","class","detail","class_name"));
+            return view('teacher.absen',compact("view","class","detail","class_name",'return_url'));
         }
 
-        return view('teacher.absen',compact("view","class","class_name"));
+        return view('teacher.absen',compact("view","class","class_name",'return_url'));
 
 
     }
@@ -123,6 +124,6 @@ class TeacherController extends Controller
             $detail->save();
             DB::table('students')->where('id',$students[$i]->id)->update(['Quota' => $students[$i]->Quota + 1]);
         }
-        return redirect()->route("teacher")->with('msg','Success Making Attendance');
+        return redirect()->to($req->return_url)->with('msg','Success Making Attendance');
     }
 }

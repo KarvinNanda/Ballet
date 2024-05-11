@@ -20,7 +20,8 @@ class HeadTeacherController extends Controller
     }
 
     public function updatePage(User $teacher){
-        return view('head.teacher.update',compact('teacher'));
+        $return_url = url()->previous();
+        return view('head.teacher.update',compact('teacher','return_url'));
     }
 
     public function update(Request $req,User $teacher){
@@ -47,7 +48,7 @@ class HeadTeacherController extends Controller
         $user->percent = $req->inputBonus;
         $user->save();
 
-        return redirect()->route('headTeacherPage')->with('msg','Success Update Teacher');
+        return redirect()->to($req->return_url)->with('msg','Success Update Teacher');
     }
 
     public function insertPage(){

@@ -54,7 +54,7 @@
                                 {{$class->mapping[0]->getUser->name}}
                                 - {{$class->people_count}}
                             </td>
-                            <td>Rp.{{number_format($class->price)}}</td>
+                            <td>Rp.{{number_format($class->class_transaction_price)}}</td>
                             <td>
                                     <a href="{{route('headDetailClassFreeze', ['id' => $class->id])}}"><button type="submit" class="btn btn-secondary">Detail</button></a>
                             </td>
