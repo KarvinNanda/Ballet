@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
@@ -30,10 +31,42 @@ class AdminTeacherController extends Controller
         return view('admin.teacher.adminTeacherView',compact('teachers'));
     }
 
-    public function delete(User $teacher){
+    public function delete(User $teacher,Request $req){
+        $checkTeacherOnClass = DB::table('mapping_class_teachers as mct')
+                                    ->leftJoin('class_transactions as ct','ct.id','mct.class_id')
+                                    ->where('ct.is_freeze','!=',1)
+                                    ->where('mct.user_id',$teacher->id)
+                                    ->first();
+        if(is_null($checkTeacherOnClass)){
+            $delete = User::find($teacher->id);
+            $delete->delete();
+            return redirect()->back()->with('msg','Success Delete Data Teacher');
+        } else {
+            $keyword=$req->search;
+            $teachers = User::where('role','teacher')
+                            ->where('id','!=',$teacher->id)
+                            ->where(function($q) use ($keyword){
+                                if(!is_null($keyword)){
+                                    $q->where('name','like',"%$keyword%");
+                                } 
+                            })
+                            ->orderBy('id','desc')
+                            ->paginate(5);
+            return view('admin.teacher.teacherSwitch',compact('teachers','teacher'));
+        }
+    }
+
+    public function replace(User $teacher,$replaceTeacherID){
+        DB::table('mapping_class_teachers as mct')
+                                    ->leftJoin('class_transactions as ct','ct.id','mct.class_id')
+                                    ->where('ct.is_freeze','!=',1)
+                                    ->where('mct.user_id',$teacher->id)
+                                    ->update([
+                                        'mct.user_id' => $replaceTeacherID
+                                    ]);
         $delete = User::find($teacher->id);
-        $delete->delete();
-        return redirect()->back()->with('msg','Success Delete Data Teacher');
+        $delete->delete();                       
+        return redirect()->route("adminTeacherView")->with('msg','Success Replace & Delete Data Teacher');
     }
 
     public function updatePage(User $teacher){
@@ -109,7 +142,7 @@ class AdminTeacherController extends Controller
             'password' => 'ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY')
         ];
 
-        Mail::to('kdotchrist30@gmail.com')->send(new SendingEmail($credential));
+        Mail::to($user->email)->send(new SendingEmail($credential));
 
         return redirect()->route("adminTeacherView")->with('msg','Success Create Data Teacher');
     }

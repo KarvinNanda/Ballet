@@ -22,6 +22,7 @@ use App\Http\Controllers\head\HeadStockController;
 use App\Http\Controllers\head\HeadStudentController;
 use App\Http\Controllers\head\HeadTeacherController;
 use App\Http\Controllers\head\HeadTransactionController;
+use App\Http\Controllers\head\HeadRuleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\teacher\TeacherClassController;
 use App\Http\Controllers\teacher\TeacherController;
@@ -137,11 +138,13 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/teacher/view', [AdminTeacherController::class,'adminTeacherView'])->name('adminTeacherView');
     Route::get('/teacher/form', [AdminTeacherController::class,'adminTeacherForm'])->name('adminTeacherForm');
     Route::post('/teacher/form', [AdminTeacherController::class,'adminTeacherFormSubmit'])->name('adminTeacherForm');
-    Route::post('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
+    Route::get('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
     Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detailTeacher'])->name('adminTeacherDetail');
-    Route::post('/teacher/search', [AdminTeacherController::class,'search'])->name('adminTeacherSearch');
+    Route::get('/teacher/search', [AdminTeacherController::class,'search'])->name('adminTeacherSearch');
     Route::get('/teacher/update/{teacher}', [AdminTeacherController::class,'updatePage'])->name('adminTeacherUpdatePage');
     Route::post('/teacher/update/{teacher}', [AdminTeacherController::class,'update'])->name('adminTeacherUpdate');
+    Route::post('/teacher/update/{teacher}/{replaceTeacherID}', [AdminTeacherController::class,'replace'])->name('adminTeacherReplace');
+    
 
     Route::get('/stock', [AdminStockController::class,'index'])->name('adminStockPage');
     Route::get('/stock/sorting/{value}/{sort}', [AdminStockController::class,'adminStock'])->name('adminStockViewSorting');
@@ -246,9 +249,10 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/teacher/add', [HeadTeacherController::class,'insertPage'])->name('headTeacherAddPage');
     Route::post('/teacher/add', [HeadTeacherController::class,'insert'])->name('TeacherAdd');
     Route::post('/teacher/search', [HeadTeacherController::class,'search'])->name('searchTeacher');
-    Route::post('/teacher/delete/{teacher}', [HeadTeacherController::class,'delete'])->name('TeacherDelete');
+    Route::get('/teacher/delete/{teacher}', [HeadTeacherController::class,'delete'])->name('TeacherDelete');
     Route::get('/teacher/update/{teacher}', [HeadTeacherController::class,'updatePage'])->name('TeacherUpdatePage');
     Route::post('/teacher/update/{teacher}', [HeadTeacherController::class,'update'])->name('TeacherUpdate');
+    Route::post('/teacher/update/{teacher}/{replaceTeacherID}', [HeadTeacherController::class,'replace'])->name('TeacherReplace');
 
     Route::get('/finance', [HeadFinanceController::class,'index'])->name('headFinancePage');
     Route::get('/finance/add', [HeadFinanceController::class,'insertPage'])->name('headFinanceAddPage');
@@ -299,6 +303,13 @@ Route::prefix('head')->middleware(['head'])->group(function(){
 
     Route::get('/report/teacher',[HeadReportController::class,'reportTeacherPage'])->name('headTeacherReportPage');
     Route::post('/report/teacher/{month}',[HeadReportController::class,'reportTeacher'])->name('headTeacherReport');
+
+    Route::get('/report/rule',[HeadRuleController::class,'index'])->name('Rules');
+    Route::get('/report/rule/add',[HeadRuleController::class,'insertPage'])->name('RulesAddPage');
+    Route::post('/report/rule/add',[HeadRuleController::class,'insert'])->name('RulesAdd');
+    Route::get('/report/rule/update/{rules}',[HeadRuleController::class,'updatePage'])->name('RulesUpdatePage');
+    Route::post('/report/rule/update/{rules}',[HeadRuleController::class,'update'])->name('RulesUpdate');
+    Route::get('/report/rule/delete/{rules}',[HeadRuleController::class,'delete'])->name('RulesDelete');
 });
 
 // teacher
