@@ -32,10 +32,30 @@
     <!-- Template Main CSS File -->
     <link href="/assets/css/style.css" rel="stylesheet">
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css'>
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.3.0/ckeditor5.css" />
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5-premium-features/43.3.0/ckeditor5-premium-features.css" />
+
 
     <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+    {{-- <script src="https://cdn.ckeditor.com/ckeditor5/43.3.0/ckeditor5.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/43.3.0/"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5-premium-features/43.3.0/ckeditor5-premium-features.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5-premium-features/43.3.0/"></script> --}}
+    {{-- <script type="importmap">
+        {
+            "imports": {
+                "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.3.0/ckeditor5.js",
+                "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.3.0/",
+                "ckeditor5-premium-features": "https://cdn.ckeditor.com/ckeditor5-premium-features/43.3.0/ckeditor5-premium-features.js",
+                "ckeditor5-premium-features/": "https://cdn.ckeditor.com/ckeditor5-premium-features/43.3.0/"
+            }
+        }
+    </script> --}}
+    
 </head>
 
 @if(!str_contains(url()->current(),'buyer'))
@@ -222,6 +242,12 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link collapsed" href="{{route('Rules')}}">
+                                <span>Rule & Regulation</span>
+                            </a>
+                        </li>
+
                             <li class="nav-item">
                                 <a class="nav-link collapsed" data-bs-target="#tables-nav" href="#">
                                     <span>Report</span>
@@ -356,6 +382,22 @@ En Pointe International Ballet Studio</span></strong>
 <script src="/assets/js/main.js"></script>
 <script src="/assets/js/jquery-3.6.3.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+{{-- <script src="https://cdn.ckeditor.com/ckeditor5/43.3.0/ckeditor5.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/43.3.0/"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5-premium-features/43.3.0/ckeditor5-premium-features.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5-premium-features/43.3.0/"></script> --}}
+{{-- <script type="importmap">
+        {
+            "imports": {
+                "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.3.0/ckeditor5.js",
+                "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.3.0/",
+                "ckeditor5-premium-features": "https://cdn.ckeditor.com/ckeditor5-premium-features/43.3.0/ckeditor5-premium-features.js",
+                "ckeditor5-premium-features/": "https://cdn.ckeditor.com/ckeditor5-premium-features/43.3.0/"
+            }
+        }
+    </script> --}}
 
 </body>
 

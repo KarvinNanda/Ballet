@@ -147,6 +147,7 @@ class HeadStudentController extends Controller
             return redirect()->route("adminStudentDetail", ['studentId' => $studentId])->with('msg','No Classes Available');
         }
         $schedules = DB::table('schedules')->whereIn('class_id',$data->pluck('id')->toArray())->select('class_id')->distinct()->get()->pluck('class_id')->toArray();
+        
         return view('head.student.class',compact('data','studentId','schedules'));
     }
 
@@ -366,7 +367,8 @@ class HeadStudentController extends Controller
     }
 
     public function insertPage(){
-        return view('head.student.insert');
+        $rules = DB::table('rules')->get();
+        return view('head.student.insert',compact('rules'));
     }
 
     public function insert(Request $req){

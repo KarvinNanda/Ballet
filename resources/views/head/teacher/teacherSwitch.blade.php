@@ -1,6 +1,6 @@
 @extends('Master.master')
 
-@section('title','Teacher List')
+@section('title','Teacher Switch Form')
 
 @section('content')
     <div class="d-none">
@@ -14,12 +14,15 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="get" action="{{route('adminTeacherSearch')}}">
+                <form class="search-form d-flex align-items-center" method="get" action="{{route('TeacherDelete',$teacher)}}">
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
-                <a href="{{route('adminTeacherForm')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Teacher</button></a>
             </div>
             <div class="card-body">
+                <div class="d-block text-danger">
+                    <h4 class="pe-5">{{$teacher->name}} has an active class</h4>
+                    <h5 class="pe-5">Please select teachers below to replace</h5>
+                </div>
 
                 <!-- Table with stripped rows -->
                 <table class="table table-striped">
@@ -32,25 +35,22 @@
                             <th scope="col">Address</th>
                             <th scope="col">Phone</th>
                             <th scope="col">Email</th>
-                            <th scope="col" colspan="2">Action</th>
+                            <th scope="col">Action</th>
                         </tr>
                         </thead>
                         <tbody>
-                        @foreach($teachers as $teacher)
+                        @foreach($teachers as $t)
                             <tr>
-                                <td>{{$teacher->name}}</td>
-                                <td>{{$teacher->percent}}%</td>
-                                <td>{{\Carbon\Carbon::parse($teacher->dob)->format('d M Y')}}</td>
-                                <td>{{$teacher->address}}</td>
-                                <td>{{$teacher->phone}}</td>
-                                <td>{{$teacher->email}}</td>
-                                <td class="d-flex">
-                                    <form action="{{route('adminTeacherDelete',$teacher)}}" method="get">
-                                        <button type="submit" class="btn btn-danger me-3">Delete</button>
-                                    </form>
-
-                                    <form action="{{route('adminTeacherUpdatePage',$teacher)}}" method="get">
-                                        <button type="submit" class="btn btn-warning">Update</button>
+                                <td>{{$t->name}}</td>
+                                <td>{{$t->percent}}%</td>
+                                <td>{{\Carbon\Carbon::parse($t->dob)->format('d M Y')}}</td>
+                                <td>{{$t->address}}</td>
+                                <td>{{$t->phone}}</td>
+                                <td>{{$t->email}}</td>
+                                <td >
+                                    <form action="{{route('TeacherReplace',['teacher' =>$teacher,'replaceTeacherID' => $t->id])}}" method="post">
+                                    @csrf
+                                        <button type="submit" class="btn btn-danger">Select</button>
                                     </form>
                                 </td>
                             </tr>

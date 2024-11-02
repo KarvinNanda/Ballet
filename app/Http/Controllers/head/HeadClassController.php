@@ -224,7 +224,7 @@ class HeadClassController extends Controller
                     $q->on('mapping_class_children.student_id','students.id')
                         ->where('students.Status','!=','non-aktif');
                 })
-                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','students.id')
+                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
                 ->leftJoin('users','users.id','mapping_class_teachers.user_id')
                 ->where(function($q) use ($keyword){
                     if(!is_null($keyword)){

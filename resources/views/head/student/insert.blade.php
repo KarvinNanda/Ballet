@@ -151,8 +151,18 @@
                                     </div>
                                     <div class="modal-body">
                                         <div class="accordion accordion-flush" id="accordionFlushExample">
+                                        @foreach ($rules as $rule)
+                                        @php
+                                            $rule->content = str_replace(
+                                                '{{asset_url}}',
+                                                asset('assets/img/logo-hitam.png'),
+                                                $rule->content
+                                            );
+                                        @endphp     
+                                            {!! $rule->content !!}
+                                        @endforeach
                                             {{--indonesia--}}
-                                            <div class="accordion-item">
+                                            {{-- <div class="accordion-item">
                                                 <h2 class="accordion-header">
                                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
                                                         Bahasa Indonesia
@@ -287,10 +297,10 @@
                                                         </label>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                             {{--english--}}
-                                            <div class="accordion-item">
+                                            {{-- <div class="accordion-item">
                                                 <h2 class="accordion-header">
                                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
                                                         Bahasa Inggris
@@ -423,7 +433,7 @@
                                                         </label>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                         </div>
 

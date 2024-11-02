@@ -110,6 +110,8 @@ class AdminClassTransactionController extends Controller
                 'class_type_id',
                 'student_id',
                 'mapping_class_children.class_id',
+                'users.id as teacher_id',
+                'users.name as teacher_name',
                 DB::raw('COUNT(students.id) as people_count'))
                 ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
                 ->leftJoin('mapping_class_children',function($q){
@@ -120,7 +122,7 @@ class AdminClassTransactionController extends Controller
                     $q->on('mapping_class_children.student_id','students.id')
                         ->where('students.Status','!=','non-aktif');
                 })
-                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','students.id')
+                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
                 ->leftJoin('users','users.id','mapping_class_teachers.user_id')
                 ->where(function($q) use ($keyword){
                     if(!is_null($keyword)){
@@ -153,7 +155,7 @@ class AdminClassTransactionController extends Controller
                     $q->on('mapping_class_children.student_id','students.id')
                         ->where('students.Status','!=','non-aktif');
                 })
-                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','students.id')
+                ->leftJoin('mapping_class_teachers','mapping_class_teachers.class_id','class_transactions.id')
                 ->leftJoin('users','users.id','mapping_class_teachers.user_id')
                 ->where(function($q) use ($keyword){
                     if(!is_null($keyword)){
@@ -167,7 +169,8 @@ class AdminClassTransactionController extends Controller
                 ->groupBy('class_transactions.id')
                 ->paginate(5);
         }
-        
+        foreach($classes as $class){
+        }
         return view('admin.class.view', compact('classes','sort'));
     }
 
