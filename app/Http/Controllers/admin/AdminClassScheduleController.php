@@ -3,12 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ClassTransaction;
-use App\Models\DetailAbsen;
-use App\Models\HeaderAbsen;
 use App\Models\Schedule;
-use App\Models\Student;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;

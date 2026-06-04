@@ -4,7 +4,6 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendingEmail;
-use App\Models\Teacher;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;

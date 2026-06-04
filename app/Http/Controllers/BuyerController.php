@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Buyer;
 use App\Models\ReportStock;
 use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 class BuyerController extends Controller
@@ -61,8 +59,6 @@ class BuyerController extends Controller
             'created_at' => now()->setTimezone('GMT+7')->toDateString(),
         ]);
 
-        // $stock = Stock::find($id);
-        // $find = ReportStock::where('stock_id',$stock->id)->first();
         if(!is_null($find)){
             DB::table('report_stocks')->insert([
                 'stock_id' => $find->stock_id,

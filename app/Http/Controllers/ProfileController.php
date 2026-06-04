@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
@@ -51,8 +50,6 @@ class ProfileController extends Controller
 
         $validate = Validator::make($req->all(),$rules);
 
-        $active=false;
-
         if($validate->fails()){
             return redirect()->back()->withErrors($validate)->withInput();
         }
@@ -60,8 +57,6 @@ class ProfileController extends Controller
         $change = User::find($user->id);
         $change->password = bcrypt($req->confirm_password);
         $change->save();
-
-        Session::put('asd','wow');
 
         return redirect()->route('change-password-page')->with('msg','Success Change Password');
     }
