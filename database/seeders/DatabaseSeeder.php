@@ -25,20 +25,9 @@ class DatabaseSeeder extends Seeder
 
         DB::table('users')->insert([
             [
-                'name' => 'Saminjo',
-                'email' => 'saminjo@gmail.com',
-                'password' => bcrypt('saminjo123'),
-                'role' => 'teacher',
-                'address' => 'Jl.Kasih Selamat',
-                'dob' => '2002-12-01',
-                'phone' => '018239233333',
-                'percent' => 35,
-            ],
-
-            [
-                'name' => 'karvin',
-                'email' => 'karvin@gmail.com',
-                'password' => bcrypt('karvin123'),
+                'name' => 'Admin',
+                'email' => 'admin@gmail.com',
+                'password' => bcrypt('admin123'),
                 'role' => 'admin',
                 'address' => 'Jl.Depan U',
                 'dob' => '2002-10-01',
@@ -47,9 +36,9 @@ class DatabaseSeeder extends Seeder
             ],
 
             [
-                'name' => 'jose',
-                'email' => 'jose@gmail.com',
-                'password' => bcrypt('jose123'),
+                'name' => 'Head',
+                'email' => 'head@gmail.com',
+                'password' => bcrypt('head123'),
                 'role' => 'head',
                 'address' => 'Jl.CepeSebelah',
                 'dob' => '2002-05-01',
@@ -58,35 +47,24 @@ class DatabaseSeeder extends Seeder
             ],
 
             [
-                'name' => 'Carolyn Tanujaya',
+                'name' => 'Teacher',
                 'address' => 'Jl.riau ujung',
                 'role' => 'teacher',
                 'dob' => '2002-03-01',
-                'email' => 'cete@gmail.com',
+                'email' => 'teacher@gmail.com',
                 'phone' => '018239210222',
-                'password' => bcrypt('cete123'),
+                'password' => bcrypt('teacher123'),
                 'percent' => 35,
             ],
 
             [
-                'name' => 'Nabila',
-                'dob' => '2002-05-01',
-                'address' => 'Jl.sudriamn',
-                'role' => 'teacher',
-                'phone' => '088281239283',
-                'email' => 'ana@gmail.com',
-                'password' => bcrypt('ana123'),
-                'percent' => 35,
-            ],
-
-            [
-                'name' => 'Felix',
+                'name' => 'Finance',
                 'dob' => '2002-06-01',
                 'address' => 'Jl.kamboja',
                 'role' => 'finance',
                 'phone' => '019283746574',
-                'email' => 'felix@gmail.com',
-                'password' => bcrypt('felix123'),
+                'email' => 'finance@gmail.com',
+                'password' => bcrypt('finance123'),
                 'percent' => 0,
             ],
         ]);
