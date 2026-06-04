@@ -144,7 +144,6 @@ Pastikan sudah ke-install di mesin kamu:
 - **PHP >= 8.0.2** dengan extension umum (mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, bcmath, fileinfo, gd)
 - **Composer** ([getcomposer.org](https://getcomposer.org/))
 - **MySQL / MariaDB** (atau pakai XAMPP/Laragon)
-- **Node.js & npm** (opsional, kalau mau build asset via Vite)
 - **Git**
 
 ### 2. Clone repository
@@ -162,13 +161,7 @@ composer install
 
 Kalau ada error tentang versi PHP, cek `composer.json` (project ini butuh PHP `^8.0.2`).
 
-### 4. Install dependency JS (opsional)
-
-```bash
-npm install
-```
-
-### 5. Copy file environment
+### 4. Copy file environment
 
 ```bash
 cp .env.example .env
@@ -179,13 +172,13 @@ Di Windows (cmd):
 copy .env.example .env
 ```
 
-### 6. Generate APP_KEY
+### 5. Generate APP_KEY
 
 ```bash
 php artisan key:generate
 ```
 
-### 7. Konfigurasi `.env`
+### 6. Konfigurasi `.env`
 
 Buka file `.env`, sesuaikan minimal bagian berikut:
 
@@ -215,7 +208,7 @@ MAIL_FROM_NAME="${APP_NAME}"
 
 > **Note:** kalau pakai Gmail, generate **App Password** di akun Google (bukan password biasa), karena Gmail block SMTP login dengan password reguler.
 
-### 8. Buat database
+### 7. Buat database
 
 Bikin database kosong dengan nama sesuai `DB_DATABASE` di `.env` (default: `ballet`).
 
@@ -225,7 +218,7 @@ CREATE DATABASE ballet;
 
 Atau lewat phpMyAdmin / DBeaver / TablePlus.
 
-### 9. Jalankan migration + seeder
+### 8. Jalankan migration + seeder
 
 ```bash
 php artisan migrate --seed
@@ -235,13 +228,13 @@ Command ini akan:
 - Bikin semua tabel sesuai [database/migrations/](database/migrations)
 - Seed data awal (bank, rekening, class type, class transaction, student, stock, mapping teacher, dan **user default per role** — lihat bagian bawah)
 
-### 10. Symlink storage (untuk upload file)
+### 9. Symlink storage (untuk upload file)
 
 ```bash
 php artisan storage:link
 ```
 
-### 11. Jalankan server
+### 10. Jalankan server
 
 ```bash
 php artisan serve
@@ -264,12 +257,10 @@ Setelah `php artisan migrate --seed`, ada beberapa user default yang bisa langsu
 
 | Role    | Email               | Password    |
 |---------|---------------------|-------------|
-| Head    | jose@gmail.com      | jose123     |
-| Admin   | karvin@gmail.com    | karvin123   |
-| Finance | felix@gmail.com     | felix123    |
-| Teacher | saminjo@gmail.com   | saminjo123  |
-| Teacher | cete@gmail.com      | cete123     |
-| Teacher | ana@gmail.com       | ana123      |
+| Head    | head@gmail.com      | head123     |
+| Admin   | admin@gmail.com     | admin123    |
+| Finance | finance@gmail.com   | finance123  |
+| Teacher | teacher@gmail.com   | teahcer123  |
 
 > Segera ganti password setelah login pertama untuk akun-akun ini.
 
