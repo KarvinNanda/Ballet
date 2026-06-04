@@ -12,7 +12,6 @@ use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
 
 class HeadTransactionController extends Controller
 {

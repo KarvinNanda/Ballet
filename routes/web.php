@@ -149,9 +149,6 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/stock', [AdminStockController::class,'index'])->name('adminStockPage');
     Route::get('/stock/sorting/{value}/{sort}', [AdminStockController::class,'adminStock'])->name('adminStockViewSorting');
 
-    Route::get('/report',[AdminReportController::class,'index'])->name('adminReportPage');
-    Route::post('/report/{header}',[AdminReportController::class,'print'])->name('adminPrintReport');
-
     Route::get('/transaction', [AdminTransactionController::class,'index'])->name('adminTransactionPage');
     Route::get('/transaction/add', [AdminTransactionController::class,'addTransaction'])->name('addTransaction');
     Route::post('/transaction/insert', [AdminTransactionController::class,'insertTransaction'])->name('insertTransaction');

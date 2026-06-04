@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
-use App\Models\Banks;
-use App\Models\HeaderAbsen;
 use Illuminate\Support\Facades\DB;
 
 class HeadController extends Controller

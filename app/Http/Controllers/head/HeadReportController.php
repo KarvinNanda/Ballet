@@ -4,7 +4,6 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Models\ClassType;
-use App\Models\HeaderAbsen;
 use App\Models\ReportStock;
 use App\Models\Stock;
 use Barryvdh\DomPDF\Facade\Pdf;

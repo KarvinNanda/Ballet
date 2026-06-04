@@ -4,10 +4,8 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendingEmail;
-use App\Models\Teacher;
 use App\Models\User;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -99,12 +97,6 @@ class AdminTeacherController extends Controller
         $user->save();
 
         return redirect()->to($req->return_url)->with('msg','Success Update Data Teacher');
-    }
-
-    public function deleteTeacher(Request $req){
-        $teacher = User::where('id','=',$req->id);
-        $teacher->delete();
-        return redirect()->back()->with('msg','Success Delete Data Teacher');
     }
 
     public function detailTeacher(User $teacher){

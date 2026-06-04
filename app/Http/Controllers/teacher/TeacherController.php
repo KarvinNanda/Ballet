@@ -9,7 +9,6 @@ use App\Models\HeaderAbsen;
 use App\Models\Schedule;
 use App\Models\Student;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

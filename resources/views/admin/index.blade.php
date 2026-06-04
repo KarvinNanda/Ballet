@@ -25,15 +25,13 @@
                     </thead>
                     <tbody>
                     @foreach($data as $item)
-{{--                        @if($item->date >= $carbon::now()->toDateString() && $item->date <= $carbon::now()->addDays(7)->toDateString())--}}
-                            <tr>
-                                <td>{{$item->teacherName}}</td>
-                                <td>{{$item->class}}</td>
-                                <td>{{$carbon::parse($item->date)->englishDayOfWeek}}</td>
-                                <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
-                                <td>{{$carbon::parse($item->date)->format('H:i:s')}}</td>
-                            </tr>
-{{--                        @endif--}}
+                        <tr>
+                            <td>{{$item->teacherName}}</td>
+                            <td>{{$item->class}}</td>
+                            <td>{{$carbon::parse($item->date)->englishDayOfWeek}}</td>
+                            <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
+                            <td>{{$carbon::parse($item->date)->format('H:i:s')}}</td>
+                        </tr>
                     @endforeach
                     </tbody>
                 </table>

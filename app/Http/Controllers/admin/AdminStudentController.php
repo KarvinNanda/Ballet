@@ -11,7 +11,6 @@ use App\Models\Schedule;
 use App\Models\Student;
 use App\Models\Transaction;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;

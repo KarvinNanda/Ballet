@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\ClassTransaction;
 use App\Models\ClassType;
 use App\Models\DetailAbsen;
-use App\Models\HeaderAbsen;
 use App\Models\MappingClassChild;
 use App\Models\MappingClassTeacher;
 use App\Models\Schedule;
