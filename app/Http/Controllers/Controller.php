@@ -21,6 +21,20 @@ class Controller extends BaseController
         return redirect()->to($this->isOwnUrl($url) ? $url : url('/'));
     }
 
+    /**
+     * Column and direction from a sort link (/sorting/{column}/{direction}).
+     * Only columns the page offers, only asc/desc; anything else is 404 instead of an SQL error.
+     *
+     * @return array{0: string, 1: string}
+     */
+    protected function sortOrFail(string $column, ?string $direction, array $columns): array
+    {
+        $direction = strtolower($direction ?? 'asc');
+        abort_unless(in_array($column, $columns, true) && in_array($direction, ['asc', 'desc'], true), 404);
+
+        return [$column, $direction];
+    }
+
     private function isOwnUrl(?string $url): bool
     {
         if ($url === null || $url === '' || str_contains($url, '\\')) {

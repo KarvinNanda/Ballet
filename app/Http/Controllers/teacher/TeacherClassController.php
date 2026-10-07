@@ -54,7 +54,7 @@ class TeacherClassController extends Controller
                 students.age as student_old,
                 students.dob as student_dob
             ')
-            ->where('class_types.class_name','=', "$get_class->class_name")
+            ->where('class_transactions.id', $request->id)
             ->get();
         return view('teacher.class.detail', compact('data'));
     }
@@ -149,7 +149,7 @@ class TeacherClassController extends Controller
             return redirect()->route("viewScheduleClassTeacher", ['id' => $id]);
         } else {
             $schedule = new Schedule();
-            $schedule->class_id = $req->classId;
+            $schedule->class_id = $id; // the authorized route id, never a classId from the form body
             $schedule->date = $date;
             $schedule->save();
         }
@@ -160,6 +160,10 @@ class TeacherClassController extends Controller
     public function addMultipleSchedule(Request $req)
     {
         $this->authorizeClass($req->classId);
+        $req->validate([
+            'dateTime' => ['required', 'date'],
+            'ScheduleLoop' => ['required', 'integer', 'between:1,52'], // weekly, at most one year
+        ]);
         $date = Carbon::parse($req->dateTime);
 
         for ($i = 0; $i < $req->ScheduleLoop; $i++) {
@@ -187,9 +191,7 @@ class TeacherClassController extends Controller
             'student_id',
             'class_id',
             DB::raw('COUNT(student_id) as people_count'))
-            // ->whereHas('mapping', function ($query) use ($userId) {
-            //     $query->where('user_id', $userId);
-            // })
+            ->whereIn('class_transactions.id', DB::table('mapping_class_teachers')->where('user_id', $userId)->select('class_id'))
             ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
             ->leftJoin('mapping_class_children',function($q){
                 $q->on('mapping_class_children.class_id','class_transactions.id')

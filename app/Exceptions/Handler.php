@@ -49,12 +49,15 @@ class Handler extends ExceptionHandler
             //
         });
 
-        // Sign Out after the session expired: go to login instead of "419 Page Expired".
+        // Sign Out with a stale CSRF token: no "419 Page Expired" page.
         // Nobody is logged out here, so a forged logout request still has no effect.
         // The framework turns TokenMismatchException into a 419 HttpException before callbacks run.
         $this->renderable(function (HttpException $e, $request) {
             if ($e->getPrevious() instanceof TokenMismatchException && $request->routeIs('logout')) {
-                return redirect()->route('login');
+                // Still logged in (e.g. the token changed in another tab): stay, and say so.
+                return $request->user()
+                    ? redirect()->back()->with('error', 'Sesi halaman sudah kedaluwarsa. Klik Sign Out sekali lagi.')
+                    : redirect()->route('login');
             }
         });
     }

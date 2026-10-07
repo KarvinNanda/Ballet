@@ -27,7 +27,7 @@ class HeadRuleController extends Controller
     {
         $data = $req->validate([
             'inputLanguage' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
+            'content' => ['required', 'string', 'max:50000'], // raw input; keeps HTMLPurifier work bounded
         ]);
 
         $content = $sanitizer->clean($data['content']);
@@ -57,7 +57,7 @@ class HeadRuleController extends Controller
     {
         $data = $req->validate([
             'inputLanguage' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
+            'content' => ['required', 'string', 'max:50000'], // raw input; keeps HTMLPurifier work bounded
         ]);
 
         $content = $sanitizer->clean($data['content']);

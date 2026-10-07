@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class HeaderAbsen extends Model
 {
     use HasFactory;
-    protected $fillable = ['schedules_id'];
+    protected $fillable = ['schedules_id', 'teacher_id'];
     public function Schedules(){
         return $this->belongsTo(Schedule::class);
     }

@@ -18,17 +18,19 @@ class HeadAdminController extends Controller
     }
 
     public function updatePage(User $user){
+        abort_unless($user->role === 'admin', 404); // these routes manage admin accounts only
         $return_url = url()->previous();
         return view('head.admin.update',compact('user','return_url'));
     }
 
     public function update(Request $req,User $user){
+        abort_unless($user->role === 'admin', 404); // these routes manage admin accounts only
         $rules = [
-            'inputName' => 'required',
+            'inputName' => 'required|string|max:255',
             'inputEmail' => 'required|email:filter',
             'inputDate_of_Birth' => 'required|date|before:tomorrow',
-            'inputAddress' => 'required',
-            'inputBonus' => 'required|numeric',
+            'inputAddress' => 'required|string|max:255',
+            'inputBonus' => 'required|integer|min:0|max:2000000000',
             'inputPhone' => 'required|numeric|digits_between:10,12'
         ];
 
@@ -55,10 +57,10 @@ class HeadAdminController extends Controller
 
     public function insert(Request $req){
         $rules = [
-            'inputName' => 'required',
+            'inputName' => 'required|string|max:255',
             'inputEmail' => 'required|email:filter',
             'inputDate_of_Birth' => 'required|date|before:tomorrow',
-            'inputAddress' => 'required',
+            'inputAddress' => 'required|string|max:255',
             'inputPhone' => 'required|numeric|digits_between:10,12'
         ];
 
@@ -93,6 +95,7 @@ class HeadAdminController extends Controller
     }
 
     public function delete(User $user){
+        abort_unless($user->role === 'admin', 404); // these routes manage admin accounts only
         $user = User::find($user->id);
         $user->delete();
         return redirect()->back()->with('msg','Success Delete Admin');

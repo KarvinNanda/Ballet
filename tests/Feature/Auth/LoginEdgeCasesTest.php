@@ -59,14 +59,54 @@ class LoginEdgeCasesTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_logout_without_csrf_token_does_not_log_out_and_shows_no_419(): void
+    public function test_behind_a_trusted_proxy_the_ip_limit_counts_the_real_client(): void
+    {
+        config(['app.trusted_proxies' => '127.0.0.1']);
+
+        for ($i = 0; $i < 30; $i++) {
+            $this->withHeader('X-Forwarded-For', '203.0.113.7')
+                ->post('/login', ['email' => "user{$i}@example.com", 'password' => 'wrong-password']);
+        }
+
+        // Another visitor behind the same proxy is not locked out.
+        $this->withHeader('X-Forwarded-For', '198.51.100.9')
+            ->post('/login', ['email' => 'admin@gmail.com', 'password' => 'admin123'])
+            ->assertRedirect('/admin');
+    }
+
+    public function test_forwarded_header_is_ignored_when_no_proxy_is_trusted(): void
+    {
+        config(['app.trusted_proxies' => null]);
+
+        for ($i = 0; $i < 30; $i++) {
+            $this->withHeader('X-Forwarded-For', "203.0.113.{$i}")
+                ->post('/login', ['email' => "user{$i}@example.com", 'password' => 'wrong-password']);
+        }
+
+        // Spoofed X-Forwarded-For does not dodge the limit.
+        $this->from('/login')->followingRedirects()
+            ->withHeader('X-Forwarded-For', '198.51.100.9')
+            ->post('/login', ['email' => 'admin@gmail.com', 'password' => 'admin123'])
+            ->assertSee('Terlalu banyak percobaan login.');
+    }
+
+    public function test_logout_with_stale_token_while_logged_in_asks_to_try_again(): void
     {
         $this->enableCsrf();
         $this->actingAs(User::where('role', 'admin')->firstOrFail());
 
-        $this->post('/logout')->assertRedirect(route('login'));
+        $this->from('/admin')->post('/logout')
+            ->assertRedirect('/admin')
+            ->assertSessionHas('error', 'Sesi halaman sudah kedaluwarsa. Klik Sign Out sekali lagi.');
 
-        $this->assertAuthenticated();
+        $this->assertAuthenticated(); // a forged logout has no effect
+    }
+
+    public function test_logout_after_session_expired_goes_to_login(): void
+    {
+        $this->enableCsrf();
+
+        $this->post('/logout')->assertRedirect(route('login'));
     }
 
     public function test_other_forms_without_csrf_token_are_still_rejected(): void
@@ -79,8 +119,9 @@ class LoginEdgeCasesTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Running as "production" lets TrustHosts set Symfony's static trusted hosts; reset for the next test.
+        // TrustHosts/TrustProxies set Symfony's static trusted hosts/proxies; reset for the next test.
         Request::setTrustedHosts([]);
+        Request::setTrustedProxies([], Request::HEADER_X_FORWARDED_FOR);
 
         parent::tearDown();
     }

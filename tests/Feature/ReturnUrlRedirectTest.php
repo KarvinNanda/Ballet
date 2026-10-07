@@ -31,7 +31,7 @@ class ReturnUrlRedirectTest extends TestCase
 
     public function test_own_return_url_is_followed(): void
     {
-        $back = route('headClassFreezeView');
+        $back = route('head.class.freeze.index');
 
         $this->updateFrozenClassPrice($back)->assertRedirect($back);
     }
@@ -41,6 +41,6 @@ class ReturnUrlRedirectTest extends TestCase
         $classId = DB::table('class_transactions')->where('is_freeze', 1)->value('id');
 
         return $this->actingAs(User::where('role', 'head')->firstOrFail())
-            ->post(route('headUpdateClassFreeze', $classId), ['inputPrice' => 500000, 'return_url' => $returnUrl]);
+            ->post(route('head.class.freeze.update', $classId), ['inputPrice' => 500000, 'return_url' => $returnUrl]);
     }
 }

@@ -18,7 +18,7 @@ class AttendanceSubmitTest extends TestCase
         $rows = $students->sortByDesc('id')->values();
 
         $this->actingAs($teacher)->post(route('getAbsen', $schedule->id), [
-            'nis' => $rows->pluck('nis')->all(),
+            'student_id' => $rows->pluck('id')->all(),
             'check' => ['on', 'off'] + array_fill(0, $rows->count(), 'on'),
             'keterangan' => ['Select...', 'Sick'] + array_fill(0, $rows->count(), 'Select...'),
             'notes' => array_fill(0, $rows->count(), ''),
@@ -34,7 +34,7 @@ class AttendanceSubmitTest extends TestCase
     {
         [$teacher, $schedule, $students] = $this->todaysOwnSchedule();
         $payload = [
-            'nis' => $students->pluck('nis')->all(),
+            'student_id' => $students->pluck('id')->all(),
             'check' => array_fill(0, $students->count(), 'on'),
             'keterangan' => array_fill(0, $students->count(), 'Select...'),
             'notes' => array_fill(0, $students->count(), ''),
@@ -55,7 +55,7 @@ class AttendanceSubmitTest extends TestCase
         $outsider = DB::table('students')->whereNotIn('id', $students->pluck('id'))->first();
 
         $this->actingAs($teacher)->post(route('getAbsen', $schedule->id), [
-            'nis' => [$outsider->nis],
+            'student_id' => [$outsider->id],
             'check' => ['on'],
             'keterangan' => ['Select...'],
             'notes' => [''],
@@ -70,8 +70,8 @@ class AttendanceSubmitTest extends TestCase
         [, $schedule, $students] = $this->todaysOwnSchedule();
         $rows = $students->sortByDesc('id')->values();
 
-        $this->actingAs(User::where('role', 'head')->firstOrFail())->post(route('headGetAbsen', $schedule->id), [
-            'nis' => $rows->pluck('nis')->all(),
+        $this->actingAs(User::where('role', 'head')->firstOrFail())->post(route('head.attendance.update', $schedule->id), [
+            'student_id' => $rows->pluck('id')->all(),
             'check' => ['on', 'off'] + array_fill(0, $rows->count(), 'on'),
             'keterangan' => ['Attend', 'Sick'] + array_fill(0, $rows->count(), 'Attend'),
             'notes' => array_fill(0, $rows->count(), ''),
@@ -91,7 +91,7 @@ class AttendanceSubmitTest extends TestCase
         $html = $this->actingAs($teacher)->post(route('viewAbsen', $schedule->id))->assertOk()->getContent();
 
         $this->assertStringContainsString('Please Completed Payment', $html);
-        $this->assertStringNotContainsString('value="'.$gated->nis.'" name="nis', $html, 'gated row must not submit its NIS');
+        $this->assertStringNotContainsString('value="'.$gated->id.'" name="student_id', $html, 'gated row must not submit its student id');
         $this->assertStringContainsString('name="keterangan[1]"', $html, 'fields carry the row index');
         $this->assertStringNotContainsString('name="keterangan[]"', $html);
     }
@@ -106,7 +106,7 @@ class AttendanceSubmitTest extends TestCase
 
         // What the browser sends: row 0 is gated (no fields), row 1 is "Sick".
         $this->actingAs($teacher)->post(route('getAbsen', $schedule->id), [
-            'nis' => [1 => $other->nis],
+            'student_id' => [1 => $other->id],
             'check' => [1 => 'off'],
             'keterangan' => [1 => 'Sick'],
             'notes' => [1 => ''],
@@ -126,22 +126,23 @@ class AttendanceSubmitTest extends TestCase
         $this->makePaymentGated($gated->id, $schedule->id);
 
         $this->actingAs($teacher)->post(route('getAbsen', $schedule->id), [
-            'nis' => [0 => $gated->nis],
+            'student_id' => [0 => $gated->id],
             'check' => [0 => 'on'],
             'keterangan' => [0 => 'Select...'],
             'notes' => [0 => ''],
             'return_url' => route('teacher'),
         ]);
 
-        $this->assertDatabaseMissing('detail_absens', ['student_id' => $gated->id]);
+        $header = DB::table('header_absens')->where('schedules_id', $schedule->id)->value('id');
+        $this->assertNull($this->description($header, $gated->id));
     }
 
     public function test_head_permission_note_is_saved(): void
     {
         [, $schedule, $students] = $this->todaysOwnSchedule();
 
-        $this->actingAs(User::where('role', 'head')->firstOrFail())->post(route('headGetAbsen', $schedule->id), [
-            'nis' => [0 => $students[0]->nis],
+        $this->actingAs(User::where('role', 'head')->firstOrFail())->post(route('head.attendance.update', $schedule->id), [
+            'student_id' => [0 => $students[0]->id],
             'check' => [0 => 'off'],
             'keterangan' => [0 => 'Permission'],
             'notes' => [0 => 'Acara keluarga'],
@@ -149,6 +150,38 @@ class AttendanceSubmitTest extends TestCase
 
         $header = DB::table('header_absens')->where('schedules_id', $schedule->id)->value('id');
         $this->assertSame('Acara keluarga', DB::table('detail_absens')->where('header_absen_id', $header)->where('student_id', $students[0]->id)->value('Notes'));
+    }
+
+    public function test_teacher_records_a_class_member_with_null_nis(): void
+    {
+        [$teacher, $schedule, $students] = $this->todaysOwnSchedule();
+        $member = $students[0];
+        DB::table('students')->where('id', $member->id)->update(['nis' => null]);
+
+        $this->actingAs($teacher)->post(route('getAbsen', $schedule->id), [
+            'student_id' => [0 => $member->id],
+            'check' => [0 => 'on'],
+            'keterangan' => [0 => 'Select...'],
+            'notes' => [0 => ''],
+            'return_url' => route('teacher'),
+        ])->assertSessionHas('msg', 'Success Making Attendance');
+
+        $header = DB::table('header_absens')->where('schedules_id', $schedule->id)->value('id');
+        $this->assertSame('Attend', $this->description($header, $member->id));
+    }
+
+    public function test_teacher_flash_counts_skipped_rows(): void
+    {
+        [$teacher, $schedule, $students] = $this->todaysOwnSchedule();
+        $outsider = DB::table('students')->whereNotIn('id', $students->pluck('id'))->first();
+
+        $this->actingAs($teacher)->post(route('getAbsen', $schedule->id), [
+            'student_id' => [$students[0]->id, $outsider->id],
+            'check' => ['on', 'on'],
+            'keterangan' => ['Select...', 'Select...'],
+            'notes' => ['', ''],
+            'return_url' => route('teacher'),
+        ])->assertSessionHas('msg', 'Success Making Attendance (1 row skipped)');
     }
 
     /** Quota used up + oldest unpaid bill 25 days before the class: the attendance page asks for payment. */

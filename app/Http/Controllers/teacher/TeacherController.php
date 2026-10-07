@@ -5,10 +5,9 @@ namespace App\Http\Controllers\teacher;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\teacher\Concerns\AuthorizesTeacherClasses;
 use App\Models\ClassTransaction;
-use App\Models\DetailAbsen;
 use App\Models\HeaderAbsen;
 use App\Models\Schedule;
-use App\Models\Student;
+use App\Support\AttendanceRecorder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -102,36 +101,9 @@ class TeacherController extends Controller
             return $this->backTo($req->return_url)->with('error', 'Jadwal ini sudah diabsen, jadi tidak bisa diubah lagi.');
         }
 
-        // Only students of this class, looked up by NIS so each form row keeps its own student.
-        $students = Student::whereIn('nis', (array) $req->nis)
-            ->whereIn('id', DB::table('mapping_class_children')->where('class_id', $schedule->class_id)->pluck('student_id'))
-            ->get()
-            ->keyBy('nis');
+        $rows = AttendanceRecorder::rowsFromRequest($req->all());
+        $saved = AttendanceRecorder::record($schedule, $rows, Auth::id(), allowEdit: false);
 
-        DB::transaction(function () use ($req, $schedule, $students) {
-            $header = new HeaderAbsen();
-            $header->schedules_id = $schedule->id;
-            $header->teacher_id = Auth::id();
-            $header->save();
-
-            foreach ((array) $req->nis as $i => $nis) {
-                $student = $students->get($nis);
-                if ($student === null) {
-                    continue;
-                }
-
-                $note = $req->keterangan[$i] ?? 'Select...';
-                $detail = new DetailAbsen();
-                $detail->header_absen_id = $header->id;
-                $detail->student_id = $student->id;
-                $detail->Notes = $note === 'Permission' ? ($req->notes[$i] ?? '') : '';
-                $detail->Description = ($req->check[$i] ?? 'off') === 'on' ? 'Attend' : ($note === 'Select...' ? 'Absent' : $note);
-                $detail->save();
-
-                DB::table('students')->where('id', $student->id)->increment('Quota');
-            }
-        });
-
-        return $this->backTo($req->return_url)->with('msg', 'Success Making Attendance');
+        return $this->backTo($req->return_url)->with('msg', AttendanceRecorder::message('Success Making Attendance', count($rows), $saved));
     }
 }

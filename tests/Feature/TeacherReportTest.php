@@ -14,7 +14,7 @@ class TeacherReportTest extends TestCase
     public static function reports(): array
     {
         return [
-            'head' => ['head', 'headTeacherReport'],
+            'head' => ['head', 'head.report.teacher.print'],
             'finance' => ['finance', 'financeTeacherReport'],
         ];
     }

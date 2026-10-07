@@ -66,7 +66,7 @@ class LayoutTest extends TestCase
         $html = $this->actingAs($this->user('admin'))->get('/admin/class/add')->assertOk()->getContent();
 
         // Sub-page of Class: Class link is active, its group (Master) is open, other groups are closed.
-        $this->assertMatchesRegularExpression('#href="'.preg_quote(route('adminClassView'), '#').'"[^>]*class="app-nav-link active"#', $html);
+        $this->assertMatchesRegularExpression('#href="'.preg_quote(route('admin.class.index'), '#').'"[^>]*class="app-nav-link active"#', $html);
         $this->assertMatchesRegularExpression('#id="nav-group-master" class="collapse show"#', $html);
         $this->assertMatchesRegularExpression('#id="nav-group-report" class="collapse"#', $html);
         $this->assertStringContainsString('data-bs-target="#nav-group-report" aria-expanded="false"', $html);

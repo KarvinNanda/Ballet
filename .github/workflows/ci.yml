@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+# Read-only token: this workflow only checks code, it never writes to the repo.
+permissions:
+  contents: read
+
+# A newer push to the same branch or PR cancels the run that is still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests (PHP 8.4, MySQL 8)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          # Throwaway credentials for the CI container only. Not a secret, not used anywhere else.
+          MYSQL_DATABASE: ballet_test
+          MYSQL_USER: ballet
+          MYSQL_PASSWORD: ci-only-password
+          MYSQL_ROOT_PASSWORD: ci-only-root-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -pci-only-root-password"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    # Real environment variables win over .env, so these replace the .env.example values.
+    # phpunit.xml forces DB_DATABASE=ballet_test.
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USERNAME: ballet
+      DB_PASSWORD: ci-only-password
+
+    steps:
+      # Actions are pinned to a commit SHA (tag in the comment): a tag can be moved, a SHA cannot.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_mysql, dom, gd, intl, bcmath
+          coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Check dependencies for security advisories
+        run: composer audit
+
+      - name: Prepare .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate --ansi
+
+      - name: Routes compile and every controller resolves
+        run: |
+          php artisan route:cache
+          php artisan route:clear
+          php artisan route:list > /dev/null
+
+      - name: Unit tests
+        run: php artisan test --testsuite=Unit
+
+      - name: Feature tests
+        run: php artisan test --testsuite=Feature

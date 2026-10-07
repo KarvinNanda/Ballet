@@ -14,10 +14,10 @@ class ClassPagesTest extends TestCase
     public static function classPages(): array
     {
         return [
-            'admin class' => ['admin', '/admin/view/class'],
-            'admin class freeze' => ['admin', '/admin/view/class/freeze'],
+            'admin class' => ['admin', '/admin/class'],
+            'admin class freeze' => ['admin', '/admin/class/freeze'],
             'head class' => ['head', '/head/class'],
-            'head class freeze' => ['head', '/head/view/class/freeze'],
+            'head class freeze' => ['head', '/head/class/freeze'],
         ];
     }
 
@@ -34,9 +34,18 @@ class ClassPagesTest extends TestCase
         $classId = \Illuminate\Support\Facades\DB::table('class_transactions')->where('Status', 'aktif')->value('id');
 
         $this->actingAs(User::where('role', 'admin')->firstOrFail())
-            ->get(route('viewaddStudentClass', $classId))
+            ->get(route('admin.class.student.create', $classId))
             ->assertOk()
-            ->assertSee('action="'.route('viewaddStudentClass', $classId).'"', false)
+            ->assertSee('action="'.route('admin.class.student.create', $classId).'"', false)
             ->assertDontSee(url('/head/'), false);
+    }
+
+    public function test_head_freeze_update_page_opens(): void
+    {
+        $frozen = \Illuminate\Support\Facades\DB::table('class_transactions')->where('is_freeze', 1)->value('id');
+
+        $this->actingAs(User::where('role', 'head')->firstOrFail())
+            ->get(route('head.class.freeze.edit', $frozen))
+            ->assertOk();
     }
 }

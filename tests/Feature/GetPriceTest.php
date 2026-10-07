@@ -15,26 +15,34 @@ class GetPriceTest extends TestCase
 
     public static function endpoints(): array
     {
-        return [['admin', '/admin/transaction/get-price'], ['head', '/head/transaction/get-price']];
+        return [['admin', 'admin.transaction.price'], ['head', 'head.transaction.price']];
     }
 
     #[DataProvider('endpoints')]
-    public function test_price_of_the_selected_class(string $role, string $url): void
+    public function test_price_of_the_selected_class(string $role, string $name): void
     {
         $course = DB::table('class_types')->orderBy('id')->first();
 
         $this->actingAs(User::where('role', $role)->firstOrFail())
-            ->get($url.'?text='.urlencode($course->class_name.' - Teacher'))
+            ->get(route($name, ['text' => $course->class_name.' - Teacher']))
             ->assertOk()
             ->assertSeeText((string) $course->class_price);
     }
 
     #[DataProvider('endpoints')]
-    public function test_missing_text_is_a_422_not_a_500(string $role, string $url): void
+    public function test_missing_text_is_a_422_not_a_500(string $role, string $name): void
     {
         $this->actingAs(User::where('role', $role)->firstOrFail())
-            ->get($url)
+            ->get(route($name))
             ->assertStatus(422)
             ->assertJsonStructure(['message']);
+    }
+
+    #[DataProvider('endpoints')]
+    public function test_array_text_is_a_422_not_a_500(string $role, string $name): void
+    {
+        $this->actingAs(User::where('role', $role)->firstOrFail())
+            ->get(route($name, ['text' => ['x']]))
+            ->assertStatus(422);
     }
 }
