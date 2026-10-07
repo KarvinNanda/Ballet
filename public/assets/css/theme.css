@@ -1,0 +1,253 @@
+/* En Pointe theme — Bootstrap 5.3 overrides. Tokens first, then components. */
+
+/* ---------- Fonts (self-hosted, OFL) ---------- */
+@font-face { font-family: "Montserrat"; font-weight: 400; font-style: normal; font-display: swap; src: url("../fonts/montserrat-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 500; font-style: normal; font-display: swap; src: url("../fonts/montserrat-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 600; font-style: normal; font-display: swap; src: url("../fonts/montserrat-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 700; font-style: normal; font-display: swap; src: url("../fonts/montserrat-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Cormorant"; font-weight: 600; font-style: normal; font-display: swap; src: url("../fonts/cormorant-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Cormorant"; font-weight: 700; font-style: normal; font-display: swap; src: url("../fonts/cormorant-latin-700-normal.woff2") format("woff2"); }
+
+/* ---------- Tokens ---------- */
+:root {
+  --ep-text: #0F172A;
+  --ep-muted: #64748B;
+  --ep-accent: #BE185D;
+  --ep-accent-hover: #9D174D;
+  --ep-accent-soft: #FCE7F3;
+  --ep-bg: #F8FAFC;
+  --ep-surface: #FFFFFF;
+  --ep-border: #E2E8F0;
+  --ep-radius: 10px;
+  --ep-shadow: 0 1px 2px rgba(15, 23, 42, .06);
+  --ep-font-body: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ep-font-display: "Cormorant", Georgia, serif;
+  --ep-header-h: 60px;
+  --ep-sidebar-w: 248px;
+  --ep-bottom-nav-h: 64px;
+  --ep-ease: cubic-bezier(.2, .8, .2, 1);
+
+  --bs-body-font-family: var(--ep-font-body);
+  --bs-body-font-size: .9375rem;
+  --bs-body-color: var(--ep-text);
+  /* Bootstrap 5.3 paints cards, inputs, dropdowns and modals with body-bg, so body-bg is the surface color. */
+  --bs-body-bg: var(--ep-surface);
+  --bs-body-bg-rgb: 255, 255, 255;
+  --bs-primary: var(--ep-accent);
+  --bs-primary-rgb: 190, 24, 93;
+  --bs-link-color: var(--ep-accent);
+  --bs-link-color-rgb: 190, 24, 93;
+  --bs-link-hover-color: var(--ep-accent-hover);
+  --bs-link-hover-color-rgb: 157, 23, 77;
+  --bs-border-color: var(--ep-border);
+  --bs-border-radius: var(--ep-radius);
+  --bs-secondary-color: var(--ep-muted);
+  --bs-focus-ring-color: rgba(190, 24, 93, .25);
+}
+
+/* Many pages wrap a <button> in a link; the link underline should not show on the button. */
+a:has(> .btn) { text-decoration: none; }
+
+body { background-color: var(--ep-bg); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+
+/* ---------- Typography ---------- */
+h1, h2, h3, .page-title, .pagetitle h1 {
+  font-family: var(--ep-font-display);
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--ep-text);
+}
+h4, h5, h6, .card-title { font-family: var(--ep-font-body); font-weight: 600; }
+
+/* ---------- Buttons ---------- */
+.btn { font-weight: 600; border-radius: 8px; transition: background-color .15s var(--ep-ease), border-color .15s var(--ep-ease), transform .15s var(--ep-ease); }
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  --bs-btn-bg: var(--ep-accent); --bs-btn-border-color: var(--ep-accent);
+  --bs-btn-hover-bg: var(--ep-accent-hover); --bs-btn-hover-border-color: var(--ep-accent-hover);
+  --bs-btn-active-bg: var(--ep-accent-hover); --bs-btn-active-border-color: var(--ep-accent-hover);
+  --bs-btn-disabled-bg: var(--ep-accent); --bs-btn-disabled-border-color: var(--ep-accent);
+  --bs-btn-focus-shadow-rgb: 190, 24, 93;
+}
+
+/* ---------- Forms ---------- */
+.form-control, .form-select { border-radius: 8px; border-color: var(--ep-border); }
+.form-control:focus, .form-select:focus, .form-check-input:focus {
+  border-color: var(--ep-accent);
+  box-shadow: 0 0 0 .2rem rgba(190, 24, 93, .2);
+}
+.form-check-input:checked { background-color: var(--ep-accent); border-color: var(--ep-accent); }
+.form-label, .col-form-label { font-weight: 500; }
+
+/* ---------- Cards & tables ---------- */
+.card { border: 1px solid var(--ep-border); border-radius: var(--ep-radius); box-shadow: var(--ep-shadow); margin-bottom: 1.25rem; }
+.card-title { font-size: 1rem; margin: 1rem 0 .75rem; color: var(--ep-text); }
+.table { --bs-table-bg: transparent; margin-bottom: 0; }
+.table > thead th, .table > tbody > tr:first-child > th {
+  font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--ep-muted); background: var(--ep-bg); white-space: nowrap;
+}
+.table > :not(caption) > * > * { padding: .65rem .75rem; vertical-align: middle; }
+.card-body:has(> .table), .card-body:has(> table) { overflow-x: auto; }
+
+/* ---------- Phones: tables as cards, compact toolbars (labels set by app.js) ---------- */
+@media (max-width: 767.98px) {
+  /* Toolbar above a list: search full width, filter + apply on one row, add button full width. */
+  .search-bar { flex-direction: column; align-items: stretch !important; gap: .5rem; width: 100% !important; margin: 0 0 .75rem !important; padding: 0; }
+  .search-bar > form { flex-wrap: wrap; justify-content: flex-start !important; gap: .5rem; width: 100%; margin: 0 !important; }
+  .search-bar > form > .form-control { flex: 1 1 100%; }
+  .search-bar > form > .form-select, .search-bar > form > .btn { flex: 1 1 0; min-width: 0; }
+  .search-bar > a, .search-bar > a > .btn, .search-bar > .btn { display: block; width: 100%; margin: 0 !important; }
+
+  /* The list itself has no outer card on phones: no card-in-card. */
+  .card:has(.table-cards) { background: transparent; border: 0; box-shadow: none; }
+  .card:has(.table-cards) > .card-body { padding: 0; overflow-x: visible; }
+
+  .table-cards, .table-cards > tbody { display: block; width: 100%; }
+  .table-cards > thead { display: none; }
+  .table-cards > tbody > tr {
+    display: flex; flex-wrap: wrap; align-items: stretch;
+    background: var(--ep-surface); border: 1px solid var(--ep-border); border-radius: var(--ep-radius);
+    box-shadow: var(--ep-shadow); padding: .75rem .9rem; margin-bottom: .75rem;
+  }
+  .table-cards > tbody > tr > td {
+    flex: 1 1 100%; display: grid; grid-template-columns: minmax(88px, 38%) 1fr; gap: .5rem; align-items: baseline;
+    padding: .25rem 0 !important; border: 0 !important; box-shadow: none !important; background: transparent !important;
+    text-align: left !important; white-space: normal !important; overflow-wrap: anywhere;
+  }
+  .table-cards > tbody > tr > td::before {
+    content: attr(data-label); color: var(--ep-muted); font-size: .72rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .03em;
+  }
+  .table-cards > tbody > tr > td[data-label=""] { display: block; }
+  .table-cards > tbody > tr > td[data-label=""]::before { content: none; }
+  .table-cards > tbody > tr > td.cell-empty { display: none; }
+
+  /* First column is the card title (Name / Class Name in almost every table). */
+  .table-cards > tbody > tr > td:first-child {
+    display: block; font-weight: 600; font-size: 1rem; padding-bottom: .5rem !important;
+    margin-bottom: .25rem; border-bottom: 1px solid var(--ep-border) !important;
+  }
+  .table-cards > tbody > tr > td:first-child::before { content: none; }
+
+  /* All button cells move to one footer row: every button equal width, up to 4 per row. */
+  .table-cards > tbody > tr > td.cell-actions {
+    order: 99; flex: var(--buttons, 1) 1 calc(var(--buttons, 1) * 23%); display: flex; gap: .4rem;
+    margin-top: .5rem; padding: .6rem .2rem 0 !important; border-top: 1px solid var(--ep-border) !important;
+  }
+  .table-cards > tbody > tr > td.cell-actions form { flex: 1 1 0; display: flex; gap: .4rem; margin: 0; }
+  .table-cards > tbody > tr > td.cell-actions br { display: none; }
+  .table-cards > tbody > tr > td.cell-actions .btn {
+    flex: 1 1 0; width: 100%; min-height: 40px; margin: 0 !important; padding: .4rem .5rem;
+    font-size: .8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .table-cards > tbody > tr > td.cell-actions > a { flex: 1 1 0; display: flex; }
+}
+
+/* ---------- NiceAdmin compatibility (classes used by existing pages) ---------- */
+.pagetitle { margin-bottom: 1rem; }
+.pagetitle h1 { font-size: 1.75rem; margin: 0; }
+.section { margin-bottom: 1rem; }
+.search-bar, .search-form { max-width: 100%; }
+.back-to-top { display: none !important; }
+.row-note { color: var(--ep-muted); font-size: .875rem; }
+
+/* ---------- Guest (auth) pages ---------- */
+.auth-shell { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem 1rem; }
+.auth-card { width: 100%; max-width: 400px; background: var(--ep-surface); border: 1px solid var(--ep-border); border-radius: 14px; box-shadow: 0 8px 30px rgba(15, 23, 42, .06); padding: 2rem 1.75rem; }
+.auth-brand { display: flex; align-items: center; gap: .6rem; margin-bottom: 1.5rem; }
+.auth-brand img { height: 36px; width: auto; }
+.auth-brand span { font-family: var(--ep-font-display); font-weight: 700; font-size: 1.5rem; }
+.auth-title { font-size: 1.9rem; margin-bottom: .25rem; }
+.auth-subtitle { color: var(--ep-muted); margin-bottom: 1.5rem; }
+
+/* ---------- App shell ---------- */
+.app-header {
+  position: fixed; inset: 0 0 auto 0; height: var(--ep-header-h); z-index: 1030;
+  display: flex; align-items: center; gap: .75rem; padding: 0 1rem;
+  background: var(--ep-surface); border-bottom: 1px solid var(--ep-border);
+}
+.app-brand { font-family: var(--ep-font-display); font-weight: 700; font-size: 1.4rem; color: var(--ep-text); text-decoration: none; }
+.app-header .btn-icon { width: 44px; height: 44px; display: inline-grid; place-items: center; border: 0; background: transparent; border-radius: 8px; color: var(--ep-text); }
+.app-header .btn-icon:hover { background: var(--ep-bg); }
+.app-user { margin-left: auto; }
+.app-user .dropdown-toggle { display: flex; align-items: center; gap: .5rem; min-height: 44px; border: 0; background: transparent; color: var(--ep-text); font-weight: 600; }
+.app-user small { color: var(--ep-muted); font-weight: 500; text-transform: capitalize; }
+
+/* !important: Bootstrap makes .offcanvas-lg transparent at >= 992px with !important. */
+.app-sidebar { background-color: var(--ep-surface) !important; }
+.app-sidebar .offcanvas-body { padding: .75rem .75rem; display: flex; flex-direction: column; gap: 2px; }
+.nav-group-toggle {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 32px;
+  margin-top: .5rem; padding: .25rem .75rem; border: 0; border-radius: 8px; background: transparent;
+  font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ep-muted);
+}
+.app-sidebar .collapse.show, .app-sidebar .collapsing { display: flex; flex-direction: column; gap: 2px; }
+.nav-group-toggle:hover { background: var(--ep-bg); color: var(--ep-text); }
+.nav-group-toggle .bi { font-size: .75rem; transition: transform .15s var(--ep-ease); }
+.nav-group-toggle.collapsed .bi { transform: rotate(-90deg); }
+.app-nav-link {
+  display: flex; align-items: center; gap: .65rem; min-height: 36px; padding: .35rem .75rem;
+  border-radius: 8px; color: #475569; text-decoration: none; font-weight: 500;
+  transition: background-color .15s var(--ep-ease), color .15s var(--ep-ease);
+}
+.app-nav-link:hover { background: var(--ep-bg); color: var(--ep-text); }
+.app-nav-link.active { background: var(--ep-accent-soft); color: var(--ep-accent); font-weight: 600; }
+.app-nav-link .bi { font-size: 1.05rem; }
+
+.app-main { padding: calc(var(--ep-header-h) + 1.25rem) 1rem calc(var(--ep-bottom-nav-h) + 1.25rem); min-width: 0; }
+.app-main > * { animation: ep-fade-in .2s var(--ep-ease) both; }
+
+@media (min-width: 992px) {
+  .app-sidebar {
+    position: fixed; top: var(--ep-header-h); bottom: 0; left: 0; width: var(--ep-sidebar-w);
+    border-right: 1px solid var(--ep-border); overflow-y: auto;
+  }
+  .app-main { margin-left: var(--ep-sidebar-w); padding: calc(var(--ep-header-h) + 1.5rem) 2rem 2rem; }
+  body.no-sidebar .app-main { margin-left: 0; }
+}
+body.no-sidebar .app-main { padding-bottom: 2rem; }
+
+.bottom-nav {
+  position: fixed; inset: auto 0 0 0; height: var(--ep-bottom-nav-h); z-index: 1030;
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  background: var(--ep-surface); border-top: 1px solid var(--ep-border);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.bottom-nav-link {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 44px; border: 0; background: transparent; color: var(--ep-muted);
+  font-size: .7rem; font-weight: 600; text-decoration: none;
+}
+.bottom-nav-link .bi { font-size: 1.25rem; }
+.bottom-nav-link.active { color: var(--ep-accent); }
+
+/* ---------- Toast ---------- */
+.toast-stack { position: fixed; top: calc(var(--ep-header-h) + .75rem); right: 1rem; z-index: 1090; }
+.toast { border: 1px solid var(--ep-border); border-radius: var(--ep-radius); box-shadow: 0 8px 24px rgba(15, 23, 42, .08); }
+.toast.showing, .toast.show { animation: ep-slide-in .2s var(--ep-ease) both; }
+.toast-error { border-color: #FECACA; border-left: 4px solid #DC2626; }
+.toast-stack { display: flex; flex-direction: column; gap: .5rem; }
+
+/* ---------- Pagination & dropdown (Bootstrap defaults are blue) ---------- */
+.pagination {
+  --bs-pagination-color: var(--ep-accent);
+  --bs-pagination-hover-color: var(--ep-accent-hover);
+  --bs-pagination-focus-color: var(--ep-accent-hover);
+  --bs-pagination-focus-box-shadow: 0 0 0 .2rem rgba(190, 24, 93, .2);
+  --bs-pagination-active-bg: var(--ep-accent);
+  --bs-pagination-active-border-color: var(--ep-accent);
+}
+.dropdown-menu { --bs-dropdown-link-active-bg: var(--ep-accent); --bs-dropdown-link-active-color: #fff; }
+
+/* ---------- Accessibility ---------- */
+:focus-visible { outline: 2px solid var(--ep-accent); outline-offset: 2px; }
+.skip-link:focus { position: fixed; top: .5rem; left: .5rem; z-index: 2000; background: var(--ep-surface); padding: .5rem .75rem; border-radius: 8px; }
+
+/* ---------- Motion ---------- */
+@keyframes ep-fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes ep-slide-in { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

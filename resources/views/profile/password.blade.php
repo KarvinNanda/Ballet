@@ -26,7 +26,7 @@
 
                             <div class="tab-pane fade show active profile-change-password pt-3" id="profile-change-password">
                                 <!-- Change Password Form -->
-                                <form action="{{route('change-password',$user)}}" method="post">
+                                <form action="{{route('change-password')}}" method="post">
                                     @csrf
 
                                     <div class="row mb-3">

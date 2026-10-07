@@ -15,7 +15,7 @@
                 <form
                     class="d-flex align-items-center justify-content-center gap-2"
                     method="GET"
-                    action="{{route('headViewaddStudentClass',$class_id)}}"
+                    action="{{route('viewaddStudentClass',$class_id)}}"
                 >
                     <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
 

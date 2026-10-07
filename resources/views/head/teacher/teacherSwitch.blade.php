@@ -14,7 +14,7 @@
     <section class="section">
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="get" action="{{route('TeacherDelete',$teacher)}}">
+                <form class="search-form d-flex align-items-center" method="get" action="{{route('headTeacherSwitchPage',$teacher)}}">
                     <input type="text" name="search" placeholder="Search" title="Enter search keyword">
                 </form>
             </div>

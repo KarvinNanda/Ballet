@@ -298,17 +298,10 @@ class HeadStudentController extends Controller
         return view('head.student.index',compact('students'));
     }
 
-    public function active(){
-        $class = ClassTransaction::select("id")->distinct()->get();
-        $data = [];
-        foreach($class as $c){
-            $data[] = [
-                'class_id' => $c->id
-            ];
-        }
-        DB::table('mapping_class_children')->insert($data);
-
-        return redirect()->back();
+    /** Old link: the list page filters by status itself. */
+    public function active()
+    {
+        return redirect()->route('headStudentPage', ['status' => 'aktif']);
     }
 
     public function active2(){
@@ -348,26 +341,14 @@ class HeadStudentController extends Controller
         return redirect()->back();
     }
 
-    public function nonActive(){
-        $students = DB::table('students')
-                    ->selectRaw("
-                        id,
-                        DATEDIFF(curdate(), Dob) / 365 as age
-                    ")
-                    ->get();
-        foreach($students as $s){
-            // Log::info(round($s->age)." = ".$s->age);
-            DB::table('students')
-            ->where('id',$s->id)->update([
-                'age' => round($s->age)
-            ]);
-        }
-
-        return redirect()->back();
+    /** Old link: the list page filters by status itself. */
+    public function nonActive()
+    {
+        return redirect()->route('headStudentPage', ['status' => 'non-aktif']);
     }
 
     public function insertPage(){
-        $rules = DB::table('rules')->get();
+        $rules = \App\Models\Rules::orderBy('id')->get();
         return view('head.student.insert',compact('rules'));
     }
 
@@ -581,6 +562,6 @@ class HeadStudentController extends Controller
         $student->save();
 
 
-        return redirect()->to($request->return_url)->with('msg','Success Update Student');
+        return $this->backTo($request->return_url)->with('msg','Success Update Student');
     }
 }

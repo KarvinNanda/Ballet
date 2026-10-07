@@ -53,7 +53,7 @@ class HeadClassController extends Controller
             ->update([
                 'class_transaction_price' => $price
             ]);
-        return redirect()->to($req->return_url)->with('msg','Success Update Class Freeze Data');
+        return $this->backTo($req->return_url)->with('msg','Success Update Class Freeze Data');
     }
 
     public function detailClassFreeze($id){
@@ -344,7 +344,7 @@ class HeadClassController extends Controller
                 'ct.class_transaction_price' => $req->inputPrice
             ]);
 
-        return redirect()->to($req->return_url)->with('msg','Success Update Course Data');
+        return $this->backTo($req->return_url)->with('msg','Success Update Course Data');
     }
 
     public function DeleteType(Request $req){
@@ -352,14 +352,16 @@ class HeadClassController extends Controller
         return redirect()->back()->with('msg','Success Delete Course Data');
     }
 
-    public function active(){
-        $classes = ClassTransaction::where('Status','aktif')->paginate(5);
-        return view('head.class.index',compact('classes'));
+    /** Old link: the list page filters by status itself. */
+    public function active()
+    {
+        return redirect()->route('headClassPage', ['status' => 'aktif']);
     }
 
-    public function nonActive(){
-        $classes = ClassTransaction::where('Status','non-aktif')->paginate(5);
-        return view('head.class.index',compact('classes'));
+    /** Old link: the list page filters by status itself. */
+    public function nonActive()
+    {
+        return redirect()->route('headClassPage', ['status' => 'non-aktif']);
     }
 
     public function search(Request $req){
@@ -706,7 +708,7 @@ class HeadClassController extends Controller
         ]);
 
         // MappingClassChild::where('class_id',$req->class_id)->delete();
-        return redirect()->to($req->return_url)->with('msg','Success Level up All Student');
+        return $this->backTo($req->return_url)->with('msg','Success Level up All Student');
     }
 
     public function viewAbsen($id){
@@ -740,25 +742,26 @@ class HeadClassController extends Controller
                 'teacher_id' => $getTeacher->user_id,
             ]);
         } else $header_id = $header_check->id;
-        $check_detail = DB::table("detail_absens")->where('header_absen_id',$header_id)->get(); 
+        // Match each form row to its own student by NIS, and only students of this class.
+        $students = Student::whereIn('nis', (array) $req->nis)
+            ->whereIn('id', DB::table('mapping_class_children')->where('class_id', $schedule->class_id)->pluck('student_id'))
+            ->get()
+            ->keyBy('nis');
 
-        $students = Student::whereIn('nis',$req->nis)->get();
-        for($i = 0;$i < count($req->nis);$i++){
-            if(count($check_detail)){
-                DetailAbsen::where('header_absen_id',$header_id)
-                    ->where('student_id',$students[$i]->id)
-                    ->update([
-                    'Description' => $req->check[$i] == "on" ? "Attend" : $req->keterangan[$i],
-                    'Notes' => $req->keterangan[$i] == "Ijin" ? $req->notes[$i] : '',
-                ]);
-            } else {
-                DetailAbsen::create([
-                    'Description' => $req->check[$i] == "on" ? "Attend" : $req->keterangan[$i],
-                    'Notes' => $req->keterangan[$i] == "Ijin" ? $req->notes[$i] : '',
-                    'header_absen_id' => $header_id,
-                    'student_id' => $students[$i]->id,
-                ]);
+        foreach ((array) $req->nis as $i => $nis) {
+            $student = $students->get($nis);
+            if ($student === null) {
+                continue;
             }
+
+            $note = $req->keterangan[$i] ?? null;
+            DetailAbsen::updateOrCreate(
+                ['header_absen_id' => $header_id, 'student_id' => $student->id],
+                [
+                    'Description' => ($req->check[$i] ?? 'off') === 'on' ? 'Attend' : $note,
+                    'Notes' => $note === 'Ijin' ? ($req->notes[$i] ?? '') : '',
+                ]
+            );
         }
         return redirect()->route("headViewScheduleClass",['classId' => $schedule->class_id])->with('msg','Success Update Attendance');
     }

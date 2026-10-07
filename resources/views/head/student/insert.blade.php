@@ -152,14 +152,7 @@
                                     <div class="modal-body">
                                         <div class="accordion accordion-flush" id="accordionFlushExample">
                                         @foreach ($rules as $rule)
-                                        @php
-                                            $rule->content = str_replace(
-                                                '{{asset_url}}',
-                                                asset('assets/img/logo-hitam.png'),
-                                                $rule->content
-                                            );
-                                        @endphp     
-                                            {!! $rule->content !!}
+                                            {!! $rule->safe_content !!}
                                         @endforeach
                                             {{--indonesia--}}
                                             {{-- <div class="accordion-item">

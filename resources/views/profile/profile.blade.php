@@ -23,7 +23,7 @@
                             <div class="tab-pane fade show active profile-edit pt-3" id="profile-edit">
 
                                 <!-- Profile Edit Form -->
-                                <form action="{{route('change-profile',$user)}}" method="post">
+                                <form action="{{route('change-profile')}}" method="post">
                                     @csrf
 
 

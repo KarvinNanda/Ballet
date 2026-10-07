@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\teacher\Concerns\AuthorizesTeacherClasses;
 use App\Models\ClassTransaction;
 use App\Models\DetailAbsen;
 use App\Models\HeaderAbsen;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
+    use AuthorizesTeacherClasses;
+
     public function index(Request $request){
 //        dd(Carbon::parse('2023-02-10')->diffInDays('2024-01-20'));
         $keyword = $request->query('keyword');
@@ -33,6 +36,7 @@ class TeacherController extends Controller
             COUNT(student_id) as people_count
         ')
         ->where('class_transactions.Status','aktif')
+        ->where('mapping_class_teachers.user_id', $request->user()->id)
         ->where(function ($query) use ($keyword) {
             $query->where('students.LongName',"LIKE","%$keyword%")
             ->orWhere('users.name',"LIKE","%$keyword%")
@@ -47,7 +51,7 @@ class TeacherController extends Controller
         })
         ->whereDate('schedules.date','=',now()->setTimezone("GMT+7")->toDateString())
         ->orderBy('schedules.date','desc')
-        ->groupBy('schedules.date')
+        ->groupBy('schedules.id')
         ->paginate(5);
 
 //        foreach ($data as $d){
@@ -58,6 +62,7 @@ class TeacherController extends Controller
     }
 
     public function viewAbsen($id){
+        $this->authorizeSchedule($id);
         $return_url = url()->previous();
         $view = Schedule::find($id);
         $class_name = DB::table('class_transactions')
@@ -89,40 +94,44 @@ class TeacherController extends Controller
 
     }
 
-    public function getAbsen(Request $req, Schedule $schedule){
-        $header = new HeaderAbsen();
-        $header->schedules_id = $schedule->id;
-        $header->teacher_id = Auth::user()->id;
-        $header->save();
+    public function getAbsen(Request $req, Schedule $schedule)
+    {
+        $this->authorizeClass($schedule->class_id);
 
-//        $class_name = DB::table('class_transactions')
-//            ->leftJoin('schedules','class_transactions.id','schedules.class_id')
-//            ->leftJoin('class_types','class_types.id','class_transactions.class_type_id')
-//            ->where('schedules.id',$schedule->id)
-//            ->first()->class_name;
-
-        $header_id = DB::table("header_absens")->orderBy('id','desc')->first();
-
-        $students = Student::whereIn('nis',$req->nis)->get();
-        for($i = 0;$i < count($req->nis);$i++){
-            $detail = new DetailAbsen();
-            $detail->header_absen_id = $header_id->id;
-            $detail->student_id = $students[$i]->id;
-            $detail->Notes = $req->keterangan[$i] == "Permission" ? $req->notes[$i] : '';
-            if($req->check[$i] == "on"){
-                $detail->Description = "Attend";
-            }else{
-                if($req->keterangan[$i]=="Select...")
-                {
-                    $detail->Description = "Absent";
-                }
-                else{
-                    $detail->Description = $req->keterangan[$i];
-                }
-            }
-            $detail->save();
-            DB::table('students')->where('id',$students[$i]->id)->update(['Quota' => $students[$i]->Quota + 1]);
+        if (HeaderAbsen::where('schedules_id', $schedule->id)->exists()) {
+            return $this->backTo($req->return_url)->with('error', 'Jadwal ini sudah diabsen, jadi tidak bisa diubah lagi.');
         }
-        return redirect()->to($req->return_url)->with('msg','Success Making Attendance');
+
+        // Only students of this class, looked up by NIS so each form row keeps its own student.
+        $students = Student::whereIn('nis', (array) $req->nis)
+            ->whereIn('id', DB::table('mapping_class_children')->where('class_id', $schedule->class_id)->pluck('student_id'))
+            ->get()
+            ->keyBy('nis');
+
+        DB::transaction(function () use ($req, $schedule, $students) {
+            $header = new HeaderAbsen();
+            $header->schedules_id = $schedule->id;
+            $header->teacher_id = Auth::id();
+            $header->save();
+
+            foreach ((array) $req->nis as $i => $nis) {
+                $student = $students->get($nis);
+                if ($student === null) {
+                    continue;
+                }
+
+                $note = $req->keterangan[$i] ?? 'Select...';
+                $detail = new DetailAbsen();
+                $detail->header_absen_id = $header->id;
+                $detail->student_id = $student->id;
+                $detail->Notes = $note === 'Permission' ? ($req->notes[$i] ?? '') : '';
+                $detail->Description = ($req->check[$i] ?? 'off') === 'on' ? 'Attend' : ($note === 'Select...' ? 'Absent' : $note);
+                $detail->save();
+
+                DB::table('students')->where('id', $student->id)->increment('Quota');
+            }
+        });
+
+        return $this->backTo($req->return_url)->with('msg', 'Success Making Attendance');
     }
 }

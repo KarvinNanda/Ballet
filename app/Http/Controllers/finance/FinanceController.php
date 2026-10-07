@@ -47,9 +47,13 @@ class FinanceController extends Controller
     }
 
     public function reportTeacher($month){
-        $first = now()->setTimezone('GMT+7')->firstOfMonth()->setMonth($month);
-        $last = now()->setTimezone('GMT+7')->lastOfMonth()->setMonth($month);
-        $getmonth = DB::select(DB::raw("select monthname('$first') as month"));
+        $month = (int) $month;
+        abort_unless($month >= 1 && $month <= 12, 404);
+
+        // Whole month of the current year, WIB: first day 00:00:00 to last day 23:59:59.
+        $first = now()->setTimezone('GMT+7')->setDate(now()->setTimezone('GMT+7')->year, $month, 1)->startOfDay();
+        $last = $first->copy()->endOfMonth();
+        $getmonth = [(object) ['month' => $first->format('F')]];
 
         $report = DB::table('header_absens as ha')
             ->join('schedules as s','s.id','ha.schedules_id')

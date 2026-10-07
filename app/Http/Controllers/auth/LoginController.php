@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
@@ -19,33 +17,20 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    public function doLogin(Request $req){
-        $rules = [
-            'email' => 'required',
-            'password' => 'required'
-        ];
+    public function doLogin(LoginRequest $request)
+    {
+        $request->authenticate();
+        $request->session()->regenerate();
 
-        $validate = Validator::make($req->all(),$rules);
-
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate);
-        }
-
-        $credential = [
-          'email' => $req->email,
-          'password' => $req->password
-        ];
-
-        if(Auth::attempt($credential,$req->remember)){
-            return redirect()->to('/'.Auth::user()->role);
-        } else {
-            return redirect()->back()->withErrors(['msg' => 'User Not Found']);
-        }
+        return redirect()->to('/'.Auth::user()->role);
     }
 
-    public function logout(){
-        Session::flush();
+    public function logout(Request $request)
+    {
         Auth::logout();
-        return redirect()->to('/login');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 }

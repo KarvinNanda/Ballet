@@ -2,7 +2,7 @@
 
 Aplikasi web operasional untuk sekolah kursus Ballet. Project ini dibuat untuk menyederhanakan operasional harian sekolah: pencatatan absensi, penjadwalan kelas, mapping antara guru–murid–kelas, manajemen pembayaran (transaksi), manajemen stock (barang yang dijual ke murid/buyer), serta pembuatan laporan rutin.
 
-Dibangun dengan **Laravel 9** + **PHP 8** + **MySQL**, dengan UI berbasis **Bootstrap 5** (template NiceAdmin).
+Dibangun dengan **Laravel 13** + **PHP 8.4** + **MySQL 8**, dengan UI berbasis **Bootstrap 5.3** dan tema sendiri (mobile friendly).
 
 ---
 
@@ -121,18 +121,17 @@ Ballet/
 
 ## Tech Stack
 
-| Layer            | Tool                                    |
-|------------------|-----------------------------------------|
-| Framework        | Laravel 9.19                            |
-| Bahasa           | PHP ^8.0.2                              |
-| Database         | MySQL / MariaDB                         |
-| Frontend         | Bootstrap 5 (NiceAdmin template) + jQuery |
-| Build tool       | Vite                                    |
-| PDF              | barryvdh/laravel-dompdf ^2.0            |
-| Excel            | maatwebsite/excel ^3.1                  |
-| API auth         | Laravel Sanctum ^3.0                    |
-| Editor           | CKEditor 4                              |
-| UI helper        | SweetAlert2                             |
+| Layer      | Tool                                                         |
+|------------|--------------------------------------------------------------|
+| Framework  | Laravel 13                                                   |
+| Bahasa     | PHP 8.4                                                      |
+| Database   | MySQL 8 (Docker, strict mode)                                |
+| Frontend   | Bootstrap 5.3 + tema `public/assets/css/theme.css` + jQuery 3.7 (semua lokal, tanpa CDN) |
+| Font       | Cormorant (judul) + Montserrat (isi), self-hosted            |
+| PDF        | barryvdh/laravel-dompdf ^3                                   |
+| Editor     | CKEditor 5 (lokal) + HTMLPurifier di server                  |
+| Email lokal| Mailpit (Docker)                                             |
+| Test       | PHPUnit 13 (`php artisan test`, database `ballet_test`)      |
 
 ---
 
@@ -140,127 +139,58 @@ Ballet/
 
 ### 1. Prerequisite
 
-Pastikan sudah ke-install di mesin kamu:
-- **PHP >= 8.0.2** dengan extension umum (mbstring, openssl, pdo_mysql, tokenizer, xml, ctype, json, bcmath, fileinfo, gd)
-- **Composer** ([getcomposer.org](https://getcomposer.org/))
-- **MySQL / MariaDB** (atau pakai XAMPP/Laragon)
-- **Git**
+- **PHP 8.4** dengan extension: mbstring, openssl, pdo_mysql, xml, ctype, bcmath, fileinfo, gd, intl, zip
+  (macOS: `brew install php@8.4`)
+- **Composer 2**
+- **Docker** (untuk MySQL dan Mailpit)
 
-### 2. Clone repository
-
-```bash
-git clone <repository-url> Ballet
-cd Ballet
-```
-
-### 3. Install dependency PHP
+### 2. Install
 
 ```bash
+git clone <repository-url> Ballet && cd Ballet
 composer install
-```
-
-Kalau ada error tentang versi PHP, cek `composer.json` (project ini butuh PHP `^8.0.2`).
-
-### 4. Copy file environment
-
-```bash
-cp .env.example .env
-```
-
-Di Windows (cmd):
-```cmd
-copy .env.example .env
-```
-
-### 5. Generate APP_KEY
-
-```bash
+cp .env.example .env          # isi DB_PASSWORD dan DB_ROOT_PASSWORD dengan nilai acak
 php artisan key:generate
-```
-
-### 6. Konfigurasi `.env`
-
-Buka file `.env`, sesuaikan minimal bagian berikut:
-
-```env
-APP_NAME=Ballet
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=ballet
-DB_USERNAME=root
-DB_PASSWORD=
-
-# Untuk fitur forgot password & email credential ke teacher baru
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=email-kamu@gmail.com
-MAIL_PASSWORD=app-password-gmail
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=email-kamu@gmail.com
-MAIL_FROM_NAME="${APP_NAME}"
-```
-
-> **Note:** kalau pakai Gmail, generate **App Password** di akun Google (bukan password biasa), karena Gmail block SMTP login dengan password reguler.
-
-### 7. Buat database
-
-Bikin database kosong dengan nama sesuai `DB_DATABASE` di `.env` (default: `ballet`).
-
-```sql
-CREATE DATABASE ballet;
-```
-
-Atau lewat phpMyAdmin / DBeaver / TablePlus.
-
-### 8. Jalankan migration + seeder
-
-```bash
-php artisan migrate --seed
-```
-
-Command ini akan:
-- Bikin semua tabel sesuai [database/migrations/](database/migrations)
-- Seed data awal (bank, rekening, class type, class transaction, student, stock, mapping teacher, dan **user default per role** — lihat bagian bawah)
-
-### 9. Symlink storage (untuk upload file)
-
-```bash
-php artisan storage:link
-```
-
-### 10. Jalankan server
-
-```bash
+docker compose up -d --wait   # MySQL 8 + Mailpit, membaca nilai dari .env
+php artisan migrate --seed    # buat tabel + data demo
 php artisan serve
 ```
 
-Server jalan di `http://localhost:8000`.
+Buka `http://127.0.0.1:8000`. Semua email (forgot password, akun baru) masuk ke Mailpit: `http://localhost:8025`.
 
-Kalau mau build asset frontend:
+Data demo dibuat relatif terhadap hari ini: setiap kelas aktif punya jadwal **hari ini**, jadi absensi bisa langsung dicoba. Untuk mengulang data demo: `php artisan migrate:fresh --seed` (menghapus semua data lokal).
+
+### 3. Test
+
 ```bash
-npm run dev      # development (watch mode)
-# atau
-npm run build    # production build
+docker compose exec mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS ballet_test; GRANT ALL ON ballet_test.* TO \`$MYSQL_USER\`@\`%\`;"'
+php artisan test
 ```
+
+Test memakai database terpisah `ballet_test`, jadi data lokal tidak tersentuh.
+
+### 4. Production
+
+- `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL` = alamat HTTPS asli (link reset password dibuat dari `APP_URL`).
+- `SESSION_SECURE_COOKIE=true`.
+- Isi `MAIL_*` dengan SMTP asli.
+- Jalankan `php artisan migrate` setiap deploy.
+- Pasang cron untuk scheduler (umur murid dihitung ulang setiap hari):
+  `* * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1`
 
 ---
 
 ## Akun Default (dari seeder)
 
-Setelah `php artisan migrate --seed`, ada beberapa user default yang bisa langsung dipakai login:
+Setelah `php artisan migrate --seed`, ada beberapa user default (khusus lokal, jangan dipakai di production):
 
 | Role    | Email               | Password    |
 |---------|---------------------|-------------|
 | Head    | head@gmail.com      | head123     |
 | Admin   | admin@gmail.com     | admin123    |
 | Finance | finance@gmail.com   | finance123  |
-| Teacher | teacher@gmail.com   | teahcer123  |
+| Teacher | teacher@gmail.com   | teacher123  |
+| Teacher | sari.teacher@gmail.com, dewi.teacher@gmail.com, maya.teacher@gmail.com | teacher123 |
 
 > Segera ganti password setelah login pertama untuk akun-akun ini.
 

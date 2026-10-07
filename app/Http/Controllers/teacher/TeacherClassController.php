@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\teacher;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\teacher\Concerns\AuthorizesTeacherClasses;
 use App\Models\ClassTransaction;
 use App\Models\HeaderAbsen;
 use App\Models\Schedule;
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class TeacherClassController extends Controller
 {
+    use AuthorizesTeacherClasses;
+
     public function index()
     {
         $data = DB::table('class_transactions')
@@ -37,6 +40,7 @@ class TeacherClassController extends Controller
 
     public function viewDetail(Request $request)
     {
+        $this->authorizeClass($request->id);
         $get_class = DB::table('class_transactions as ct')
                         ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
                         ->where('ct.id', $request->id)->first();
@@ -57,6 +61,7 @@ class TeacherClassController extends Controller
 
     public function viewSchedule(Request $req, $id)
     {
+        $this->authorizeClass($id);
         $classId = $id;
         $class = DB::table('schedules')
             // ->join('class_transactions', 'class_transactions.id', 'schedules.class_id')
@@ -77,6 +82,7 @@ class TeacherClassController extends Controller
 
     public function deleteScheduleClass($id, $classId)
     {
+        $this->authorizeClass($classId);
         $classDelete = DB::table('schedules')->where('schedules.id', $id)->where('class_id', $classId);
         $classDelete->delete();
         return redirect()->route("viewScheduleClassTeacher", ['id' => $classId])->with('msg','Success Delete Schedule');
@@ -84,15 +90,23 @@ class TeacherClassController extends Controller
 
     public function viewUpdateScheduleClass(Request $req)
     {
-        // dd($req->all());
-        $schedule = Schedule::find($req->scheduleId);
-        $header_check = HeaderAbsen::where('schedules_id',$req->scheduleId)->first();
-        if(!is_null($header_check)) return redirect()->back()->with('msg','This Schedule Already get Attendence');
+        // Opened directly (no schedule posted from the schedule list): nothing to edit.
+        if (! $req->filled('scheduleId')) {
+            return redirect()->route('viewClass');
+        }
+
+        $schedule = $this->authorizeSchedule($req->scheduleId);
+
+        if (HeaderAbsen::where('schedules_id', $schedule->id)->exists()) {
+            return redirect()->back()->with('error', 'Jadwal ini sudah diabsen, jadi tidak bisa diubah lagi.');
+        }
+
         return view('teacher.class.viewUpdateSchedule', compact('schedule'));
     }
 
     public function updateSchedule(Request $req)
     {
+        $this->authorizeSchedule($req->scheduleId);
         $schedule = Schedule::find($req->scheduleId);
         $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
@@ -101,6 +115,7 @@ class TeacherClassController extends Controller
 
     public function viewaddScheduleClass(Request $req, $id)
     {
+        $this->authorizeClass($id);
         $classId = $id;
         $test = Schedule::find($classId);
 
@@ -109,12 +124,14 @@ class TeacherClassController extends Controller
 
     public function viewAddMultipleScheduleClass(Request $req, $id)
     {
+        $this->authorizeClass($id);
         $classId = $id;
         return view('teacher.class.addMultipleSchedule', compact('classId'));
     }
 
     public function addSchedule(Request $req, $id)
     {
+        $this->authorizeClass($id);
         $date = Carbon::parse($req->dateTime);
         $class_schedule = Schedule::where('class_id', $id)->get();
         $bool = true;
@@ -142,6 +159,7 @@ class TeacherClassController extends Controller
 
     public function addMultipleSchedule(Request $req)
     {
+        $this->authorizeClass($req->classId);
         $date = Carbon::parse($req->dateTime);
 
         for ($i = 0; $i < $req->ScheduleLoop; $i++) {
@@ -157,6 +175,7 @@ class TeacherClassController extends Controller
 
     public function viewClassSchedule(Request $request, $id)
     {
+        $this->authorizeSelf($id);
         $userId = $id;
 
         $classes = ClassTransaction::select(

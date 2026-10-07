@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class HeadTransactionController extends Controller
 {
@@ -238,7 +239,7 @@ class HeadTransactionController extends Controller
                         ]);
         }
 
-        return redirect()->to($req->return_url)->with('msg','Success Update Transaction');
+        return $this->backTo($req->return_url)->with('msg','Success Update Transaction');
     }
 
     public function delete(Request $req,Transaction $transaction){
@@ -278,10 +279,16 @@ class HeadTransactionController extends Controller
         return view('head.transaction.insert',compact('students','class_transaction'));
     }
 
-    public function getPrice(Request $req){
-        $text = substr($req->text,0,strpos($req->text,'-')-1);
-        $price = ClassType::where('class_name','like',"%$text%")->first();
-        return is_null($price) ? 0 : $price->class_price;
+    /** AJAX for the class dropdown. Option text is "<class name> - <teacher>"; answers the plain price. */
+    public function getPrice(Request $req)
+    {
+        if (! $req->filled('text')) {
+            return response()->json(['message' => 'The text field is required.'], 422);
+        }
+
+        $className = trim(Str::before($req->query('text'), ' - '));
+
+        return response((string) (ClassType::where('class_name', $className)->value('class_price') ?? 0));
     }
 
     public function insertTransaction(Request $req){

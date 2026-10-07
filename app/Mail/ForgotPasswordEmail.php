@@ -18,10 +18,8 @@ class ForgotPasswordEmail extends Mailable
      *
      * @return void
      */
-    public $token;
-    public function __construct($token)
+    public function __construct(public string $token, public string $email)
     {
-        $this->token = $token;
     }
 
     /**
@@ -45,6 +43,8 @@ class ForgotPasswordEmail extends Mailable
     {
         return new Content(
             view: 'forgot-password.send-email',
+            // Build from APP_URL, never from the request Host header (reset link poisoning).
+            with: ['url' => rtrim(config('app.url'), '/').route('reset-password-page', ['token' => $this->token, 'email' => $this->email], false)],
         );
     }
 

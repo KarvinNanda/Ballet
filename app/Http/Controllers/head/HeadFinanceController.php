@@ -46,7 +46,7 @@ class HeadFinanceController extends Controller
         $user->percent = $req->inputBonus;
         $user->save();
 
-        return redirect()->to($req->return_url)->with('msg','Success Update Teacher');
+        return $this->backTo($req->return_url)->with('msg','Success Update Teacher');
     }
 
     public function insertPage(){

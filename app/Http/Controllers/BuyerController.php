@@ -79,6 +79,6 @@ class BuyerController extends Controller
             'quantity' =>  $stock->quantity - $req->qty,
         ]);
 
-        return redirect()->to($req->return_url)->with(['msg' => 'Thank You']);
+        return $this->backTo($req->return_url)->with(['msg' => 'Thank You']);
     }
 }

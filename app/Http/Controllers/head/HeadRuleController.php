@@ -4,12 +4,16 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Models\Rules;
+use App\Support\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class HeadRuleController extends Controller
 {
+    /** rules.content is TEXT; this keeps one rule readable in the Add Student dialog. */
+    private const MAX_CONTENT_LENGTH = 10000;
+
     public function index(){
         $rules = DB::table('rules')->paginate(5);
         return view('head.rule.index',compact('rules'));
@@ -19,22 +23,24 @@ class HeadRuleController extends Controller
         return view('head.rule.insert');
     }
 
-    public function insert(Request $req){
-        $rules = [
-            'inputLanguage' => 'required',
-            'content' => 'required',
-        ];
+    public function insert(Request $req, HtmlSanitizer $sanitizer)
+    {
+        $data = $req->validate([
+            'inputLanguage' => ['required', 'string', 'max:255'],
+            'content' => ['required', 'string'],
+        ]);
 
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+        $content = $sanitizer->clean($data['content']);
+        if (mb_strlen($content) > self::MAX_CONTENT_LENGTH) {
+            return back()->withErrors(['content' => 'Isi rule terlalu panjang (maksimal 10.000 karakter, termasuk format).'])->withInput();
         }
 
         $rule = new Rules();
-        $rule->lang=$req->inputLanguage;
-        $rule->content=$req->content;
+        $rule->lang = $data['inputLanguage'];
+        $rule->content = $content;
         $rule->save();
-        return redirect()->route('Rules')->with('msg','Success Create Data Rules');
+
+        return redirect()->route('Rules')->with('msg', 'Success Create Data Rules');
     }
 
     public function delete(Rules $rules){
@@ -47,21 +53,23 @@ class HeadRuleController extends Controller
         return view('head.rule.update',compact('rules'));
     }
 
-    public function update(Rules $rules,Request $req){
-        $rul = [
-            'inputLanguage' => 'required',
-            'content' => 'required',
-        ];
+    public function update(Rules $rules, Request $req, HtmlSanitizer $sanitizer)
+    {
+        $data = $req->validate([
+            'inputLanguage' => ['required', 'string', 'max:255'],
+            'content' => ['required', 'string'],
+        ]);
 
-        $validate = Validator::make($req->all(),$rul);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+        $content = $sanitizer->clean($data['content']);
+        if (mb_strlen($content) > self::MAX_CONTENT_LENGTH) {
+            return back()->withErrors(['content' => 'Isi rule terlalu panjang (maksimal 10.000 karakter, termasuk format).'])->withInput();
         }
 
-        $rule = Rules::find($rules->id);
-        $rule->lang=$req->inputLanguage;
-        $rule->content=$req->content;
+        $rule = $rules;
+        $rule->lang = $data['inputLanguage'];
+        $rule->content = $content;
         $rule->save();
-        return redirect()->route('Rules')->with('msg','Success Create Data Rules');
+
+        return redirect()->route('Rules')->with('msg', 'Success Update Data Rules');
     }
 }

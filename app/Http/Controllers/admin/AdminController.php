@@ -54,7 +54,7 @@ class AdminController extends Controller
                 'ct.class_transaction_price' => $req->inputPrice
             ]);
 
-        return redirect()->to($req->return_url)->with('msg','Success Update Data Course');
+        return $this->backTo($req->return_url)->with('msg','Success Update Data Course');
     }
 
     public function DeleteType(Request $req){

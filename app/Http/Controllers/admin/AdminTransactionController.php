@@ -10,6 +10,7 @@ use App\Models\Rekenings;
 use App\Models\Student;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -101,10 +102,16 @@ class AdminTransactionController extends Controller
         return redirect()->route('adminTransactionPage')->with('msg','Success Create Transaction');
     }
 
-    public function getPrice(Request $req){
-        $text = substr($req->text,0,strpos($req->text,'-')-1);
-        $price = ClassType::where('class_name','like',"%$text%")->first();
-        return is_null($price) ? 0 : $price->class_price;
+    /** AJAX for the class dropdown. Option text is "<class name> - <teacher>"; answers the plain price. */
+    public function getPrice(Request $req)
+    {
+        if (! $req->filled('text')) {
+            return response()->json(['message' => 'The text field is required.'], 422);
+        }
+
+        $className = trim(Str::before($req->query('text'), ' - '));
+
+        return response((string) (ClassType::where('class_name', $className)->value('class_price') ?? 0));
     }
 
     public function searchTransaction(Request $req,$sort){
@@ -292,7 +299,7 @@ class AdminTransactionController extends Controller
                         ]);
         }
 
-        return redirect()->to($req->return_url)->with('msg','Success Update Transaction');
+        return $this->backTo($req->return_url)->with('msg','Success Update Transaction');
     }
 
     public function submitPaidTransaction($transactionId,Request $req){

@@ -103,6 +103,6 @@ class FinanceTransactionController extends Controller
             DB::table('students')->where('id',$transaction->students_id)->update([
                 'MaxQuota' => $student->MaxQuota + $transaction->transaction_quota
             ]);
-        return redirect()->to($req->return_url)->with('msg','Success Update Transaction');
+        return $this->backTo($req->return_url)->with('msg','Success Update Transaction');
     }
 }
