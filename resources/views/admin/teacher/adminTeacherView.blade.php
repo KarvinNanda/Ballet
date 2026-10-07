@@ -45,7 +45,8 @@
                                 <td>{{$teacher->phone}}</td>
                                 <td>{{$teacher->email}}</td>
                                 <td class="d-flex">
-                                    <form action="{{route('adminTeacherDelete',$teacher)}}" method="get">
+                                    <form action="{{route('adminTeacherDelete',$teacher)}}" method="post" data-confirm="Hapus data ini?">
+                                        @csrf
                                         <button type="submit" class="btn btn-danger me-3">Delete</button>
                                     </form>
 

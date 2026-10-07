@@ -39,13 +39,14 @@
                                                     ->where('payment_status','Unpaid')
                                                     ->orderBy('transaction_date')
                                                     ->first();
-                                                    // if(is_null($check_transaction->transaction_date)) dd($check_transaction);
+                                // Whole days between class and oldest unpaid bill, either direction (Carbon 2 semantics; Carbon 3 is signed and fractional).
+                                $daysFromBill = $check_transaction ? (int) $carbon::parse($view->date)->diffInDays($check_transaction->transaction_date, true) : null;
                             @endphp
                             <tr>
                                 <input type="hidden" value="{{$c->nis}}" name="nis[]">
                                 <td>{{$c->nis}}</td>
                                 <td>{{$c->nama}}</td>
-                                @if( ($carbon::parse($view->date)->diffInDays(@$check_transaction->transaction_date) >= 20 && $carbon::parse($view->date)->diffInDays(@$check_transaction->transaction_date) <= 39) &&
+                                @if( ($daysFromBill !== null && $daysFromBill >= 20 && $daysFromBill <= 39) &&
                                      @$check_transaction->payment_status == 'Unpaid' &&
                                      $c->Quota + 1 > 3 &&
                                      !@$detail &&

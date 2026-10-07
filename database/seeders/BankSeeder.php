@@ -2,29 +2,17 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 class BankSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        //
-        DB::table('banks')->insert([
-            [
-                'bank_name' => 'BCA'
-            ],
-
-            [
-                'bank_name' => 'Mandiri'
-            ],
-
-        ]);
+        // BCA and Mandiri stay first: RekeningSeeder refers to banks 1 and 2.
+        DB::table('banks')->insert(array_map(
+            fn ($name) => ['bank_name' => $name, 'created_at' => now(), 'updated_at' => now()],
+            ['BCA', 'Mandiri', 'BNI', 'BRI', 'CIMB Niaga']
+        ));
     }
 }

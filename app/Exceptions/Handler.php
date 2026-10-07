@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Session\TokenMismatchException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -45,6 +47,15 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        // Sign Out after the session expired: go to login instead of "419 Page Expired".
+        // Nobody is logged out here, so a forged logout request still has no effect.
+        // The framework turns TokenMismatchException into a 419 HttpException before callbacks run.
+        $this->renderable(function (HttpException $e, $request) {
+            if ($e->getPrevious() instanceof TokenMismatchException && $request->routeIs('logout')) {
+                return redirect()->route('login');
+            }
         });
     }
 }

@@ -1,17 +1,16 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Lupa Password</title>
-</head>
-<body style="color: black">
-<h1>Berikut Halaman Untuk Reset Password</h1>
-<h3>Halaman ini akan expired dalam waktu 30 menit</h3>
-<a href="{{route('reset-password-page',$token)}}"><h3>Reset Password</h3></a>
-<br>
-<h2>Terima Kasih</h2>
+<!DOCTYPE html>
+<html lang="id">
+<body style="margin:0;padding:24px;background:#F8FAFC;font-family:Arial,Helvetica,sans-serif;color:#0F172A;">
+    <table role="presentation" width="100%" style="max-width:480px;margin:0 auto;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:12px;">
+        <tr><td style="padding:28px;">
+            <p style="font-size:20px;font-weight:bold;margin:0 0 16px;">En Pointe</p>
+            <p style="margin:0 0 16px;">Kami menerima permintaan untuk membuat password baru untuk akun kamu.</p>
+            <p style="margin:0 0 24px;">
+                <a href="{{ $url }}" style="display:inline-block;background:#BE185D;color:#FFFFFF;text-decoration:none;font-weight:bold;padding:12px 20px;border-radius:8px;">Buat password baru</a>
+            </p>
+            <p style="margin:0 0 8px;color:#64748B;font-size:13px;">Link berlaku 30 menit dan hanya bisa dipakai sekali.</p>
+            <p style="margin:0;color:#64748B;font-size:13px;">Kalau kamu tidak meminta ini, abaikan email ini.</p>
+        </td></tr>
+    </table>
 </body>
 </html>

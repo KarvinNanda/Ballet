@@ -1,5 +1,6 @@
 @extends('Master.master')
 
+
 @section('title','Add Rule')
 
 @section('content')
@@ -51,17 +52,5 @@
         </div>
     </section>
 
-    <script>
-        // tinymce.init({
-        //     selector: '#content', // use the ID of the textarea you want to convert to WYSIWYG
-        //     plugins: 'advlist autolink lists link image charmap print preview anchor',
-        //     toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat',
-        // });
-        CKEDITOR.replace('content', {
-        allowedContent: true  // Allows all HTML tags to be retained
-    });
-    </script>
-
-
-
+    @include('head.rule._editor')
 @endsection

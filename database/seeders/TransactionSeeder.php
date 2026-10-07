@@ -2,229 +2,54 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+/** Monthly fees for the first 4 running classes: last month paid, this month unpaid. Same shape the app inserts. */
 class TransactionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        //
-        DB::table('transactions')->insert([
-           [
-               'students_id' => 1,
-               'class_transactions_id' => 1,
-               'transaction_date' => '2022-12-01',
-               'transaction_payment' => '2022-12-01',
-               'payment_status' => 'Paid',
-               'discount' => 0,
-               'desc' => '',
-               'price' => 500000
-           ],
+        $enrollments = DB::table('mapping_class_children as c')
+            ->join('class_transactions as ct', 'ct.id', 'c.class_id')
+            ->where('ct.Status', 'aktif')
+            ->where('ct.is_freeze', 0)
+            ->whereIn('ct.id', DB::table('class_transactions')->where('Status', 'aktif')->where('is_freeze', 0)->orderBy('id')->limit(4)->pluck('id'))
+            ->orderBy('c.class_id')
+            ->get(['c.class_id', 'c.student_id', 'ct.class_transaction_price as price']);
 
-            [
-                'students_id' => 1,
-                'class_transactions_id' => 2,
-                'transaction_date' => '2022-12-01',
-                'transaction_payment' => '2022-12-01',
-                'payment_status' => 'Paid',
-                'discount' => 0,
-                'desc' => '',
-                'price' => 250000
-            ],
+        $thisMonth = now('Asia/Jakarta')->startOfMonth()->addDays(9);
+        $lastMonth = $thisMonth->copy()->subMonth();
 
-            [
-                'students_id' => 1,
-                'class_transactions_id' => 3,
-                'transaction_date' => '2022-12-01',
-                'transaction_payment' => '2022-12-01',
-                'payment_status' => 'Paid',
-                'discount' => 0,
-                'desc' => '',
-                'price' => 700000
-            ],
-
-            [
-                'students_id' => 1,
-                'class_transactions_id' => 4,
-                'transaction_date' => '2022-12-01',
-                'transaction_payment' => '2022-12-01',
-                'payment_status' => 'Paid',
-                'discount' => 0,
-                'desc' => '',
-                'price' => 800000
-            ],
-
-            [
-                'students_id' => 2,
-                'class_transactions_id' => 1,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 200000
-            ],
-
-            [
-                'students_id' => 2,
-                'class_transactions_id' => 4,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 120000
-            ],
-
-            [
-                'students_id' => 3,
-                'class_transactions_id' => 4,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 110000
-            ],
-
-            [
-                'students_id' => 5,
-                'class_transactions_id' => 4,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 190000
-            ],
-
-            [
-                'students_id' => 3,
-                'class_transactions_id' => 1,
-                'transaction_date' => '2022-12-01',
-                'transaction_payment' => '2022-12-01',
-                'payment_status' => 'Paid',
-                'discount' => 0,
-                'desc' => '',
-                'price' => 180000
-            ],
-
-            [
-                'students_id' => 4,
-                'class_transactions_id' => 1,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 100000
-            ],
-
-            [
-                'students_id' => 5,
-                'class_transactions_id' => 1,
-                'transaction_date' => '2022-12-01',
-                'transaction_payment' => '2022-12-01',
-                'payment_status' => 'Paid',
-                'discount' => 0,
-                'desc' => '',
-                'price' => 380000
-            ],
-
-            [
-                'students_id' => 6,
-                'class_transactions_id' => 1,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 320000
-            ],
-
-            [
-                'students_id' => 8,
-                'class_transactions_id' => 1,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 300000
-            ],
-
-            [
-                'students_id' => 10,
-                'class_transactions_id' => 1,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 150000
-            ],
-
-            [
-                'students_id' => 11,
-                'class_transactions_id' => 1,
-                'transaction_date' => '2022-12-01',
-                'transaction_payment' => '2022-12-01',
-                'payment_status' => 'Paid',
-                'discount' => 0,
-                'desc' => '',
-                'price' => 310000
-            ],
-
-            [
-                'students_id' => 15,
-                'class_transactions_id' => 1,
-                'transaction_date' => '2022-12-01',
-                'transaction_payment' => '2022-12-01',
-                'payment_status' => 'Paid',
-                'discount' => 0,
-                'desc' => '',
-                'price' => 190000
-            ],
-
-            [
-                'students_id' => 16,
-                'class_transactions_id' => 4,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 290000
-            ],
-
-            [
-                'students_id' => 17,
-                'class_transactions_id' => 4,
-                'transaction_date' => '2022-12-01',
-                'transaction_payment' => '2022-12-01',
-                'payment_status' => 'Paid',
-                'discount' => 0,
-                'desc' => '',
-                'price' => 210000
-            ],
-
-            [
-                'students_id' => 18,
-                'class_transactions_id' => 4,
-                'transaction_date' => '2022-11-14',
-                'transaction_payment' => null,
-                'payment_status' => 'Unpaid',
-                'discount' => 10,
-                'desc' => '',
-                'price' => 230000
-            ],
-        ]);
+        foreach ($enrollments as $i => $e) {
+            DB::table('transactions')->insert([
+                [
+                    'students_id' => $e->student_id,
+                    'class_transactions_id' => $e->class_id,
+                    'transaction_date' => $lastMonth->toDateString(),
+                    'transaction_payment' => $lastMonth->copy()->addDays(2)->toDateString(),
+                    'payment_status' => 'Paid',
+                    'discount' => $i % 5 === 0 ? 10 : 0,
+                    'price' => $e->price,
+                    'desc' => '-',
+                    'transaction_quota' => 8,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+                [
+                    'students_id' => $e->student_id,
+                    'class_transactions_id' => $e->class_id,
+                    'transaction_date' => $thisMonth->toDateString(),
+                    'transaction_payment' => null,
+                    'payment_status' => 'Unpaid',
+                    'discount' => 0,
+                    'price' => $e->price,
+                    'desc' => '-',
+                    'transaction_quota' => 8,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ],
+            ]);
+        }
     }
 }

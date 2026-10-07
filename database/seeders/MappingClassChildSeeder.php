@@ -2,117 +2,29 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+/** 5 active students per class, rotating through the student list so each class has a different group. */
 class MappingClassChildSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
+    private const STUDENTS_PER_CLASS = 5;
+
     public function run()
     {
-        DB::table('mapping_class_children')->insert([
+        $studentIds = DB::table('students')->where('Status', 'aktif')->orderBy('id')->pluck('id');
+        $classIds = DB::table('class_transactions')->orderBy('id')->pluck('id');
 
-
-
-
-            // == kelas 3
-
-            [
-                'class_id' => '1',
-                'student_id' => '1'
-            ],
-
-            [
-                'class_id' => '1',
-                'student_id' => '2'
-            ],
-            [
-                'class_id' => '1',
-                'student_id' => '3'
-            ],
-            [
-                'class_id' => '1',
-                'student_id' => '4'
-            ],
-            [
-                'class_id' => '1',
-                'student_id' => '5'
-            ],
-            [
-                'class_id' => '1',
-                'student_id' => '6'
-            ],
-            [
-                'class_id' => '1',
-                'student_id' => '8'
-            ],
-            [
-                'class_id' => '1',
-                'student_id' => '10'
-            ],
-            [
-                'class_id' => '1',
-                'student_id' => '11'
-            ],
-
-            [
-                'class_id' => '1',
-                'student_id' => '15'
-            ],
-
-            [
-                'class_id' => '2',
-                'student_id' => '1'
-            ],
-
-            [
-                'class_id' => '3',
-                'student_id' => '1'
-            ],
-
-
-            // kelas 4
-
-            [
-                'class_id' => '4',
-                'student_id' => '3'
-            ],
-
-            [
-                'class_id' => '4',
-                'student_id' => '5'
-            ],
-
-            [
-                'class_id' => '4',
-                'student_id' => '17'
-            ],
-
-            [
-                'class_id' => '4',
-                'student_id' => '18'
-            ],
-
-            [
-                'class_id' => '4',
-                'student_id' => '16'
-            ],
-
-            [
-                'class_id' => '4',
-                'student_id' => '1'
-            ],
-
-            [
-                'class_id' => '4',
-                'student_id' => '2'
-            ],
-
-        ]);
+        foreach ($classIds as $i => $classId) {
+            for ($n = 0; $n < self::STUDENTS_PER_CLASS; $n++) {
+                DB::table('mapping_class_children')->insert([
+                    'class_id' => $classId,
+                    'student_id' => $studentIds[($i * 2 + $n) % $studentIds->count()],
+                    'quota' => 8,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
     }
 }

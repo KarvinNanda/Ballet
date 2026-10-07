@@ -31,6 +31,12 @@ return [
     |
     */
 
+    /*
+    | Store session data as JSON instead of PHP serialize(), so a leaked APP_KEY cannot
+    | be turned into PHP object injection. Changing this logs every user out once.
+    */
+    'serialization' => 'json',
+
     'lifetime' => env('SESSION_LIFETIME', 120),
 
     'expire_on_close' => false,

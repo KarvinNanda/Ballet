@@ -29,19 +29,11 @@ class AgeCalculation extends Command
      */
     public function handle()
     {
-        $students = DB::table('students')
-                    ->selectRaw("
-                        id,age
-                    ")
-                    ->whereRaw('MONTH(Dob) = MONTH(CURDATE())')
-                    ->whereRaw('DAY(Dob) = DAY(CURDATE())')
-                    ->get();
-        foreach($students as $s){
-            // Log::info(round($s->age)." = ".$s->age);
-            DB::table('students')
-            ->where('id',$s->id)->update([
-                'age' => $s->age + 1
-            ]);
-        }
+        // Age from date of birth, so running it any number of times gives the same result.
+        DB::table('students')
+            ->whereNotNull('Dob')
+            ->update(['age' => DB::raw('TIMESTAMPDIFF(YEAR, Dob, CURDATE())')]);
+
+        return self::SUCCESS;
     }
 }

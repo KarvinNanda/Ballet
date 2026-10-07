@@ -79,7 +79,7 @@ class HeadStockController extends Controller
         $stock->quantity = $req->inputQty;
         $stock->save();
 
-        return redirect()->to($req->return_url)->with('msg','Success Update Stock');
+        return $this->backTo($req->return_url)->with('msg','Success Update Stock');
     }
 
     public function delete(Stock $stock){

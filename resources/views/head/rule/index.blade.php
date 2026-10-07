@@ -33,7 +33,8 @@
                             <tr>
                                 <td>{{$rule->lang}}</td>
                                 <td class="d-flex">
-                                    <form action="{{route('RulesDelete',$rule->id)}}" method="get">
+                                    <form action="{{route('RulesDelete',$rule->id)}}" method="post" data-confirm="Hapus data ini?">
+                                        @csrf
                                         <button type="submit" class="btn btn-danger me-3">Delete</button>
                                     </form>
                                     <form action="{{route('RulesUpdatePage',$rule->id)}}" method="get">

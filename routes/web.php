@@ -43,12 +43,23 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
-Route::get('/',function (){
-    if(!Auth::check()){
-        return to_route('login');
-    } else {
-        return redirect()->to('/'.Auth::user()->role);
+Route::get('/', function (\Illuminate\Http\Request $request) {
+    $role = (string) $request->user()?->role;
+
+    if (Route::has($role)) {
+        return to_route($role);
     }
+
+    // Guest, or an account without a dashboard: send to login instead of looping on "/".
+    if ($request->user()) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return to_route('login')->withErrors(['email' => 'Akun belum punya akses. Hubungi admin.']);
+    }
+
+    return to_route('login');
 });
 
 //buyer
@@ -64,7 +75,7 @@ Route::get('/login', [LoginController::class,'index'])->name('login');
 Route::post('/login', [LoginController::class,'doLogin'])->name('do-login');
 
 //admin
-Route::prefix('admin')->middleware(['admin'])->group(function(){
+Route::prefix('admin')->middleware(['role:admin'])->group(function(){
     Route::get('/', [AdminController::class,'index'])->name('admin');
     Route::post('/class/search', [AdminClassTransactionController::class,'search'])->name('adminSearchClass');
 
@@ -74,7 +85,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/view/class', [AdminClassTransactionController::class,'viewClass'])->name('adminClassView');
     Route::get('/view/class/sorting/{value}/{type}', [AdminClassTransactionController::class,'viewClassSorting'])->name('viewClassSorting');
 
-    Route::get('/detail/class/reset/quota/{id}', [AdminClassTransactionController::class,'resetQuota'])->name('ResetQuota');
+    Route::post('/detail/class/reset/quota/{id}', [AdminClassTransactionController::class,'resetQuota'])->name('ResetQuota');
     Route::get('/detail/class/{id}', [AdminClassTransactionController::class,'detailClass'])->name('adminDetailClass');
     Route::get('/class/active', [AdminClassTransactionController::class,'active'])->name('adminActiveClassPage');
     Route::get('/class/non/active', [AdminClassTransactionController::class,'nonActive'])->name('adminNonActiveClassPage');
@@ -94,19 +105,19 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/view/add/student/class/{id}', [AdminClassTransactionController::class,'viewaddStudent'])->name('viewaddStudentClass');
     Route::post('/add/teacher/class', [AdminClassTransactionController::class,'addTeacher'])->name('addTeacherClass');
     Route::post('/add/student/class', [AdminClassTransactionController::class,'addStudent'])->name('addStudentClass');
-    Route::get('/reset/class/{id}',[AdminClassTransactionController::class,'resetClass'])->name('resetClass'); // baru
+    Route::post('/reset/class/{id}',[AdminClassTransactionController::class,'resetClass'])->name('resetClass'); // baru
 
-    Route::get('/delete/TeacherClass/{teacher}/{class}',[AdminClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
+    Route::post('/delete/TeacherClass/{teacher}/{class}',[AdminClassTransactionController::class,'deleteTeacher'])->name("classDeleteTeacher");
 
     Route::post('/generate-transaction/StudentClass/{student}/{class}',[AdminClassTransactionController::class,'generateTransactionStudent'])->name("classGenerateTransactionStudent");
-    Route::get('/delete/StudentClass/{student}/{class}',[AdminClassTransactionController::class,'deleteStudent'])->name("classDeleteStudent");
+    Route::post('/delete/StudentClass/{student}/{class}',[AdminClassTransactionController::class,'deleteStudent'])->name("classDeleteStudent");
     Route::get('/class/add', [AdminClassTransactionController::class,'insertPage'])->name('adminClassAddPage');
     Route::post('/class/add', [AdminClassTransactionController::class,'insert'])->name('adminClassAdd');
     Route::post('/class/non/active/{class}', [AdminClassTransactionController::class,'ChangeStatus'])->name('changeStatusClassAdmin');
 
     Route::get('/view/schedule/class/{id}', [AdminClassScheduleController::class,'viewSchedule'])->name('viewScheduleClass');
 
-    Route::get('/delete/Schedule/class/{id}/{classId}',[AdminClassScheduleController::class,'deleteScheduleClass'])->name('deleteSchedule'); // baru
+    Route::post('/delete/Schedule/class/{id}/{classId}',[AdminClassScheduleController::class,'deleteScheduleClass'])->name('deleteSchedule'); // baru
 
     // Route::post('/view/add/schedule/class',[AdminClassScheduleController::class,'viewaddScheduleClass'])->name('viewaddScheduleClass');
     Route::get('/view/add/schedule/class/{id}', [AdminClassScheduleController::class,'viewaddScheduleClass'])->name('adminViewAddScheduleClass');
@@ -138,7 +149,8 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/teacher/view', [AdminTeacherController::class,'adminTeacherView'])->name('adminTeacherView');
     Route::get('/teacher/form', [AdminTeacherController::class,'adminTeacherForm'])->name('adminTeacherForm');
     Route::post('/teacher/form', [AdminTeacherController::class,'adminTeacherFormSubmit'])->name('adminTeacherForm');
-    Route::get('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
+    Route::post('/teacher/delete/{teacher}', [AdminTeacherController::class,'delete'])->name('adminTeacherDelete');
+    Route::get('/teacher/switch/{teacher}', [AdminTeacherController::class,'switchPage'])->name('adminTeacherSwitchPage');
     Route::post('/teacher/detail/{teacher}', [AdminTeacherController::class,'detailTeacher'])->name('adminTeacherDetail');
     Route::get('/teacher/search', [AdminTeacherController::class,'search'])->name('adminTeacherSearch');
     Route::get('/teacher/update/{teacher}', [AdminTeacherController::class,'updatePage'])->name('adminTeacherUpdatePage');
@@ -156,7 +168,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
     Route::get('/transaction/view/paid/{transactionId}', [AdminTransactionController::class,'viewPaidTransaction'])->name('adminPaidTransaction');
     Route::post('/transaction/submit/paid/{transactionId}', [AdminTransactionController::class,'submitPaidTransaction'])->name('adminSubmitPaidTransaction');
     Route::get('/transaction/detail/{transaction}', [AdminTransactionController::class,'detailTransaction'])->name('adminDetailTransaction');
-    Route::get('/transaction/{id}', [AdminTransactionController::class,'updatePage'])->name('adminUpdateTransaction');
+    Route::get('/transaction/{id}', [AdminTransactionController::class,'updatePage'])->whereNumber('id')->name('adminUpdateTransaction');
     Route::post('/transaction/update/{transaction}', [AdminTransactionController::class,'update'])->name('adminUpdate');
     Route::get('/transaction/get-price', [AdminTransactionController::class,'getPrice'])->name('getPrice');
 
@@ -170,7 +182,7 @@ Route::prefix('admin')->middleware(['admin'])->group(function(){
 });
 
 //head
-Route::prefix('head')->middleware(['head'])->group(function(){
+Route::prefix('head')->middleware(['role:head'])->group(function(){
     Route::get('/', [HeadController::class,'index'])->name('head');
 
     Route::get('/view/class/freeze', [HeadClassController::class,'viewClassFreeze'])->name('headClassFreezeView');
@@ -200,20 +212,20 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/class/delete/{id}', [HeadClassController::class,'delete'])->name('headDeleteClass');
     Route::post('/level/class/student', [HeadClassController::class,'levelUpStudent'])->name('headLevelUpStudent');
 
-    Route::get('/detail/class/reset/quota/{id}', [HeadClassController::class,'resetQuota'])->name('headResetQuota');
+    Route::post('/detail/class/reset/quota/{id}', [HeadClassController::class,'resetQuota'])->name('headResetQuota');
     Route::get('/detail/class/{id}', [HeadClassController::class,'detailClass'])->name('headDetailClass');
     Route::get('/view/add/teacher/class/{id}', [HeadClassController::class,'viewaddTeacher'])->name('headViewaddTeacherClass');
     Route::get('/view/add/student/class/{id}', [HeadClassController::class,'viewaddStudent'])->name('headViewaddStudentClass');
-    Route::get('/delete/TeacherClass/{teacher}/{class}',[HeadClassController::class,'deleteTeacher'])->name("headClassDeleteTeacher");
-    Route::get('/delete/StudentClass/{student}/{class}',[HeadClassController::class,'deleteStudent'])->name("headClassDeleteStudent");
+    Route::post('/delete/TeacherClass/{teacher}/{class}',[HeadClassController::class,'deleteTeacher'])->name("headClassDeleteTeacher");
+    Route::post('/delete/StudentClass/{student}/{class}',[HeadClassController::class,'deleteStudent'])->name("headClassDeleteStudent");
     Route::post('/generate-transaction/StudentClass/{student}/{class}',[HeadClassController::class,'generateTransactionStudent'])->name("headClassGenerateTransactionStudent");
     Route::post('/add/teacher/class', [HeadClassController::class,'addTeacher'])->name('headAddTeacherClass');
     Route::post('/add/student/class', [HeadClassController::class,'addStudent'])->name('headAddStudentClass');
-    Route::get('/reset/class/{id}',[HeadClassController::class,'resetClass'])->name('headResetClass');
+    Route::post('/reset/class/{id}',[HeadClassController::class,'resetClass'])->name('headResetClass');
 
     Route::get('/view/schedule/class/{classId}', [HeadClassScheduleController::class,'viewSchedule'])->name('headViewScheduleClass');
 
-    Route::get('/delete/Schedule/class/{id}/{classId}',[HeadClassScheduleController::class,'deleteScheduleClass'])->name('headDeleteSchedule');
+    Route::post('/delete/Schedule/class/{id}/{classId}',[HeadClassScheduleController::class,'deleteScheduleClass'])->name('headDeleteSchedule');
 
     Route::get('/view/add/schedule/class/{id}',[HeadClassScheduleController::class,'viewaddScheduleClass'])->name('headViewaddScheduleClass');
 
@@ -246,7 +258,8 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/teacher/add', [HeadTeacherController::class,'insertPage'])->name('headTeacherAddPage');
     Route::post('/teacher/add', [HeadTeacherController::class,'insert'])->name('TeacherAdd');
     Route::post('/teacher/search', [HeadTeacherController::class,'search'])->name('searchTeacher');
-    Route::get('/teacher/delete/{teacher}', [HeadTeacherController::class,'delete'])->name('TeacherDelete');
+    Route::post('/teacher/delete/{teacher}', [HeadTeacherController::class,'delete'])->name('TeacherDelete');
+    Route::get('/teacher/switch/{teacher}', [HeadTeacherController::class,'switchPage'])->name('headTeacherSwitchPage');
     Route::get('/teacher/update/{teacher}', [HeadTeacherController::class,'updatePage'])->name('TeacherUpdatePage');
     Route::post('/teacher/update/{teacher}', [HeadTeacherController::class,'update'])->name('TeacherUpdate');
     Route::post('/teacher/update/{teacher}/{replaceTeacherID}', [HeadTeacherController::class,'replace'])->name('TeacherReplace');
@@ -272,7 +285,7 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::get('/transaction/add', [HeadTransactionController::class,'addTransaction'])->name('headAddTransactionPage');
     Route::post('/transaction/add', [HeadTransactionController::class,'insertTransaction'])->name('headAddTransaction');
     Route::get('/transaction/search', [HeadTransactionController::class,'index'])->name('headSearchTransaction');
-    Route::get('/transaction/{id}', [HeadTransactionController::class,'updatePage'])->name('updateTransaction');
+    Route::get('/transaction/{id}', [HeadTransactionController::class,'updatePage'])->whereNumber('id')->name('updateTransaction');
     Route::post('/transaction/update/{transaction}', [HeadTransactionController::class,'update'])->name('update');
     Route::get('/transaction/detail/{transaction}', [HeadTransactionController::class,'detailTransaction'])->name('detailTransaction');
     Route::post('/transaction/delete/{transaction}', [HeadTransactionController::class,'delete'])->name('deleteTransaction');
@@ -306,11 +319,11 @@ Route::prefix('head')->middleware(['head'])->group(function(){
     Route::post('/report/rule/add',[HeadRuleController::class,'insert'])->name('RulesAdd');
     Route::get('/report/rule/update/{rules}',[HeadRuleController::class,'updatePage'])->name('RulesUpdatePage');
     Route::post('/report/rule/update/{rules}',[HeadRuleController::class,'update'])->name('RulesUpdate');
-    Route::get('/report/rule/delete/{rules}',[HeadRuleController::class,'delete'])->name('RulesDelete');
+    Route::post('/report/rule/delete/{rules}',[HeadRuleController::class,'delete'])->name('RulesDelete');
 });
 
 // teacher
-Route::prefix('teacher')->middleware(['teacher'])->group(function(){
+Route::prefix('teacher')->middleware(['role:teacher'])->group(function(){
     Route::get('/', [TeacherController::class,'index'])->name('teacher');
     Route::get('/view/class', [TeacherClassController::class,'index'])->name('viewClass');
 
@@ -320,7 +333,7 @@ Route::prefix('teacher')->middleware(['teacher'])->group(function(){
 
     Route::get('/view/schedule/class/{id}', [TeacherClassController::class,'viewSchedule'])->name('viewScheduleClassTeacher');
 
-    Route::get('/delete/Schedule/class/{id}/{classId}', [TeacherClassController::class,'deleteScheduleClass'])->name('deleteScheduleTeacher');
+    Route::post('/delete/Schedule/class/{id}/{classId}', [TeacherClassController::class,'deleteScheduleClass'])->name('deleteScheduleTeacher');
     Route::get('/view/update/schedule/class', [TeacherClassController::class,'viewUpdateScheduleClass'])->name('viewUpdateScheduleClassTeacher');
 
     Route::post('/update/schedule/class', [TeacherClassController::class,'updateSchedule'])->name('updateScheduleClassTeacher');
@@ -337,7 +350,7 @@ Route::prefix('teacher')->middleware(['teacher'])->group(function(){
 });
 
 //finance
-Route::prefix('finance')->middleware(['finance'])->group(function(){
+Route::prefix('finance')->middleware(['role:finance'])->group(function(){
     Route::get('/', [FinanceController::class,'index'])->name('finance');
 
     Route::get('/transaction/sorting/{column}', [FinanceTransactionController::class,'sorting'])->name('financeTransactionSorting');
@@ -362,21 +375,21 @@ Route::prefix('finance')->middleware(['finance'])->group(function(){
 });
 
 Route::middleware(['authLogin'])->group(function(){
-    Route::get('/logout', [LoginController::class,'logout'])->name('logout');
+    Route::post('/logout', [LoginController::class,'logout'])->name('logout');
 
     //profile
     Route::get('/profile',[ProfileController::class,'changeProfilePage'])->name('change-profile-page');
-    Route::post('/profile/{user}',[ProfileController::class,'changeProfile'])->name('change-profile');
+    Route::post('/profile',[ProfileController::class,'changeProfile'])->name('change-profile');
 
     Route::get('/password',[ProfileController::class,'changePasswordPage'])->name('change-password-page');
-    Route::post('/password/{user}',[ProfileController::class,'changePassword'])->name('change-password');
+    Route::post('/password',[ProfileController::class,'changePassword'])->name('change-password');
 
 });
 
 //forgot password
 Route::get('/forgot/password',[ForgotPasswordController::class,'index'])->name('email-page');
-Route::post('/forgot/password',[ForgotPasswordController::class,'checkEmail'])->name('check-email');
-Route::get('/expired',[ForgotPasswordController::class,'index'])->name('expired-page');
+Route::post('/forgot/password',[ForgotPasswordController::class,'checkEmail'])->middleware('throttle:5,1')->name('check-email');
+Route::get('/expired',[ForgotPasswordController::class,'expired'])->name('expired-page');
 
 Route::get('/reset/password/{token}',[ForgotPasswordController::class,'resetPasswordPage'])->name('reset-password-page');
-Route::post('/reset/password/{token}',[ForgotPasswordController::class,'resetPassword'])->name('reset-password');
+Route::post('/reset/password/{token}',[ForgotPasswordController::class,'resetPassword'])->middleware('throttle:5,1')->name('reset-password');

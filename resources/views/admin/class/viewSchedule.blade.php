@@ -59,7 +59,7 @@
                                     </form>
                                 </td>
                                 <td>
-                                    <form action="{{route("deleteSchedule",['id'=>$c->id,'classId'=>$class_id])}}" method="get">
+                                    <form action="{{route("deleteSchedule",['id'=>$c->id,'classId'=>$class_id])}}" method="post" data-confirm="Hapus data ini?">
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Delete Schedule</button>
                                     </form>

@@ -192,14 +192,16 @@ class AdminClassTransactionController extends Controller
         return view('admin.class.view',compact('classes','sort'));
     }
 
-    public function active(){
-        $classes = ClassTransaction::where('Status','aktif')->paginate(5);
-        return view('admin.class.view',compact('classes'));
+    /** Old link: the list page filters by status itself. */
+    public function active()
+    {
+        return redirect()->route('adminClassView', ['status' => 'aktif']);
     }
 
-    public function nonActive(){
-        $classes = ClassTransaction::where('Status','non-aktif')->paginate(5);
-        return view('admin.class.view',compact('classes'));
+    /** Old link: the list page filters by status itself. */
+    public function nonActive()
+    {
+        return redirect()->route('adminClassView', ['status' => 'non-aktif']);
     }
 
     public function search(Request $req){
@@ -474,7 +476,7 @@ class AdminClassTransactionController extends Controller
 
         // MappingClassChild::where('class_id',$req->class_id)->delete();
 
-        return redirect()->to($req->return_url)->with('msg','Success Freeze Class');
+        return $this->backTo($req->return_url)->with('msg','Success Freeze Class');
     }
 
     public function ChangeStatus(ClassTransaction $class){

@@ -1,5 +1,6 @@
 @extends('Master.master')
 
+
 @section('title','Update Rule')
 
 @section('content')
@@ -51,112 +52,5 @@
         </div>
     </section>
 
-    <script>
-        // tinymce.init({
-        //     selector: '#content', // use the ID of the textarea you want to convert to WYSIWYG
-        //     plugins: 'advlist autolink lists link image charmap print preview anchor',
-        //     toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat',
-        // });
-        CKEDITOR.replace('content', {
-        allowedContent: true  // Allows all HTML tags to be retained
-    });
-    </script>
-
-    {{-- <script type="module">
-    import {
-        ClassicEditor,
-        Essentials,
-        Paragraph,
-        Bold,
-        Italic,
-        Underline,
-        Strikethrough,
-        Font,
-        Heading,
-        Alignment,
-        List,
-        Indent,
-        Link,
-        Image,
-        Table,
-        HtmlEmbed
-    } from 'ckeditor5';
-
-    ClassicEditor
-        .create(document.querySelector('#content'), {
-            plugins: [
-                Essentials,
-                Paragraph,
-                Bold,
-                Italic,
-                Underline,
-                Strikethrough,
-                Font,
-                Heading,
-                Alignment,
-                List,
-                Indent,
-                Link,
-                Image,
-                Table,
-                HtmlEmbed
-            ],
-            toolbar: [
-                'heading', '|',
-                'bold', 'italic', 'underline', 'strikethrough', '|',
-                'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
-                'alignment:left', 'alignment:center', 'alignment:right', 'alignment:justify', '|',
-                'link', 'bulletedList', 'numberedList', '|',
-                'outdent', 'indent', '|',
-                'insertTable', 'imageUpload', 'htmlEmbed', '|',
-                'undo', 'redo'
-            ],
-            fontSize: {
-                options: [
-                    'tiny',
-                    'small',
-                    'default',
-                    'big',
-                    'huge'
-                ]
-            },
-            fontFamily: {
-                options: [
-                    'default',
-                    'Arial, Helvetica, sans-serif',
-                    'Courier New, Courier, monospace',
-                    'Georgia, serif',
-                    'Lucida Sans Unicode, Lucida Grande, sans-serif',
-                    'Tahoma, Geneva, sans-serif',
-                    'Times New Roman, Times, serif',
-                    'Trebuchet MS, Helvetica, sans-serif',
-                    'Verdana, Geneva, sans-serif'
-                ]
-            },
-            image: {
-                toolbar: [
-                    'imageTextAlternative', 'imageStyle:full', 'imageStyle:side'
-                ]
-            },
-            table: {
-                contentToolbar: [
-                    'tableColumn', 'tableRow', 'mergeTableCells'
-                ]
-            },
-            htmlEmbed: {
-                showPreviews: true
-            }
-        })
-        .then(editor => {
-            window.editor = editor;
-        })
-        .catch(error => {
-            console.error(error);
-        }); --}}
-</script>
-
-
-
-
-
+    @include('head.rule._editor')
 @endsection

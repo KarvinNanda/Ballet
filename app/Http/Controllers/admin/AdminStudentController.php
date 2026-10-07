@@ -301,50 +301,16 @@ class AdminStudentController extends Controller
         return redirect()->route('adminStudentView')->with('msg','Success Create Data Student');
     }
 
-    public function active(){
-        $students = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->join('banks','banks.id','rekenings.banks_id')
-            ->selectRaw('
-                students.id as id,
-                students.Status as status,
-                students.LongName as name,
-                students.Dob as dob,
-                students.nama_orang_tua as ortu,
-                students.Address as alamat,
-                students.Phone1 as phone,
-                students.Email as email,
-                students.age,
-                rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim,
-                banks.bank_name as bank
-            ')
-            ->where('students.status','=','aktif')
-            ->paginate(5);
-        return view('admin.student.adminStudentView',compact('students'));
+    /** Old link: the list page filters by status itself. */
+    public function active()
+    {
+        return redirect()->route('adminStudentView', ['status' => 'aktif']);
     }
 
-    public function nonActive(){
-        $students = DB::table('students')
-            ->join('rekenings','students.bank_rek','rekenings.bank_rek')
-            ->join('banks','banks.id','rekenings.banks_id')
-            ->selectRaw('
-                students.id as id,
-                students.Status as status,
-                students.LongName as name,
-                students.Dob as dob,
-                students.nama_orang_tua as ortu,
-                students.Address as alamat,
-                students.Phone1 as phone,
-                students.Email as email,
-                students.age,
-                rekenings.bank_rek as rek,
-                rekenings.nama_pengirim as pengirim,
-                banks.bank_name as bank
-            ')
-            ->where('students.status','=','non-aktif')
-            ->paginate(5);
-        return view('admin.student.adminStudentView',compact('students'));
+    /** Old link: the list page filters by status itself. */
+    public function nonActive()
+    {
+        return redirect()->route('adminStudentView', ['status' => 'non-aktif']);
     }
 
     public function search(Request $req){
@@ -539,6 +505,6 @@ class AdminStudentController extends Controller
 
         $student->save();
 
-        return redirect()->to($request->return_url)->with('msg','Success Update Data Student');;
+        return $this->backTo($request->return_url)->with('msg','Success Update Data Student');;
     }
 }

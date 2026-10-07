@@ -48,7 +48,7 @@ class HeadTeacherController extends Controller
         $user->percent = $req->inputBonus;
         $user->save();
 
-        return redirect()->to($req->return_url)->with('msg','Success Update Teacher');
+        return $this->backTo($req->return_url)->with('msg','Success Update Teacher');
     }
 
     public function insertPage(){
@@ -97,29 +97,38 @@ class HeadTeacherController extends Controller
         return view('head.teacher.index',compact('teachers'));
     }
 
-    public function delete(User $teacher,Request $req){
-        $checkTeacherOnClass = DB::table('mapping_class_teachers as mct')
-                                    ->leftJoin('class_transactions as ct','ct.id','mct.class_id')
-                                    ->where('ct.is_freeze','!=',1)
-                                    ->where('mct.user_id',$teacher->id)
-                                    ->first();
-        if(is_null($checkTeacherOnClass)){
-            $delete = User::find($teacher->id);
-            $delete->delete();
-            return redirect()->back()->with('msg','Success Delete Data Teacher');
-        } else {
-            $keyword=$req->search;
-            $teachers = User::where('role','teacher')
-                            ->where('id','!=',$teacher->id)
-                            ->where(function($q) use ($keyword){
-                                if(!is_null($keyword)){
-                                    $q->where('name','like',"%$keyword%");
-                                } 
-                            })
-                            ->orderBy('id','desc')
-                            ->paginate(5);
-            return view('head.teacher.teacherSwitch',compact('teachers','teacher'));
+    public function delete(User $teacher)
+    {
+        // A teacher with an active class must be replaced first; the switch page handles that.
+        if ($this->hasActiveClass($teacher)) {
+            return redirect()->route('headTeacherSwitchPage', $teacher);
         }
+
+        $teacher->delete();
+
+        return redirect()->back()->with('msg', 'Success Delete Data Teacher');
+    }
+
+    public function switchPage(User $teacher, Request $req)
+    {
+        $keyword = $req->query('search');
+        $teachers = User::where('role', 'teacher')
+            ->where('id', '!=', $teacher->id)
+            ->when($keyword, fn ($q) => $q->where('name', 'like', "%{$keyword}%"))
+            ->orderBy('id', 'desc')
+            ->paginate(5)
+            ->withQueryString();
+
+        return view('head.teacher.teacherSwitch', compact('teachers', 'teacher'));
+    }
+
+    private function hasActiveClass(User $teacher): bool
+    {
+        return DB::table('mapping_class_teachers as mct')
+            ->leftJoin('class_transactions as ct', 'ct.id', 'mct.class_id')
+            ->where('ct.is_freeze', '!=', 1)
+            ->where('mct.user_id', $teacher->id)
+            ->exists();
     }
 
     public function replace(User $teacher,$replaceTeacherID){

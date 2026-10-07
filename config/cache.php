@@ -107,4 +107,10 @@ return [
 
     'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_cache_'),
 
+    /*
+    | Classes allowed when unserializing cached values. false = none (Laravel 13 hardening).
+    | The app caches no objects, so nothing needs to be allowed.
+    */
+    'serializable_classes' => false,
+
 ];

@@ -43,7 +43,7 @@
                                     <td>{{$teacher->teacherEmail}}</td>
                                     <td>{{$teacher->teacherPhone}}</td>
                                         <td>
-                                            <form action="{{route('classDeleteTeacher',['teacher' => $teacher->id,'class' => $class_id])}}" method="get">
+                                            <form action="{{route('classDeleteTeacher',['teacher' => $teacher->id,'class' => $class_id])}}" method="post" data-confirm="Hapus data ini?">
                                                 @csrf
                                                 <button type="submit" class="btn btn-danger">Delete</button>
                                             </form>
@@ -69,7 +69,10 @@
         <div class="card">
             <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
                 <a href="{{route('viewaddStudentClass',$class_id)}}"><button class="btn btn-success me-5 mt-2 mb-2" type="Submit"> Add Student</button></a>
-                <a href="{{route('ResetQuota',$class_id)}}"><button class="btn btn-secondary me-5 mt-2 mb-2" type="Submit"> Reset Quota</button></a>
+                <form action="{{route('ResetQuota',$class_id)}}" method="post" class="d-inline" data-confirm="Reset quota semua murid di kelas ini?">
+                    @csrf
+                    <button class="btn btn-secondary me-5 mt-2 mb-2" type="submit"> Reset Quota</button>
+                </form>
             </div>
             <div class="card-body">
 
@@ -130,7 +133,7 @@
                                         <td>{{$student->studentQuota}} / {{$quota_pay}}</td>
                                     @endif --}}
                                     <td class="d-flex">
-                                        <form action="{{route('classDeleteStudent',['student' => $student->id,'class' => $class_id])}}" method="get">
+                                        <form action="{{route('classDeleteStudent',['student' => $student->id,'class' => $class_id])}}" method="post" data-confirm="Hapus data ini?">
                                             @csrf
                                             <button type="submit" class="btn btn-danger me-2">Delete</button>
                                         </form>

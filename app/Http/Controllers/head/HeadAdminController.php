@@ -46,7 +46,7 @@ class HeadAdminController extends Controller
         $user->percent = $req->inputBonus;
         $user->save();
 
-        return redirect()->to($req->return_url)->with('msg','Success Update Admin');
+        return $this->backTo($req->return_url)->with('msg','Success Update Admin');
     }
 
     public function insertPage(){

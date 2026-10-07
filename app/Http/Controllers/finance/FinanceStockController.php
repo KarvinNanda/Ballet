@@ -56,7 +56,7 @@ class FinanceStockController extends Controller
             'quantity' => $type == 'in' ? $stock->quantity + $req->in_out : $stock->quantity - $req->in_out
         ]);
 
-        return redirect()->to($req->return_url)->with('msg','Success Update Stock');
+        return $this->backTo($req->return_url)->with('msg','Success Update Stock');
     }
 
     public function stock(){
