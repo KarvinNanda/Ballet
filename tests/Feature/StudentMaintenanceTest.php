@@ -17,7 +17,7 @@ class StudentMaintenanceTest extends TestCase
         $before = DB::table('mapping_class_children')->count();
 
         $this->actingAs($this->headUser())->get('/head/student/active')
-            ->assertRedirect(route('headStudentPage', ['status' => 'aktif']));
+            ->assertRedirect(route('head.student.index', ['status' => 'aktif']));
 
         $this->assertSame($before, DB::table('mapping_class_children')->count());
     }
@@ -27,7 +27,7 @@ class StudentMaintenanceTest extends TestCase
         DB::table('students')->update(['age' => 99]);
 
         $this->actingAs($this->headUser())->get('/head/student/non/active')
-            ->assertRedirect(route('headStudentPage', ['status' => 'non-aktif']));
+            ->assertRedirect(route('head.student.index', ['status' => 'non-aktif']));
 
         $this->assertSame(0, DB::table('students')->where('age', '!=', 99)->count());
     }

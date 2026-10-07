@@ -32,7 +32,7 @@ class RuleContentTest extends TestCase
     {
         DB::table('rules')->insert(['lang' => 'Indonesia', 'content' => '<p>lama</p><script>alert(1)</script>']);
 
-        $html = $this->actingAs($this->headUser())->get(route('headStudentAddPage'))->assertOk()->getContent();
+        $html = $this->actingAs($this->headUser())->get(route('head.student.create'))->assertOk()->getContent();
 
         $this->assertStringContainsString('<p>lama</p>', $html);
         $this->assertStringNotContainsString('<script>alert(1)</script>', $html);
@@ -45,11 +45,40 @@ class RuleContentTest extends TestCase
             .'data-bs-toggle="collapse" data-bs-target="#rule-id" aria-expanded="false" aria-controls="rule-id">Bahasa Indonesia</button></h2>'
             .'<div id="rule-id" class="accordion-collapse collapse"><img src="{{asset_url}}" alt="logo"></div></div>']);
 
-        $html = $this->actingAs($this->headUser())->get(route('headStudentAddPage'))->getContent();
+        $html = $this->actingAs($this->headUser())->get(route('head.student.create'))->getContent();
 
         $this->assertStringContainsString('data-bs-toggle="collapse"', $html);
-        $this->assertStringContainsString('data-bs-target="#rule-id"', $html);
+        $this->assertStringContainsString('data-bs-target="#rule-id"', $html); // already prefixed: not prefixed twice
+        $this->assertStringContainsString('id="rule-id"', $html);
         $this->assertStringContainsString('src="'.asset('assets/img/logo-hitam.png').'"', $html);
+    }
+
+    public function test_sanitizer_limits_classes_ids_buttons_and_external_images(): void
+    {
+        $clean = app(\App\Support\HtmlSanitizer::class)->clean(
+            '<div class="position-fixed w-100 h-100 accordion-item" id="logout-form">x</div>'
+            .'<button data-bs-toggle="collapse" data-bs-target="#panel" aria-controls="panel">t</button>'
+            .'<div id="panel" class="accordion-collapse collapse">p</div>'
+            .'<img src="https://tracker.example/pixel.gif" alt="t">'
+            .'<img src="'.asset('assets/img/logo-hitam.png').'" alt="logo">'
+        );
+
+        $this->assertStringNotContainsString('position-fixed', $clean);
+        $this->assertStringContainsString('class="accordion-item"', $clean);
+        $this->assertStringNotContainsString('id="logout-form"', $clean);
+        $this->assertStringContainsString('id="rule-panel"', $clean);
+        $this->assertStringContainsString('data-bs-target="#rule-panel"', $clean);
+        $this->assertStringContainsString('aria-controls="rule-panel"', $clean);
+        $this->assertStringContainsString('<button type="button"', $clean);
+        $this->assertStringNotContainsString('tracker.example', $clean);
+        $this->assertStringContainsString('logo-hitam.png', $clean);
+    }
+
+    public function test_huge_raw_content_is_rejected_before_sanitizing(): void
+    {
+        $this->actingAs($this->headUser())->from(route('RulesAddPage'))
+            ->post(route('RulesAdd'), ['inputLanguage' => 'Indonesia', 'content' => str_repeat('<b>', 20000)])
+            ->assertSessionHasErrors('content');
     }
 
     public function test_content_over_the_limit_is_rejected(): void

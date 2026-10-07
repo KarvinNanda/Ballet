@@ -31,6 +31,7 @@ class FinanceTransactionController extends Controller
     }
 
     public function sorting($column){
+        [$column] = $this->sortOrFail($column, 'asc', ['payment_status', 'price']);
         $transactions = Transaction::join('students','students.id','transactions.students_id')
             ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
             ->selectRaw('
@@ -71,11 +72,11 @@ class FinanceTransactionController extends Controller
     public function submitPaidTransaction($trans,Request $req){
         $transaction = Transaction::find($trans);
         $rules = [
-            'datePaid' => 'required',
-            'inputBankName' => 'required',
-            'inputSenderName' => 'required',
-            'inputQuota' => 'required|min:1|numeric',
-            'Type' => 'required'
+            'datePaid' => 'required|date',
+            'inputBankName' => 'required|string|max:255',
+            'inputSenderName' => 'required|string|max:255',
+            'inputQuota' => 'required|integer|min:1|max:2000000000',
+            'Type' => 'required|string|max:255'
         ];
 
         $validate = Validator::make($req->all(),$rules);

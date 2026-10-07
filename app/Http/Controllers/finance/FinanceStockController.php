@@ -22,6 +22,7 @@ class FinanceStockController extends Controller
     }
 
     public function financeStock($value,$sort){
+        [$value, $sort] = $this->sortOrFail($value, $sort, ['name', 'quantity', 'size']);
         $stocks = Stock::orderBy($value,$sort)->paginate(5);
         $sort = $sort == 'asc' ? 'desc' : 'asc';
         return view('finance.index',compact('stocks','sort'));

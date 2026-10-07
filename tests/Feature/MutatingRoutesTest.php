@@ -14,9 +14,9 @@ class MutatingRoutesTest extends TestCase
     use RefreshDatabase;
 
     private const MUTATING_ROUTES = [
-        'deleteSchedule', 'classDeleteStudent', 'classDeleteTeacher', 'ResetQuota', 'resetClass', 'adminTeacherDelete',
-        'headDeleteSchedule', 'headClassDeleteStudent', 'headClassDeleteTeacher', 'headResetQuota', 'RulesDelete',
-        'headResetClass', 'TeacherDelete', 'deleteScheduleTeacher',
+        'admin.schedule.destroy', 'admin.class.student.destroy', 'admin.class.teacher.destroy', 'admin.class.reset-quota', 'admin.class.reset', 'admin.teacher.destroy',
+        'head.schedule.destroy', 'head.class.student.destroy', 'head.class.teacher.destroy', 'head.class.reset-quota', 'RulesDelete',
+        'head.class.reset', 'head.teacher.destroy', 'deleteScheduleTeacher',
     ];
 
     public function test_mutating_routes_accept_post_only(): void
@@ -39,7 +39,7 @@ class MutatingRoutesTest extends TestCase
         $schedule = DB::table('schedules')->orderBy('id')->first();
 
         $this->actingAs($this->user('head'))
-            ->post(route('headDeleteSchedule', ['id' => $schedule->id, 'classId' => $schedule->class_id]))
+            ->post(route('head.schedule.destroy', $schedule->id))
             ->assertRedirect();
 
         $this->assertDatabaseMissing('schedules', ['id' => $schedule->id]);
@@ -49,7 +49,7 @@ class MutatingRoutesTest extends TestCase
     {
         $teacher = User::factory()->create(['role' => 'teacher']);
 
-        $this->actingAs($this->user('head'))->post(route('TeacherDelete', $teacher))->assertRedirect();
+        $this->actingAs($this->user('head'))->post(route('head.teacher.destroy', $teacher))->assertRedirect();
 
         $this->assertDatabaseMissing('users', ['id' => $teacher->id]);
     }
@@ -59,13 +59,13 @@ class MutatingRoutesTest extends TestCase
         $teacher = User::where('email', 'teacher@gmail.com')->firstOrFail();
 
         $this->actingAs($this->user('head'))
-            ->post(route('TeacherDelete', $teacher))
-            ->assertRedirect(route('headTeacherSwitchPage', $teacher));
+            ->post(route('head.teacher.destroy', $teacher))
+            ->assertRedirect(route('head.teacher.switch', $teacher));
 
-        $this->get(route('headTeacherSwitchPage', ['teacher' => $teacher, 'search' => 'Sari']))
+        $this->get(route('head.teacher.switch', ['teacher' => $teacher, 'search' => 'Sari']))
             ->assertOk()
             ->assertSee('Sari Wulandari')
-            ->assertDontSee('action="'.route('TeacherDelete', $teacher).'" method="get"', false);
+            ->assertDontSee('action="'.route('head.teacher.destroy', $teacher).'" method="get"', false);
 
         $this->assertDatabaseHas('users', ['id' => $teacher->id]);
     }
@@ -75,7 +75,7 @@ class MutatingRoutesTest extends TestCase
         $frozen = DB::table('class_transactions')->where('is_freeze', 1)->value('id');
 
         $this->actingAs($this->user('head'))
-            ->get(route('headDetailClassFreeze', $frozen))
+            ->get(route('head.class.freeze.show', $frozen))
             ->assertOk()
             ->assertDontSee(url('/admin/'), false);
     }

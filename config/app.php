@@ -69,6 +69,12 @@ return [
     |
     */
 
+    /*
+    | Reverse proxies (Nginx, Cloudflare, load balancer) whose X-Forwarded-* headers are trusted.
+    | Comma separated IPs/CIDRs, or "*". Leave empty when the app is reached directly.
+    */
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+
     'timezone' => 'UTC',
 
     /*

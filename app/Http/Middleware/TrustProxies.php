@@ -8,11 +8,19 @@ use Illuminate\Http\Request;
 class TrustProxies extends Middleware
 {
     /**
-     * The trusted proxies for this application.
-     *
-     * @var array<int, string>|string|null
+     * Proxies come from TRUSTED_PROXIES (comma separated IPs/CIDRs, or "*").
+     * Empty = trust none, so a client cannot fake its IP with X-Forwarded-For.
      */
-    protected $proxies;
+    protected function proxies()
+    {
+        $value = trim((string) config('app.trusted_proxies'));
+
+        if ($value === '') {
+            return null;
+        }
+
+        return $value === '*' ? '*' : array_map('trim', explode(',', $value));
+    }
 
     /**
      * The headers that should be used to detect proxies.

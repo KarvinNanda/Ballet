@@ -23,6 +23,7 @@ class BuyerController extends Controller
     }
 
     public function sorting($value,$sort){
+        [$value, $sort] = $this->sortOrFail($value, $sort, ['name', 'quantity', 'size']);
         $stocks = Stock::orderBy($value,$sort)->paginate(5);
         $sort = $sort == 'asc' ? 'desc' : 'asc';
         return view('buyer.index',compact('stocks','sort'));
@@ -36,8 +37,8 @@ class BuyerController extends Controller
 
     public function buying(Request $req,$id){
         $rules = [
-            'name' => 'required',
-            'qty' => 'required|numeric|min:1'
+            'name' => 'required|string|max:255',
+            'qty' => 'required|integer|min:1|max:2000000000'
         ];
 
         $validate = Validator::make($req->all(),$rules);
