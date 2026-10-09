@@ -149,6 +149,8 @@
                     <label for="inputPhone" class="col-sm-2 col-form-label">Quota</label>
                     <div class="col-sm-10">
                         <input class="form-control bg-opacity-10" name="Quota" value="{{$detail->Quota}}">
+                        {{-- Quota when this page was opened: the server refuses a manual Quota edit if attendance changed it meanwhile. --}}
+                        <input type="hidden" name="Quota_original" value="{{$detail->Quota ?? 0}}">
                     </div>
                 </div>
 

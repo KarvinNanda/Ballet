@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\finance;
 
+use App\Http\Requests\SearchRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Finance\MarkTransactionPaidRequest;
 use App\Models\Banks;
 use App\Models\Rekenings;
 use App\Models\Transaction;
+use App\Support\TransactionQuota;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class FinanceTransactionController extends Controller
 {
@@ -48,7 +50,7 @@ class FinanceTransactionController extends Controller
         return view('finance.transaction',compact('transactions'));
     }
 
-    public function search(Request $req){
+    public function search(SearchRequest $req){
         $transactions = Transaction::join('students','students.id','transactions.students_id')
             ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
             ->where('students.LongName','like',"%$req->search%")
@@ -69,41 +71,26 @@ class FinanceTransactionController extends Controller
         return view('finance.paid',compact('transaction','data','trans','return_url'));
     }
 
-    public function submitPaidTransaction($trans,Request $req){
-        $transaction = Transaction::find($trans);
-        $rules = [
-            'datePaid' => 'required|date',
-            'inputBankName' => 'required|string|max:255',
-            'inputSenderName' => 'required|string|max:255',
-            'inputQuota' => 'required|integer|min:1|max:2000000000',
-            'Type' => 'required|string|max:255'
-        ];
-
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+    public function submitPaidTransaction(MarkTransactionPaidRequest $req, Transaction $transaction){
+        if ($transaction->payment_status !== 'Unpaid') {
+            return redirect()->back()->with('error', 'This transaction is already settled.');
         }
 
-        $banks = Banks::updateOrCreate([
-            'bank_name' => $req->inputBankName
-        ]);
-
-        DB::table('rekenings')->where('bank_rek',$transaction->Students->bank_rek)->update([
-            'banks_id' => $banks->id,
-            'nama_pengirim' => $req->inputSenderName
-        ]);
-
-//        $transaction = Transaction::find($transaction->id);
-        $transaction->transaction_payment = $req->datePaid;
-        $transaction->payment_status = "Paid";
-        $transaction->transaction_type = $req->Type;
-        $transaction->transaction_quota = $req->inputQuota;
-        $transaction->save();
-
-        $student = DB::table('students')->where('id',$transaction->students_id)->first();
-            DB::table('students')->where('id',$transaction->students_id)->update([
-                'MaxQuota' => $student->MaxQuota + $transaction->transaction_quota
+        TransactionQuota::track($transaction->students_id, $transaction->class_transactions_id, function () use ($req, $transaction) {
+            $bank = Banks::firstOrCreate(['bank_name' => $req->inputBankName]);
+            // Only this student's own account row; the rekening may be shared by siblings (same number).
+            DB::table('rekenings')->where('bank_rek', $transaction->Students?->bank_rek)->update([
+                'banks_id' => $bank->id,
+                'nama_pengirim' => $req->inputSenderName,
             ]);
+
+            $transaction->transaction_payment = $req->datePaid;
+            $transaction->payment_status = 'Paid';
+            $transaction->transaction_type = $req->Type;
+            $transaction->transaction_quota = $req->inputQuota;
+            $transaction->save();
+        });
+
         return $this->backTo($req->return_url)->with('msg','Success Update Transaction');
     }
 }

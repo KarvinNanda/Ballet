@@ -56,7 +56,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <input type="text" name="notes[{{ $loop->index }}]" class="form-control" value="{{ $d?->Notes }}">
+                                            <input type="text" name="notes[{{ $loop->index }}]" class="form-control" maxlength="255" value="{{ $d?->Notes }}">
                                         </td>
                                     @endif
                                 </tr>

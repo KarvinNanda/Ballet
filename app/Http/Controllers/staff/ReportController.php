@@ -7,6 +7,9 @@ use App\Models\ClassTransaction;
 use App\Models\ClassType;
 use App\Models\ReportStock;
 use App\Models\Stock;
+use App\Http\Requests\DateRangeRequest;
+use App\Http\Requests\Staff\ActiveStudentReportRequest;
+use App\Support\TeacherReportQuery;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -86,7 +89,7 @@ class ReportController extends Controller
         return $pdf;
     }
 
-    public function printActiveStudent(Request $req){
+    public function printActiveStudent(ActiveStudentReportRequest $req){
         $report = DB::table('students')
             ->join('rekenings','rekenings.bank_rek','students.bank_rek')
             ->join('mapping_class_children','mapping_class_children.student_id','students.id')
@@ -115,8 +118,8 @@ class ReportController extends Controller
             ')
             ->where('students.Status','aktif')
             ->where(function ($query) use ($req) {
-                if($req->class != null){
-                    $query->where('class_types.class_name',$req->class);
+                if($req->validated('class') != null){
+                    $query->where('class_types.class_name',$req->validated('class'));
                 }
             })
             ->orderBy('class_name')
@@ -138,9 +141,9 @@ class ReportController extends Controller
         return view('staff.report.stock.index',compact('data'));
     }
 
-    public function printStock(Request $req){
-        $start_date = $req->start_date." 00:00:00";
-        $end_date = $req->end_date." 23:59:59";
+    public function printStock(DateRangeRequest $req){
+        $start_date = $req->validated('start_date')." 00:00:00";
+        $end_date = $req->validated('end_date')." 23:59:59";
         $report = ReportStock::whereBetween('report_date',[$start_date,$end_date])
             // ->groupBy('stock_id')
             ->selectRaw("
@@ -191,46 +194,9 @@ class ReportController extends Controller
         $month = (int) $month;
         abort_unless($month >= 1 && $month <= 12, 404);
 
-        // Whole month of the current year, WIB: first day 00:00:00 to last day 23:59:59.
         $first = now()->setTimezone('GMT+7')->setDate(now()->setTimezone('GMT+7')->year, $month, 1)->startOfDay();
-        $last = $first->copy()->endOfMonth();
         $getmonth = [(object) ['month' => $first->format('F')]];
-
-        $report = DB::table('header_absens as ha')
-            ->join('schedules as s','s.id','ha.schedules_id')
-            ->join('users as u','u.id','ha.teacher_id')
-            ->join('mapping_class_children as mcc','s.class_id','mcc.class_id')
-            ->join('students as st','st.id','mcc.student_id')
-            ->join('transactions as t','mcc.student_id','t.students_id')
-            ->join('class_transactions as ct','ct.id','s.class_id')
-            ->join('class_types as ct2','ct.class_type_id','ct2.id')
-            ->selectRaw("
-                st.LongName as studentName,
-                u.name as teacherName,
-                ct2.class_name,
-                ct.class_transaction_price,
-                st.Quota as meet,
-                case
-                 when ct2.class_name = 'Intensive Class' then (ct.class_transaction_price / 12)
-                    when ct2.class_name = 'Intensive Kids' then (ct.class_transaction_price / 12)
-                    when ct2.class_name = 'Pointe Class' then (ct.class_transaction_price / 4)
-                    else (ct.class_transaction_price / 8)
-                end as paid,
-                u.percent as teacher_reward
-            ")
-            ->whereBetween('s.date',[$first,$last])
-            ->whereRaw("(
-                (ct2.class_name like '%intensive%' and st.Quota > 0)
-                or (ct2.class_name like '%Pointe%' and st.Quota > 0)
-                or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.Quota > 5)
-                or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.is_new = 1)
-            )")
-            // Fees billed in the report month or the month after; December wraps to January.
-            ->whereIn(DB::raw('month(t.transaction_date)'), [$month, $month % 12 + 1])
-            ->distinct()
-            ->orderBy('ct.class_transaction_price')
-            ->get()
-            ->groupBy('teacherName');
+        $report = TeacherReportQuery::rows($month);
 
         $pdf = Pdf::loadView('staff.report.teacher.print',compact('report','getmonth'))
             ->stream('Laporan Kehadiran Guru '.now()->setTimezone("GMT+7")->format('dmY').'.pdf');

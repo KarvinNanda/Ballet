@@ -2,6 +2,14 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Http\Requests\SearchRequest;
+use App\Http\Requests\Staff\ClassIdRequest;
+use App\Http\Requests\Staff\ClassListRequest;
+use App\Http\Requests\Staff\FreezePriceRequest;
+use App\Http\Requests\Staff\MapStudentRequest;
+use App\Http\Requests\Staff\MapTeacherRequest;
+use App\Http\Requests\Staff\StoreClassRequest;
+use App\Http\Requests\Staff\StoreCourseRequest;
 use App\Http\Controllers\Controller;
 use App\Models\ClassTransaction;
 use App\Models\ClassType;
@@ -11,15 +19,13 @@ use App\Models\Schedule;
 use App\Models\Student;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class ClassController extends Controller
 {
-    public function index(Request $request){
+    public function index(ClassListRequest $request){
         $sort = 'asc';
         $classes = $this->listQuery(false, $request->query('keyword'), $request->query('status', 'all'))
             ->orderBy('class_transactions.id','desc')
@@ -79,17 +85,7 @@ class ClassController extends Controller
         return view('staff.class.insert',compact('types','users'));
     }
 
-    public function store(Request $req){
-        $rules = [
-            'inputType' => 'required|integer|exists:class_types,id',
-            'inputTeacher' => ['required', 'integer', Rule::exists('users', 'id')->where('role', 'teacher')],
-        ];
-
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
+    public function store(StoreClassRequest $req){
         $course = ClassType::findOrFail($req->inputType);
 
         DB::transaction(function () use ($course, $req) {
@@ -113,17 +109,7 @@ class ClassController extends Controller
         return view('staff.classType.insert');
     }
 
-    public function storeCourse(Request $req){
-        $rules = [
-            'inputName' => 'required|string|max:255',
-            'inputPrice' => 'required|integer|min:0|max:2000000000'
-        ];
-
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
+    public function storeCourse(StoreCourseRequest $req){
         $type = new ClassType();
         $type->class_name = $req->inputName;
         $type->class_price = $req->inputPrice;
@@ -227,11 +213,11 @@ class ClassController extends Controller
         return view('staff.class.viewTeacher',compact('teachers','class_id'));
     }
 
-    public function teacherStore(Request $req){
-        $req->validate([
-            'classId' => 'required|integer|exists:class_transactions,id',
-            'teacherId' => ['required', 'integer', Rule::exists('users', 'id')->where('role', 'teacher')],
-        ]);
+    public function teacherStore(MapTeacherRequest $req){
+        $exists = DB::table('mapping_class_teachers')->where('class_id', $req->classId)->where('user_id', $req->teacherId)->exists();
+        if ($exists) {
+            return redirect(staff_route('class.show', $req->classId))->with('error', 'Teacher is already in this class');
+        }
 
         $mappingTeacher = new MappingClassTeacher();
         $mappingTeacher->user_id = $req->teacherId;
@@ -245,7 +231,7 @@ class ClassController extends Controller
         return redirect(staff_route('class.show', $class))->with('msg','Success Delete Teacher');
     }
 
-    public function studentCreate(Request $req, ClassTransaction $class){
+    public function studentCreate(SearchRequest $req, ClassTransaction $class){
         $class_id = $class->id;
         $keyword = $req->keyword;
         $students = DB::table('students')
@@ -261,31 +247,37 @@ class ClassController extends Controller
         return view('staff.class.viewStudent',compact('students','class_id'));
     }
 
-    public function studentStore(Request $req){
-        $req->validate([
-            'classId' => 'required|integer|exists:class_transactions,id',
-            'studentId' => 'required|integer|exists:students,id',
-        ]);
-
+    public function studentStore(MapStudentRequest $req){
         $class_id = (int) $req->classId;
         $class = ClassTransaction::with('Type')->findOrFail($class_id);
         $student = Student::findOrFail($req->studentId);
+
+        $exists = DB::table('mapping_class_children')->where('class_id', $class_id)->where('student_id', $student->id)->exists();
+        if ($exists) {
+            return redirect(staff_route('class.show', $class_id))->with('error', 'Student is already in this class');
+        }
+
         $firstSchedule = $this->nextSchedule($class_id);
 
         if(is_null($firstSchedule) || $student->Status != 'aktif'){
             return redirect(staff_route('class.show', $class_id))->with('error',"Schedule Class Doesn't Greater Than Today or Student Status is not Active");
         }
 
-        DB::transaction(function () use ($student, $class, $firstSchedule) {
-            DB::table('transactions')->insert(
-                $this->transactionRows($student->id, $class->id, $class->Type?->class_price, $firstSchedule->date, $this->sessionQuota($class->Type?->class_name))
-            );
+        try {
+            DB::transaction(function () use ($student, $class, $firstSchedule) {
+                DB::table('transactions')->insert(
+                    $this->transactionRows($student->id, $class->id, $class->Type?->class_price, $firstSchedule->date, $this->sessionQuota($class->Type?->class_name))
+                );
 
-            $mappingStudent = new MappingClassChild();
-            $mappingStudent->student_id = $student->id;
-            $mappingStudent->class_id = $class->id;
-            $mappingStudent->save();
-        });
+                $mappingStudent = new MappingClassChild();
+                $mappingStudent->student_id = $student->id;
+                $mappingStudent->class_id = $class->id;
+                $mappingStudent->save();
+            });
+        } catch (UniqueConstraintViolationException) {
+            // A concurrent request inserted the mapping after the check; the transaction rolled back.
+            return redirect(staff_route('class.show', $class_id))->with('error', 'Student is already in this class');
+        }
 
         return redirect(staff_route('class.show', $class_id))->with('msg','Success Add Student');
     }
@@ -351,8 +343,7 @@ class ClassController extends Controller
     }
 
     /** Confirmation page before freezing a class. */
-    public function levelUp(Request $req){
-        $req->validate(['classId' => 'required|integer|exists:class_transactions,id']);
+    public function levelUp(ClassIdRequest $req){
         $return_url = url()->previous();
         $class_id = (int) $req->classId;
 
@@ -370,9 +361,7 @@ class ClassController extends Controller
         return view('staff.class.levelUp',compact('students','class_id','return_url'));
     }
 
-    public function levelUpStudent(Request $req){
-        $req->validate(['classId' => 'required|integer|exists:class_transactions,id']);
-
+    public function levelUpStudent(ClassIdRequest $req){
         DB::table('class_transactions')->where('id', $req->classId)->update([
             'is_freeze' => 1
         ]);
@@ -380,7 +369,7 @@ class ClassController extends Controller
         return $this->backTo($req->return_url)->with('msg','Success Freeze Class');
     }
 
-    public function freezeIndex(Request $request){
+    public function freezeIndex(ClassListRequest $request){
         $sort = 'asc';
         $classes = $this->listQuery(true, $request->query('keyword'), $request->query('status', 'all'))
             ->orderBy('class_transactions.id','desc')
@@ -409,15 +398,7 @@ class ClassController extends Controller
         return view('staff.class.updateFreeze',compact('class','class_id','return_url'));
     }
 
-    public function freezeUpdate(Request $req, ClassTransaction $class){
-        Gate::authorize('class.freeze-price');
-        $validate = Validator::make($req->all(), [
-            'inputPrice' => 'required|integer|min:0|max:2000000000'
-        ]);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
+    public function freezeUpdate(FreezePriceRequest $req, ClassTransaction $class){
         $class->class_transaction_price = $req->inputPrice;
         $class->save();
 

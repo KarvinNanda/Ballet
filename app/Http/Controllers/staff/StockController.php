@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Http\Requests\SearchRequest;
+use App\Http\Requests\Staff\StockRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Buyer;
 use App\Models\Stock;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Validator;
 
 class StockController extends Controller
 {
-    public function index(Request $request){
+    public function index(SearchRequest $request){
         $sort = 'asc';
         $search = $request->search;
         if(is_null($search)) $stocks = Stock::orderBy('id','desc')->paginate(5);
@@ -31,19 +31,7 @@ class StockController extends Controller
         return view('staff.stock.insert');
     }
 
-    public function store(Request $req){
-        Gate::authorize('stock.manage');
-        $rules = [
-            'inputName' => 'required|string|max:255',
-            'inputSize' => 'required|string|max:255',
-            'inputQty' => 'required|integer|min:1|max:2000000000'
-        ];
-
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
+    public function store(StockRequest $req){
         $stock = new Stock();
         $stock->name = $req->inputName;
         $stock->size = $req->inputSize;
@@ -60,20 +48,7 @@ class StockController extends Controller
         return view('staff.stock.update',compact('stock','buyer','return_url'));
     }
 
-    public function update(Request $req,Stock $stock){
-        Gate::authorize('stock.manage');
-
-        $rules = [
-            'inputName' => 'required|string|max:255',
-            'inputSize' => 'required|string|max:255',
-            'inputQty' => 'required|integer|min:1|max:2000000000'
-        ];
-
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
+    public function update(StockRequest $req, Stock $stock){
         $stock->name = $req->inputName;
         $stock->size = $req->inputSize;
         $stock->quantity = $req->inputQty;

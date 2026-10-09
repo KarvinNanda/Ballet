@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\staff;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Staff\ClassTypeIdRequest;
+use App\Http\Requests\Staff\UpdateClassTypeRequest;
 use App\Models\ClassType;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 /** Courses (class types). Add lives in ClassController::createCourse/storeCourse. */
 class ClassTypeController extends Controller
@@ -16,22 +16,13 @@ class ClassTypeController extends Controller
         return view('staff.classType.index',compact('types'));
     }
 
-    public function edit(Request $req){
+    public function edit(ClassTypeIdRequest $req){
         $return_url = url()->previous();
-        $type = ClassType::findOrFail($req->typeID);
+        $type = ClassType::findOrFail($req->validated('typeID'));
         return view('staff.classType.update',compact('type','return_url'));
     }
 
-    public function update(Request $req){
-        $validate = Validator::make($req->all(), [
-            'typeID' => 'required|integer|exists:class_types,id',
-            'inputPrice' => 'required|integer|min:0|max:2000000000',
-        ]);
-        // The edit page is reached by POST, so "back" would be a GET on a POST-only URL (405): go to the list.
-        if($validate->fails()){
-            return redirect(staff_route('class-type.index'))->withErrors($validate)->with('error', $validate->errors()->first());
-        }
-
+    public function update(UpdateClassTypeRequest $req){
         DB::transaction(function () use ($req) {
             $type = ClassType::findOrFail($req->typeID);
             $type->class_price = $req->inputPrice;
@@ -54,8 +45,8 @@ class ClassTypeController extends Controller
         return $this->backTo($req->return_url)->with('msg','Success Update Course Data');
     }
 
-    public function destroy(Request $req){
-        ClassType::findOrFail($req->typeID)->delete();
+    public function destroy(ClassTypeIdRequest $req){
+        ClassType::findOrFail($req->validated('typeID'))->delete();
         return redirect()->back()->with('msg','Success Delete Course Data');
     }
 }

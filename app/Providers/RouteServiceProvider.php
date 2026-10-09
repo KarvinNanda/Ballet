@@ -48,5 +48,15 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+
+        // Writes only: GET/HEAD pages are not limited. Per user, or per IP for guests.
+        RateLimiter::for('writes', function (Request $request) {
+            return in_array($request->method(), ['GET', 'HEAD'], true)
+                ? Limit::none()
+                : Limit::perMinute(30)->by('writes:'.($request->user()?->id ?: $request->ip()));
+        });
+
+        // Creating an account sends an email.
+        RateLimiter::for('account-create', fn (Request $request) => Limit::perHour(10)->by('account-create:'.($request->user()?->id ?: $request->ip())));
     }
 }

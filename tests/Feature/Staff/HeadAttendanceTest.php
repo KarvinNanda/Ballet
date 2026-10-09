@@ -122,4 +122,12 @@ class HeadAttendanceTest extends StaffTestCase
         $this->assertFalse(DB::table('detail_absens')->where('header_absen_id', $header)->whereIn('student_id', $outsiders->pluck('id'))->exists());
         $this->assertTrue(DB::table('detail_absens')->where('header_absen_id', $header)->where('student_id', $students->first()->id)->exists());
     }
+
+    public function test_unknown_description_is_a_validation_error(): void
+    {
+        $schedule = \App\Models\Schedule::firstOrFail();
+        $this->asRole('head')->post(route('head.attendance.update', $schedule), [
+            'student_id' => [1], 'check' => ['off'], 'keterangan' => ['Holiday'], 'notes' => [''],
+        ])->assertSessionHasErrors('keterangan.0');
+    }
 }

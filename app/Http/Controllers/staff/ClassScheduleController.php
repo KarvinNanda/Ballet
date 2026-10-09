@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\staff;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Staff\ScheduleDateRequest;
+use App\Http\Requests\Staff\StoreMultipleScheduleRequest;
 use App\Models\ClassTransaction;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
@@ -24,9 +26,8 @@ class ClassScheduleController extends Controller
         return view('staff.schedule.insert', compact('class'));
     }
 
-    public function store(Request $req, ClassTransaction $class)
+    public function store(ScheduleDateRequest $req, ClassTransaction $class)
     {
-        $req->validate(['dateTime' => ['required', 'date']]);
         $date = Carbon::parse($req->dateTime);
 
         // Two schedules of one class must be at least an hour apart.
@@ -47,7 +48,7 @@ class ClassScheduleController extends Controller
     /** With a class from the path (or the old ?classId= query) the form is for that class; without one it asks for the class. */
     public function createMultiple(Request $req, ?ClassTransaction $class = null)
     {
-        $class ??= ClassTransaction::find($req->query('classId'));
+        $class ??= ClassTransaction::find(filter_var($req->query('classId'), FILTER_VALIDATE_INT) ?: 0);
         $classes = $class ? collect() : DB::table('class_transactions')
             ->join('class_types', 'class_types.id', 'class_transactions.class_type_id')
             ->where('class_transactions.Status', 'aktif')
@@ -57,14 +58,8 @@ class ClassScheduleController extends Controller
         return view('staff.schedule.multiple', compact('class', 'classes'));
     }
 
-    public function storeMultiple(Request $req)
+    public function storeMultiple(StoreMultipleScheduleRequest $req)
     {
-        $req->validate([
-            'classId' => ['required', 'integer', 'exists:class_transactions,id'],
-            'dateTime' => ['required', 'date'],
-            'ScheduleLoop' => ['required', 'integer', 'between:1,52'], // weekly, at most one year
-        ]);
-
         $date = Carbon::parse($req->dateTime);
         DB::transaction(function () use ($req, $date) {
             for ($i = 0; $i < $req->ScheduleLoop; $i++) {
@@ -84,10 +79,8 @@ class ClassScheduleController extends Controller
         return view('staff.schedule.update', compact('schedule'));
     }
 
-    public function update(Request $req, Schedule $schedule)
+    public function update(ScheduleDateRequest $req, Schedule $schedule)
     {
-        $req->validate(['dateTime' => ['required', 'date']]);
-
         $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
 

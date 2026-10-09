@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Http\Requests\Staff\StoreStudentRequest;
+use App\Http\Requests\Staff\StudentListRequest;
+use App\Http\Requests\Staff\ToggleStudentStatusRequest;
+use App\Http\Requests\Staff\UpdateStudentRequest;
 use App\Http\Controllers\Controller;
 use App\Models\Banks;
 use App\Models\ClassTransaction;
@@ -14,11 +18,11 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 class StudentController extends Controller
 {
-    public function index(Request $request){
+    public function index(StudentListRequest $request){
         $sort = 'asc';
         $keyword = $request->query('keyword');
         $status = $request->query('status', 'all');
@@ -84,36 +88,25 @@ class StudentController extends Controller
         return view('staff.student.insert',compact('rules'));
     }
 
-    public function store(Request $req){
-        $rules = [
-            'inputLongName' => 'required|string|max:255',
-            'inputNickName' => 'required|string|max:255',
-            'inputParentName' => 'required|string|max:255',
-            'inputCity' => 'required|string|max:255',
-            'inputEmail' => 'required|email:filter',
-            'inputDate_of_Birth' => 'required|date|before:tomorrow',
-            'inputAddress' => 'required|string|max:255',
-            'inputPhone1' => 'required|numeric|digits_between:10,12',
-            'inputWhatsapp' => 'required|numeric|digits_between:10,12',
-            'inputPostalCode' => 'required|numeric|min_digits:5|max_digits:10',
-        ];
-
-        $validate = Validator::make($req->all(), $rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
+    public function store(StoreStudentRequest $req){
         DB::transaction(function () use ($req) {
             // rekenings.bank_rek is NOT NULL: only write a row when an account number was given.
             // An existing row for the same number (a sibling's) is reused as is, not duplicated.
             if($req->filled('inputRekening') && ! Rekenings::where('bank_rek', $req->inputRekening)->exists()){
                 $bank = $req->filled('inputBankName') ? Banks::firstOrCreate(['bank_name' => $req->inputBankName]) : null;
 
-                $rekening = new Rekenings();
-                $rekening->bank_rek = $req->inputRekening;
-                $rekening->nama_pengirim = $req->inputNamaPengirim;
-                $rekening->banks_id = $bank?->id;
-                $rekening->save();
+                try {
+                    // Savepoint: a failed insert would otherwise abort the outer transaction.
+                    DB::transaction(function () use ($req, $bank) {
+                        $rekening = new Rekenings();
+                        $rekening->bank_rek = $req->inputRekening;
+                        $rekening->nama_pengirim = $req->inputNamaPengirim;
+                        $rekening->banks_id = $bank?->id;
+                        $rekening->save();
+                    });
+                } catch (UniqueConstraintViolationException) {
+                    // A concurrent request created the same account first: reuse it.
+                }
             }
 
             $student = new Student();
@@ -131,7 +124,7 @@ class StudentController extends Controller
             $student->Phone2 = $req->inputPhone2;
             $student->Whatsapp = $req->inputWhatsapp ;
             $student->Instagram = $req->inputInstagram ?  '@'.$req->inputInstagram : '-';
-            $student->Line = $req->inputInstagram ?  $req->inputLine : '-';
+            $student->Line = $req->inputLine ?: '-';
             $student->Status = 'aktif';
             $student->EnrollDate  = Carbon::now();
             $student->Quota  = 0;
@@ -203,33 +196,18 @@ class StudentController extends Controller
         return view('staff.student.detail', compact('detail','courses_taken','transactions','return_url'));
     }
 
-    public function update(Request $request, Student $student)
+    public function update(UpdateStudentRequest $request, Student $student)
     {
-        $rules = [
-            'LongName' => 'required|string|max:255',
-            'nama_orang_tua' => 'required|string|max:255',
-            'city' => 'required|string|max:255',
-            'Email' => 'required|email:filter',
-            'dob' => 'required|date|before:tomorrow',
-            'Address' => 'required|string|max:255',
-            'Phone1' => 'required|numeric|digits_between:10,12',
-            'Whatsapp' => 'required|numeric|digits_between:10,12',
-            'kode_pos' => 'required|numeric|min_digits:5|max_digits:10',
-            'Quota' => 'required|integer|min:0|max:2000000000',
-            'MaxQuota' => 'nullable|integer|min:0|max:2000000000',
-            'is_new' => 'required|string|max:255',
-            'status' => 'required|in:aktif,non-aktif,trial',
-            'EnrollDate' => 'nullable|date',
-            'accountno' => 'required|string|max:255',
-            'sender' => 'required|string|max:255',
-        ];
-
-        $validate = Validator::make($request->all(), $rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
         $saved = DB::transaction(function () use ($request, $student) {
+            // Attendance increments Quota while this form may be open. Lock the row so the check and the write
+            // see the same value, then only write Quota when the user changed it on a form that is not stale.
+            $currentQuota = (int) DB::table('students')->where('id', $student->id)->lockForUpdate()->value('Quota');
+            $openedQuota = (int) $request->validated('Quota_original');
+            $quotaEdited = (int) $request->validated('Quota') !== $openedQuota;
+            if($quotaEdited && $currentQuota !== $openedQuota){
+                return 'stale-quota';
+            }
+
             if(! $this->saveBankAccount($student, $request->accountno, $request->sender, $request->bank)){
                 return false;
             }
@@ -249,7 +227,7 @@ class StudentController extends Controller
             $student->Instagram = $request->Instagram;
             $student->Line = $request->Line;
             $student->EnrollDate = $request->EnrollDate;
-            $student->Quota = $request->Quota;
+            $student->Quota = $quotaEdited ? $request->validated('Quota') : $currentQuota;
             if($request->filled('MaxQuota')) $student->MaxQuota = $request->MaxQuota;
             $student->Status = $request->status;
             $student->is_new = in_array(strtolower($request->is_new), ['no'], true) ? 0 : 1;
@@ -258,6 +236,10 @@ class StudentController extends Controller
             $student->save();
             return true;
         });
+
+        if($saved === 'stale-quota'){
+            return redirect()->back()->withInput()->with('error','Quota sudah berubah sejak halaman dibuka. Buka ulang halaman lalu coba lagi.');
+        }
 
         if(! $saved){
             return redirect()->back()->withInput()->with('error','That account number belongs to another student with a different sender or bank. Use the same sender and bank, or a different account number.');
@@ -302,14 +284,12 @@ class StudentController extends Controller
         return true;
     }
 
-    public function toggleStatus(Student $student, Request $req){
-        if($req->stats == 'Active'){
-            $student->Status = 'aktif';
-        } else if($req->stats == 'Inactive') {
-            $student->Status = 'non-aktif';
-        } else {
-            $student->Status = 'trial';
-        }
+    public function toggleStatus(Student $student, ToggleStudentStatusRequest $req){
+        $student->Status = match ($req->validated('stats')) {
+            'Active' => 'aktif',
+            'Inactive' => 'non-aktif',
+            'Trial' => 'trial',
+        };
         $student->save();
         return redirect()->back()->with('msg','Success Update Student Status');
     }
@@ -382,14 +362,19 @@ class StudentController extends Controller
             ];
         }
 
-        DB::transaction(function () use ($trans, $student, $class) {
-            DB::table('transactions')->insert($trans);
+        try {
+            DB::transaction(function () use ($trans, $student, $class) {
+                DB::table('transactions')->insert($trans);
 
-            $mappingStudent = new MappingClassChild();
-            $mappingStudent->student_id = $student->id;
-            $mappingStudent->class_id = $class->id;
-            $mappingStudent->save();
-        });
+                $mappingStudent = new MappingClassChild();
+                $mappingStudent->student_id = $student->id;
+                $mappingStudent->class_id = $class->id;
+                $mappingStudent->save();
+            });
+        } catch (UniqueConstraintViolationException) {
+            // A concurrent request added the student first; the transaction rolled back, so no extra bills.
+            return $back->with('error','Student is already in this class');
+        }
 
         return $back->with('msg','Success Add Student into Class');
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\teacher;
 
+use App\Http\Requests\SearchRequest;
+use App\Http\Requests\Teacher\RecordAttendanceRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\teacher\Concerns\AuthorizesTeacherClasses;
 use App\Models\ClassTransaction;
@@ -17,7 +19,7 @@ class TeacherController extends Controller
 {
     use AuthorizesTeacherClasses;
 
-    public function index(Request $request){
+    public function index(SearchRequest $request){
 //        dd(Carbon::parse('2023-02-10')->diffInDays('2024-01-20'));
         $keyword = $request->query('keyword');
 
@@ -93,15 +95,13 @@ class TeacherController extends Controller
 
     }
 
-    public function getAbsen(Request $req, Schedule $schedule)
+    public function getAbsen(RecordAttendanceRequest $req, Schedule $schedule)
     {
-        $this->authorizeClass($schedule->class_id);
-
         if (HeaderAbsen::where('schedules_id', $schedule->id)->exists()) {
             return $this->backTo($req->return_url)->with('error', 'Jadwal ini sudah diabsen, jadi tidak bisa diubah lagi.');
         }
 
-        $rows = AttendanceRecorder::rowsFromRequest($req->all());
+        $rows = AttendanceRecorder::rowsFromRequest($req->validated());
         $saved = AttendanceRecorder::record($schedule, $rows, Auth::id(), allowEdit: false);
 
         return $this->backTo($req->return_url)->with('msg', AttendanceRecorder::message('Success Making Attendance', count($rows), $saved));

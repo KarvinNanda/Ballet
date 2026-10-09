@@ -14,10 +14,12 @@ class Controller extends BaseController
 
     /**
      * Redirect to a return_url sent by a form, but only inside this app.
-     * Anything else (other host, "//host", "/\host", "javascript:") goes to the home page.
+     * Anything else (other host, "//host", "/\host", "javascript:", an array) goes to the home page.
      */
-    protected function backTo(?string $url): RedirectResponse
+    protected function backTo(mixed $url): RedirectResponse
     {
+        $url = is_string($url) ? $url : null;
+
         return redirect()->to($this->isOwnUrl($url) ? $url : url('/'));
     }
 

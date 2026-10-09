@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
-use App\Mail\SendingEmail;
+use App\Http\Requests\Head\SearchAdminRequest;
+use App\Http\Requests\Head\StoreAdminRequest;
+use App\Http\Requests\Head\UpdateAdminRequest;
+use App\Support\AccountInvite;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
 
 class HeadAdminController extends Controller
 {
@@ -23,22 +23,8 @@ class HeadAdminController extends Controller
         return view('head.admin.update',compact('user','return_url'));
     }
 
-    public function update(Request $req,User $user){
+    public function update(UpdateAdminRequest $req,User $user){
         abort_unless($user->role === 'admin', 404); // these routes manage admin accounts only
-        $rules = [
-            'inputName' => 'required|string|max:255',
-            'inputEmail' => 'required|email:filter',
-            'inputDate_of_Birth' => 'required|date|before:tomorrow',
-            'inputAddress' => 'required|string|max:255',
-            'inputBonus' => 'required|integer|min:0|max:2000000000',
-            'inputPhone' => 'required|numeric|digits_between:10,12'
-        ];
-
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
         $user = User::find($user->id);
         $user->name = $req->inputName;
         $user->address = $req->inputAddress;
@@ -55,20 +41,7 @@ class HeadAdminController extends Controller
         return view('head.admin.insert');
     }
 
-    public function insert(Request $req){
-        $rules = [
-            'inputName' => 'required|string|max:255',
-            'inputEmail' => 'required|email:filter',
-            'inputDate_of_Birth' => 'required|date|before:tomorrow',
-            'inputAddress' => 'required|string|max:255',
-            'inputPhone' => 'required|numeric|digits_between:10,12'
-        ];
-
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
+    public function insert(StoreAdminRequest $req){
         $user = new User();
         $user->name = $req->inputName;
         $user->address = $req->inputAddress;
@@ -76,20 +49,13 @@ class HeadAdminController extends Controller
         $user->dob = $req->inputDate_of_Birth;
         $user->email = $req->inputEmail;
         $user->phone = $req->inputPhone;
-        $user->password = bcrypt('ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY'));
         $user->save();
-
-        $credential = [
-            'email' => $req->inputEmail,
-            'password' => 'ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY')
-        ];
-
-        Mail::to($user->email)->send(new SendingEmail($credential));
+        AccountInvite::send($user);
 
         return redirect()->route('headAdminPage')->with('msg','Success Create Admin');
     }
 
-    public function search(Request $req){
+    public function search(SearchAdminRequest $req){
         $admins = User::where('name','like',"%$req->search%")->where('role','admin')->paginate(5);
         return view('head.admin.index',compact('admins'));
     }

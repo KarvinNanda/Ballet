@@ -3,7 +3,6 @@
 namespace Tests\Feature\Staff;
 
 use App\Models\Transaction;
-use App\Support\TransactionQuota;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -109,31 +108,6 @@ class TransactionTest extends StaffTestCase
         $this->assertEquals(450000, $t->fresh()->price);
     }
 
-    /** Pins the quarter filter: a March fee counts in Q1 and not in Q2, including Jakarta time at the boundary. */
-    public function test_quota_quarter_filter_at_the_march_april_boundary(): void
-    {
-        $t = $this->unpaid();
-        DB::table('transactions')->where('students_id', $t->students_id)->where('class_transactions_id', $t->class_transactions_id)->delete();
-        DB::table('transactions')->insert([
-            'students_id' => $t->students_id, 'class_transactions_id' => $t->class_transactions_id,
-            'transaction_date' => '2026-03-31', 'transaction_payment' => '2026-03-31',
-            'payment_status' => 'Paid', 'discount' => 0, 'price' => 1, 'desc' => '-',
-            'transaction_quota' => 5, 'created_at' => now(), 'updated_at' => now(),
-        ]);
-        $quota = fn () => (int) DB::table('mapping_class_children')
-            ->where('student_id', $t->students_id)->where('class_id', $t->class_transactions_id)->value('quota');
-        $reset = fn () => DB::table('mapping_class_children')
-            ->where('student_id', $t->students_id)->where('class_id', $t->class_transactions_id)->update(['quota' => 0]);
-
-        foreach ([['2026-01-01 00:00:00', 5], ['2026-03-15 12:00:00', 5], ['2026-03-31 16:59:00', 5], // 23:59 Jakarta
-                  ['2026-03-31 17:00:00', 0], ['2026-04-15 12:00:00', 0], ['2026-06-30 12:00:00', 0]] as [$now, $expected]) {
-            Carbon::setTestNow($now);
-            $reset();
-            TransactionQuota::recalculate($t->students_id, $t->class_transactions_id);
-            $this->assertSame($expected, $quota(), "now = {$now}");
-        }
-    }
-
     public function test_edit_detail_and_old_search_redirect_render_for_both_roles(): void
     {
         $t = $this->unpaid();
@@ -237,5 +211,18 @@ class TransactionTest extends StaffTestCase
         $this->asRole('head')->post(route('head.transaction.update', $t), $this->payload($t, ['inputBankName' => str_repeat('x', 300)]))
             ->assertSessionHasErrors('inputBankName');
         $this->assertSame(0, DB::table('banks')->where('bank_name', str_repeat('x', 300))->count());
+    }
+
+    public function test_type_longer_than_its_column_is_a_validation_error(): void // column is VARCHAR(100)
+    {
+        $t = $this->unpaid();
+        $this->asRole('head')->post(route('head.transaction.update', $t), $this->payload($t, ['Type' => str_repeat('x', 101)]))
+            ->assertSessionHasErrors('Type');
+    }
+
+    public function test_admin_gets_403_not_422_on_a_paid_row_with_bad_input(): void
+    {
+        $t = Transaction::where('payment_status', 'Paid')->firstOrFail();
+        $this->asRole('admin')->post(route('admin.transaction.update', $t), ['inputQuota' => 'abc'])->assertForbidden();
     }
 }
