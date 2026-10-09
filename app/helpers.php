@@ -23,3 +23,30 @@ if (! function_exists('staff_route')) {
         return route(staff_prefix().'.'.$name, $parameters, $absolute);
     }
 }
+
+if (! function_exists('own_url')) {
+    /**
+     * $url when it points inside this app, else $fallback. Used for every return_url (redirects and Back/Cancel links).
+     * Rejects other hosts and ports, "//host", backslashes, non-http(s) schemes ("javascript:") and non-strings.
+     */
+    function own_url(mixed $url, string $fallback): string
+    {
+        // Browsers drop tabs/newlines inside URLs ("/\t/evil" becomes "//evil"), so control characters and spaces are refused.
+        if (! is_string($url) || $url === '' || str_contains($url, '\\') || preg_match('/[\x00-\x20\x7F]/', $url)) {
+            return $fallback;
+        }
+
+        if (str_starts_with($url, '/') && ! str_starts_with($url, '//')) {
+            return $url;
+        }
+
+        $parts = parse_url($url);
+        $app = parse_url(url('/'));
+
+        $own = in_array($parts['scheme'] ?? null, ['http', 'https'], true)
+            && ($parts['host'] ?? null) === ($app['host'] ?? null)
+            && ($parts['port'] ?? null) === ($app['port'] ?? null);
+
+        return $own ? $url : $fallback;
+    }
+}

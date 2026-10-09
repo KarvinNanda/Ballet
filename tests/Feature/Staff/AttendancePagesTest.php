@@ -209,4 +209,39 @@ class AttendancePagesTest extends StaffTestCase
         $this->assertStringNotContainsString('Saved as', $row);
         $this->assertStringContainsString('<option value="" selected>No reason</option>', $row);
     }
+
+    public function test_a_student_without_a_row_on_a_recorded_schedule_is_marked_not_recorded_yet(): void
+    {
+        [$schedule, $students] = $this->freshSchedule();
+        $this->assertGreaterThanOrEqual(2, $students->count(), 'need two students');
+        [$recorded, $missing] = [$students->get(0), $students->get(1)];
+
+        $this->asRole('head');
+        $this->record($schedule, [$recorded->id => ['on', '', '']]);
+
+        $html = $this->get(route('head.attendance.edit', $schedule))->assertOk()->getContent();
+
+        $badge = '<span class="status-badge status-badge-neutral">Not recorded yet</span>';
+        $this->assertStringContainsString($badge, $this->rowFor($html, $missing->LongName));
+        $this->assertStringNotContainsString('Not recorded yet', $this->rowFor($html, $recorded->LongName));
+    }
+
+    public function test_a_schedule_without_a_header_shows_no_not_recorded_yet_badge(): void
+    {
+        [$schedule] = $this->freshSchedule();
+
+        $this->asRole('head')->get(route('head.attendance.edit', $schedule))->assertOk()
+            ->assertDontSee('Not recorded yet');
+    }
+
+    public function test_the_present_box_sits_inside_its_label_so_the_whole_cell_is_tappable(): void
+    {
+        [$schedule] = $this->freshSchedule();
+        $html = $this->asRole('head')->get(route('head.attendance.edit', $schedule))->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression(
+            '/<label class="check-hit" for="present-0">\s*<input type="checkbox" id="present-0" name="check\[0\]"[^>]*>\s*<span class="visually-hidden">[^<]+ is present<\/span>\s*<\/label>/',
+            $html
+        );
+    }
 }

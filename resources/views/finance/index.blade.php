@@ -1,69 +1,57 @@
-@inject('carbon', 'Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Dashboard')
+@section('title', 'Stock')
 
 @section('content')
-    <div class="d-none">
-        {{ $keyword = request('search') }}
-    </div>
+    @php
+        $search = request('search');
+        $sortUrl = fn (string $column) => route('financeStockViewSorting', array_filter(['value' => $column, 'sort' => $sort, 'search' => $search], fn ($v) => $v !== null && $v !== ''));
+        $sortedBy = request()->route('value');
+        $sortedDirection = request()->route('sort');
+    @endphp
 
-    <div class="pagetitle">
-        <h1>Stock Tables</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Stock" />
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="GET" action="{{route('finance')}}">
-                    @csrf
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
-                </form>
-            </div>
-            <div class="card-body">
+    <x-filter-bar :action="url()->current()" :reset="route('finance')">
+        <label for="stock-search" class="visually-hidden">Search by item name</label>
+        <input id="stock-search" class="form-control" type="search" name="search" value="{{ $search }}" placeholder="Search item name…">
+    </x-filter-bar>
 
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
+    <div class="card">
+        <div class="card-body">
+            @if ($stocks->isEmpty())
+                <x-empty-state icon="box-seam" title="No stock items found">
+                    @if (filled($search))
+                        <x-slot:action>
+                            <a href="{{ route('finance') }}" class="btn btn-outline-secondary">Reset search</a>
+                        </x-slot:action>
+                    @endif
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <x-sort-th :href="$sortUrl('name')" :active="$sortedBy === 'name'" :direction="$sortedDirection">Name</x-sort-th>
+                        <x-sort-th :href="$sortUrl('size')" :active="$sortedBy === 'size'" :direction="$sortedDirection">Size</x-sort-th>
+                        <x-sort-th :href="$sortUrl('quantity')" :active="$sortedBy === 'quantity'" :direction="$sortedDirection">Quantity</x-sort-th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($stocks as $stock)
                         <tr>
-                            <th scope="col"><a href="{{route("financeStockViewSorting",['value' => "name",'sort' => $sort])}}">Name</a></th>
-                            <th scope="col"><a href="{{route("financeStockViewSorting",['value' => "size",'sort' => $sort])}}">Size</a></th>
-                            <th scope="col"><a href="{{route("financeStockViewSorting",['value' => "quantity",'sort' => $sort])}}">Quantity</a></th>
+                            <td>{{ $stock->name }}</td>
+                            <td>{{ $stock->size }}</td>
+                            <td>{{ (int) $stock->quantity }}</td>
+                            <td class="text-end text-nowrap">
+                                <a href="{{ route('in', $stock) }}" class="btn btn-sm btn-primary">Record stock in</a>
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($stocks as $stock)
-                            <tr>
-                                <td>{{$stock->name}}</td>
-                                <td>{{$stock->size}}</td>
-                                <td>{{$stock->quantity}}</td>
-                                <td>
-                                    <form action="{{route('in',$stock)}}" method="get">
-                                        @csrf
-                                        <button type="submit" class="btn btn-warning">Stock</button>
-                                    </form>
-                                </td>
-{{--                                <td>--}}
-{{--                                    <form action="{{route('out',$stock)}}" method="post">--}}
-{{--                                        @csrf--}}
-{{--                                        <button type="submit" class="btn btn-danger">OUT</button>--}}
-{{--                                    </form>--}}
-{{--                                </td>--}}
-
-
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </div>
+                    @endforeach
+                    </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{$stocks->appends(['search' => $keyword])->links()}} 
-                </div>
-            </div>
+                <div class="mt-3">{{ $stocks->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

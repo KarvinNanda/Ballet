@@ -1,103 +1,87 @@
-@extends('Master.master')
-@inject('carbon', 'Carbon\Carbon')
+@extends('layouts.app')
 
-@section('title','Class List')
+@section('title', 'Attendance · '.$class_label)
 
 @section('content')
+    {{-- old() is the failed save's own input, so it is checked like any return_url before it reaches an href. --}}
+    @php
+        $back = own_url(old('return_url', $return_url), route('teacher'));
+    @endphp
+    {{-- A block @php, not @php(...): Blade pairs an inline @php( with the next @endphp and breaks the file. --}}
+    @php
+        $when = \Carbon\Carbon::parse($schedule->date);
+    @endphp
 
-    <div class="pagetitle">
-        <h1>Class Tables</h1>
-    </div><!-- End Page Title -->
+    <x-page-header :title="'Attendance · '.$class_label.' · '.$when->format('D d M Y, H:i')">
+        <x-slot:actions>
+            <a href="{{ $back }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
+    @if ($recorded)
+        <div class="alert alert-info" role="status">Recorded. Ask the head to correct it.</div>
         <div class="card">
-            <form action="{{route('getAbsen',$view)}}" method="post">
-                @csrf
-            <input type="hidden" name="return_url" value="{{$return_url}}">
             <div class="card-body">
-
-
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th scope="col">NIS</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Attend</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Notes</th>
-                        <th scope="col">Quota</th>
-
-                    </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($class as $c)
+                @if ($records->isEmpty())
+                    <x-empty-state icon="people" title="No students were recorded" />
+                @else
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Student</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Notes</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach ($records as $r)
                             @php
-                                $mustPay = ! @$detail && \App\Support\AttendancePaymentGate::requiresPayment($c, $view->date, $class_name);
+                                // Stored values: Attend / Absent / Permission / Sick (the app) and Sakit / Izin (older rows, the seed).
+                                $status = [
+                                    'Attend' => ['Present', 'success'],
+                                    'Absent' => ['Absent', 'warning'],
+                                    'Permission' => ['Permission', 'neutral'],
+                                    'Izin' => ['Permission', 'neutral'],
+                                    'Sick' => ['Sick', 'neutral'],
+                                    'Sakit' => ['Sick', 'neutral'],
+                                ][$r->Description ?? ''] ?? null;
                             @endphp
                             <tr>
-                                <td>{{$c->nis}}</td>
-                                <td>{{$c->nama}}</td>
-                                @if($mustPay)
-                                    <td colspan="3">Please Completed Payment</td>
-                                @else
-                                    <td>
-                                        <input type="hidden" value="{{$c->id}}" name="student_id[{{$loop->index}}]">
-                                        @if(!@$detail)
-                                            <input type="hidden" name="check[{{$loop->index}}]" value="off">
-                                            <input type="checkbox" name="check[{{$loop->index}}]" class="form-check-input" id="test" value="on" checked>
-                                        @elseif(@$detail[$loop->iteration-1]->Description == "Masuk")
-                                            <input type="checkbox" name="check[{{$loop->index}}]" class="form-check-input" id="test" value="on" checked disabled>
-                                        @else
-                                            <input type="checkbox" name="check[{{$loop->index}}]" class="form-check-input" id="test" value="on" disabled>
-                                        @endif
-                                    </td>
-                                    <td >
-                                        @if(!@$detail)
-                                            <select value="" name="keterangan[{{$loop->index}}]" class="form-select">
-                                                <option selected>Select...</option>
-                                                <option value="Absent">Absent</option>
-                                                <option value="Permission">Permission</option>
-                                                <option value="Sick">Sick</option>
-                                            </select>
-                                        @else
-                                            <select value="" name="keterangan[{{$loop->index}}]" class="form-select" disabled>
-                                                <option selected> {{@$detail[$loop->iteration-1]->Description}}</option>
-                                            </select>
-                                        @endif
-                                    </td>
-                                    <td >
-                                        @if(!@$detail)
-                                            <input type="text" name="notes[{{$loop->index}}]" class="form-control" maxlength="255">
-                                        @else
-                                            <input type="text" name="notes[{{$loop->index}}]" class="form-control" value="{{@$detail[$loop->iteration-1]->Notes}}" disabled>
-                                        @endif
-
-                                    </td>
-                                @endif
-                                @if (str_contains($class_name,'Intensive'))
-                                <td>{{$c->Quota}} / {{$c->MaxQuota == 0 ?  12 : $c->MaxQuota}}</td>    
-                                @elseif(str_contains($class_name,'Pointe'))
-                                <td>{{$c->Quota}} / {{$c->MaxQuota == 0 ?  4 : $c->MaxQuota}}</td>    
-                                @endif
-                                <td>{{$c->Quota}} / {{$c->MaxQuota == 0 ?  3 : $c->MaxQuota}}</td>    
+                                <td>
+                                    {{ $r->nama }}
+                                    @if (filled($r->nis))
+                                        <div class="row-note">NIS {{ $r->nis }}</div>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if ($status)
+                                        <span class="status-badge status-badge-{{ $status[1] }}">{{ $status[0] }}</span>
+                                    @else
+                                        {{ filled($r->Description) ? $r->Description : '–' }}
+                                    @endif
+                                </td>
+                                <td>{{ $r->Notes }}</td>
                             </tr>
-
-
                         @endforeach
-
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                @endif
             </div>
-                @if(!@$detail)
-                    <div class=" mt-3 mb-3 w-100 d-flex justify-content-end">
-                        <button type="submit" class="btn btn-success me-5 mt-2 mb-2">Submit</button>
+        </div>
+    @else
+        <x-confirm-form :action="route('getAbsen', $schedule->id)" message="Attendance cannot be changed after saving. Save now?" class="card">
+            <input type="hidden" name="return_url" value="{{ $back }}">
+            <div class="card-body">
+                <x-form.error-summary />
+                @if ($students->isEmpty())
+                    <x-empty-state icon="people" title="No active students in this class" />
+                @else
+                    @include('partials.attendance-form-table', ['students' => $students, 'details' => $details, 'mustPay' => $mustPay])
+                    <div class="save-bar">
+                        <button type="submit" class="btn btn-primary">Save attendance</button>
                     </div>
                 @endif
-            </form>
-        </div>
-    </section>
-
-
+            </div>
+        </x-confirm-form>
+    @endif
 @endsection

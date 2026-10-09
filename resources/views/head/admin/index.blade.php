@@ -20,9 +20,11 @@
         <div class="card-body">
             @if ($admins->isEmpty())
                 <x-empty-state icon="person-gear" title="No admin accounts found">
-                    <x-slot:action>
-                        <a href="{{ route('headAdminPage') }}" class="btn btn-outline-secondary">Reset search</a>
-                    </x-slot:action>
+                    @if (filled($search))
+                        <x-slot:action>
+                            <a href="{{ route('headAdminPage') }}" class="btn btn-outline-secondary">Reset search</a>
+                        </x-slot:action>
+                    @endif
                 </x-empty-state>
             @else
                 <table class="table table-hover">

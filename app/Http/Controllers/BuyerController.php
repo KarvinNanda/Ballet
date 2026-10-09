@@ -7,25 +7,21 @@ use App\Http\Requests\Buyer\BuyRequest;
 use App\Models\Stock;
 use App\Support\InsufficientStock;
 use App\Support\StockMovement;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class BuyerController extends Controller
 {
     public function index(SearchRequest $req){
-        $key = $req->search;
-        if(!is_null($key)){
-            $stocks = Stock::where('name','like',"%$key%")->orderBy('id','desc')->paginate(5);
-        } else {
-            $stocks = Stock::orderBy('id','desc')->paginate(5);
-        }
         $sort = 'asc';
+        // SearchRequest has already dropped junk search values.
+        $stocks = Stock::search($req->query('search'))->orderBy('id','desc')->paginate(5)->withQueryString();
         return view('buyer.index',compact('stocks','sort'));
     }
 
-    public function sorting($value,$sort){
+    public function sorting(SearchRequest $req, $value, $sort){
         [$value, $sort] = $this->sortOrFail($value, $sort, ['name', 'quantity', 'size']);
-        $stocks = Stock::orderBy($value,$sort)->paginate(5);
+        // Same search filter as index(), so the sort links keep it.
+        $stocks = Stock::search($req->query('search'))->orderBy($value,$sort)->orderBy('id','desc')->paginate(5)->withQueryString();
         $sort = $sort == 'asc' ? 'desc' : 'asc';
         return view('buyer.index',compact('stocks','sort'));
     }
@@ -49,8 +45,9 @@ class BuyerController extends Controller
                     'created_at' => now()->setTimezone('GMT+7')->toDateString(),
                 ]);
             });
-        } catch (InsufficientStock) {
-            return redirect()->back()->withInput()->with('error', 'Quantity is Exceed Stock');
+        } catch (InsufficientStock $e) {
+            // On the quantity field: the page's max is the stock at page load, which may have changed since.
+            return redirect()->back()->withErrors(['qty' => $e->getMessage()])->withInput();
         }
 
         return $this->backTo($req->return_url)->with(['msg' => 'Thank You']);

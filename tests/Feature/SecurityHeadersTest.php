@@ -25,15 +25,25 @@ class SecurityHeadersTest extends TestCase
         $this->get('http://localhost/login')->assertHeaderMissing('Strict-Transport-Security');
     }
 
-    public function test_csp_is_sent_in_report_only_mode(): void
+    public function test_csp_is_enforced_by_default(): void
     {
         $response = $this->get('/login');
 
-        $policy = (string) $response->headers->get('Content-Security-Policy-Report-Only');
+        $policy = (string) $response->headers->get('Content-Security-Policy');
         $this->assertStringContainsString("default-src 'self'", $policy);
         $this->assertStringContainsString("script-src 'self';", $policy);
         $this->assertStringContainsString("object-src 'none'", $policy);
         $this->assertStringContainsString("frame-ancestors 'self'", $policy);
-        $response->assertHeaderMissing('Content-Security-Policy'); // enforcing comes in SP2e
+        $response->assertHeaderMissing('Content-Security-Policy-Report-Only');
+    }
+
+    public function test_csp_can_fall_back_to_report_only_without_a_deploy(): void
+    {
+        config(['app.csp_report_only' => true]);
+
+        $response = $this->get('/login');
+
+        $this->assertStringContainsString("script-src 'self';", (string) $response->headers->get('Content-Security-Policy-Report-Only'));
+        $response->assertHeaderMissing('Content-Security-Policy');
     }
 }

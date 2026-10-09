@@ -80,7 +80,7 @@ class AttendanceRecorder
             }
 
             return $saved;
-        });
+        }, 3); // 3 attempts: two first saves at once can deadlock on the header gap lock (1213); MySQL rolls back, Laravel retries
     }
 
     /** Form arrays (student_id[], check[], keterangan[], notes[]) → rows. */

@@ -63,4 +63,22 @@ class StockTest extends StaffTestCase
         $this->assertMatchesRegularExpression('/<form[^>]*method="get"[^>]*>(?:(?!<\/form>).)*name="search"/si', $html);
         $this->assertDoesNotMatchRegularExpression('/<form[^>]*method="get"[^>]*>(?:(?!<\/form>).)*name="_token"/si', $html);
     }
+
+    public function test_a_failed_update_keeps_the_list_url_as_return_url_when_the_edit_page_reopens(): void
+    {
+        $stock = Stock::firstOrFail();
+        $listUrl = route('head.stock.index', ['search' => 'x']);
+        $editUrl = route('head.stock.edit', $stock);
+
+        $this->asRole('head')->from($listUrl)->get($editUrl)->assertOk();
+        $this->from($editUrl)->post(route('head.stock.update', $stock), [
+            'inputName' => '', 'inputSize' => 'M', 'inputQty' => 1, 'return_url' => $listUrl,
+        ])->assertSessionHasErrors()->assertRedirect($editUrl);
+
+        // The redirect back reopens the edit page, whose own "previous URL" is now the edit page.
+        $html = $this->from($editUrl)->get($editUrl)->assertOk()->getContent();
+
+        $this->assertStringContainsString('name="return_url" value="'.e($listUrl).'"', $html);
+        $this->assertStringNotContainsString('name="return_url" value="'.e($editUrl).'"', $html);
+    }
 }

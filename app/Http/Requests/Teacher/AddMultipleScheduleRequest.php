@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Teacher;
 
 use App\Rules\BoundedDate;
+use App\Rules\NotBeforeJakartaNow;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AddMultipleScheduleRequest extends FormRequest
@@ -17,7 +18,7 @@ class AddMultipleScheduleRequest extends FormRequest
     {
         return [
             'classId' => ['required', 'integer'],
-            'dateTime' => BoundedDate::rules(),
+            'dateTime' => BoundedDate::rules(true, [new NotBeforeJakartaNow()]),
             'ScheduleLoop' => ['required', 'integer', 'between:1,52'], // weekly, at most one year
         ];
     }

@@ -75,6 +75,12 @@ return [
     */
     'trusted_proxies' => env('TRUSTED_PROXIES'),
 
+    /*
+    | Content-Security-Policy is enforced. Set CSP_REPORT_ONLY=true to fall back to report-only
+    | (violations show in the browser console but nothing is blocked) if a page breaks in production.
+    */
+    'csp_report_only' => (bool) env('CSP_REPORT_ONLY', false),
+
     'timezone' => 'UTC',
 
     /*

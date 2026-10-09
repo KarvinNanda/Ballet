@@ -135,7 +135,6 @@ Route::prefix('finance')->middleware(['role:finance', 'throttle:writes'])->group
     Route::get('/transaction/sorting/{column}', [FinanceTransactionController::class,'sorting'])->name('financeTransactionSorting');
 
     Route::get('/in/{stock}', [FinanceStockController::class,'in'])->name('in');
-    Route::post('/out/{stock}', [FinanceStockController::class,'out'])->name('out');
     Route::post('/stock/report/{stock}/{type}', [FinanceStockController::class,'report'])->whereIn('type', ['in', 'out'])->name('makeReport');
     Route::get('/stock/sorting/{value}/{sort}', [FinanceStockController::class,'financeStock'])->name('financeStockViewSorting');
 

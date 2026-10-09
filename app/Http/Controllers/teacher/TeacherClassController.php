@@ -10,8 +10,10 @@ use App\Http\Requests\Teacher\UpdateScheduleRequest;
 use App\Models\ClassTransaction;
 use App\Models\HeaderAbsen;
 use App\Models\Schedule;
+use App\Support\AttendanceWindow;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -19,68 +21,55 @@ class TeacherClassController extends Controller
 {
     use AuthorizesTeacherClasses;
 
+    private const STARTED_MESSAGE = 'This session has already started; ask the head to change it.';
+
     public function index()
     {
-        $data = DB::table('class_transactions')
-            ->join('mapping_class_teachers', 'mapping_class_teachers.class_id', 'class_transactions.id')
-            ->leftJoin('mapping_class_children',function($q){
-                $q->on('mapping_class_children.class_id','class_transactions.id')
-                    ->where('mapping_class_children.student_id','!=',0);
-            })
-            ->join('class_types', 'class_transactions.class_type_id', 'class_types.id')
-            ->selectRaw('
-                class_transactions.id as id,
-                class_types.class_name as class,
-                COUNT(mapping_class_children.class_id) as students
-            ')
-            ->where('mapping_class_teachers.user_id', Auth::user()->id)
-            ->orderBy('class_types.id')
-            ->groupBy(['class'])
-            ->get()
-            ->groupBy('class');
-        return view('teacher.class.index', compact('data'));
+        $classes = $this->classRows((int) Auth::id());
+
+        return view('teacher.class.index', compact('classes'));
     }
 
-    public function viewDetail(Request $request)
+    public function viewDetail(Request $request, $id)
     {
-        $this->authorizeClass($request->id);
-        $get_class = DB::table('class_transactions as ct')
-                        ->leftJoin('class_types as ct2','ct2.id','ct.class_type_id')
-                        ->where('ct.id', $request->id)->first();
+        // The route id only: the form posts no body id.
+        $this->authorizeClass($id);
+        $course = $this->courseName($id);
+        // Same students and max quota source as the staff class detail (mapping_class_children.quota).
+        $students = DB::table('mapping_class_children as c')
+            ->join('students as st', 'st.id', 'c.student_id')
+            ->where('c.class_id', $id)
+            ->where('st.Status', '!=', 'non-aktif')
+            ->orderBy('st.LongName')
+            ->get(['st.LongName as name', 'st.Dob as dob', 'st.Quota as quota', 'c.quota as max_quota', 'st.Status as status']);
 
-        $data = DB::table('class_transactions')
-            ->join('mapping_class_children', 'mapping_class_children.class_id', 'class_transactions.id')
-            ->join('students', 'mapping_class_children.student_id', 'students.id')
-            ->leftJoin('class_types','class_types.id','class_transactions.class_type_id')
-            ->selectRaw('
-                students.LongName as student_name,
-                students.age as student_old,
-                students.dob as student_dob
-            ')
-            ->where('class_transactions.id', $request->id)
-            ->get();
-        return view('teacher.class.detail', compact('data'));
+        return view('teacher.class.detail', compact('students', 'course'));
     }
 
     public function viewSchedule(Request $req, $id)
     {
         $this->authorizeClass($id);
-        $classId = $id;
-        $class = DB::table('schedules')
-            // ->join('class_transactions', 'class_transactions.id', 'schedules.class_id')
-            ->selectRaw('
-                schedules.date as date,
-                schedules.id as id
-            ')
-            ->where('schedules.class_id', $classId)
-            // ->whereNotIn('schedules.id',function($q){
-            //     $q->select('schedules_id')
-            //         ->from('header_absens');
-            // })
-            ->orderBy('schedules.date','desc')
-            ->get();
+        $classId = (int) $id;
+        $course = $this->courseName($classId);
+        $now = AttendanceWindow::now();
 
-        return view('teacher.class.viewSchedule', compact('class', 'classId'));
+        $schedules = DB::table('schedules as s')
+            ->leftJoin('header_absens as h', 'h.schedules_id', 's.id')
+            ->where('s.class_id', $classId)
+            ->whereNotNull('s.date')
+            ->select('s.id', 's.date')
+            ->selectRaw('h.id IS NOT NULL as recorded')
+            ->orderBy('s.date', 'desc')
+            ->orderBy('s.id', 'desc')
+            ->get()
+            ->map(function (object $session) use ($now) {
+                $session->recorded = (bool) $session->recorded;
+                $session->status = AttendanceWindow::status($session->date, $session->recorded, $now);
+
+                return $session;
+            });
+
+        return view('teacher.class.viewSchedule', compact('schedules', 'classId', 'course'));
     }
 
     public function deleteScheduleClass($id, $classId)
@@ -109,7 +98,13 @@ class TeacherClassController extends Controller
             return redirect()->back()->with('error', 'Jadwal ini sudah diabsen, jadi tidak bisa diubah lagi.');
         }
 
-        return view('teacher.class.viewUpdateSchedule', compact('schedule'));
+        if ($this->hasStarted($schedule)) {
+            return redirect()->back()->with('error', self::STARTED_MESSAGE);
+        }
+
+        $course = $this->courseName($schedule->class_id);
+
+        return view('teacher.class.viewUpdateSchedule', compact('schedule', 'course'));
     }
 
     public function updateSchedule(UpdateScheduleRequest $req)
@@ -120,6 +115,10 @@ class TeacherClassController extends Controller
             return redirect()->back()->with('error', 'Jadwal ini sudah diabsen, jadi tidak bisa diubah lagi.');
         }
 
+        if ($this->hasStarted($schedule)) {
+            return redirect()->back()->with('error', self::STARTED_MESSAGE);
+        }
+
         $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
         return redirect()->route("viewScheduleClassTeacher", ['id' => $schedule->class_id])->with('msg','Success Update Schedule');
@@ -128,17 +127,19 @@ class TeacherClassController extends Controller
     public function viewaddScheduleClass(Request $req, $id)
     {
         $this->authorizeClass($id);
-        $classId = $id;
-        $test = Schedule::find($classId);
+        $classId = (int) $id;
+        $course = $this->courseName($classId);
 
-        return view('teacher.class.viewaddSchedule', compact('classId'));
+        return view('teacher.class.viewaddSchedule', compact('classId', 'course'));
     }
 
     public function viewAddMultipleScheduleClass(Request $req, $id)
     {
         $this->authorizeClass($id);
-        $classId = $id;
-        return view('teacher.class.addMultipleSchedule', compact('classId'));
+        $classId = (int) $id;
+        $course = $this->courseName($classId);
+
+        return view('teacher.class.addMultipleSchedule', compact('classId', 'course'));
     }
 
     public function addSchedule(AddScheduleRequest $req, $id)
@@ -188,29 +189,39 @@ class TeacherClassController extends Controller
     public function viewClassSchedule(Request $request, $id)
     {
         $this->authorizeSelf($id);
-        $userId = $id;
-
-        $classes = ClassTransaction::select(
-            'class_transactions.id',
-            'class_name',
-            'class_price',
-            'Status',
-            'class_type_id',
-            'student_id',
-            'class_id',
-            DB::raw('COUNT(student_id) as people_count'))
-            ->whereIn('class_transactions.id', DB::table('mapping_class_teachers')->where('user_id', $userId)->select('class_id'))
-            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
-            ->leftJoin('mapping_class_children',function($q){
-                $q->on('mapping_class_children.class_id','class_transactions.id')
-                    ->where('mapping_class_children.student_id','!=',0);
-            })
-            ->HavingRaw('COUNT(student_id) > 0')
-            ->orderBy('class_types.id')
-            ->groupBy('class_transactions.id')
-            ->where('Status', 'aktif')
-            ->paginate(20);
+        $classes = $this->classRows((int) $id);
 
         return view('teacher.class.schedule', compact('classes'));
+    }
+
+    /** The teacher's active classes with their active student count (My classes and Schedules share it). */
+    private function classRows(int $teacherId): Collection
+    {
+        $activeStudents = DB::table('mapping_class_children as c')
+            ->join('students as st', 'st.id', 'c.student_id')
+            ->whereColumn('c.class_id', 'ct.id')
+            ->where('st.Status', 'aktif')
+            ->selectRaw('COUNT(*)');
+
+        return DB::table('class_transactions as ct')
+            ->leftJoin('class_types as t', 't.id', 'ct.class_type_id')
+            ->whereIn('ct.id', DB::table('mapping_class_teachers')->where('user_id', $teacherId)->select('class_id'))
+            ->where('ct.Status', 'aktif')
+            ->select('ct.id', 't.class_name')
+            ->selectSub($activeStudents, 'students')
+            ->orderBy('t.id')
+            ->orderBy('ct.id')
+            ->get();
+    }
+
+    /** Moving a session that has started (Open or Missed) would reopen the attendance window, so only the head may do it. */
+    private function hasStarted(Schedule $schedule): bool
+    {
+        return AttendanceWindow::status($schedule->date, false) !== AttendanceWindow::NOT_STARTED;
+    }
+
+    private function courseName(mixed $classId): string
+    {
+        return ClassTransaction::find($classId)?->Type?->class_name ?? 'Class';
     }
 }

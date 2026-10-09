@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\head;
 
+use App\Support\Like;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Head\SearchAdminRequest;
 use App\Http\Requests\SearchRequest;
@@ -15,7 +16,7 @@ class HeadAdminController extends Controller
 {
     public function index(SearchRequest $request){
         $admins = User::where('role','admin')
-            ->when($request->query('search'), fn ($q, $s) => $q->where('name','like',"%{$s}%"))
+            ->when(filled($s = $request->query('search')), fn ($q) => $q->where('name','like',Like::contains($s)))
             ->orderBy('id','desc')
             ->paginate(5)
             ->withQueryString();
@@ -61,7 +62,9 @@ class HeadAdminController extends Controller
     }
 
     public function search(SearchAdminRequest $req){
-        $admins = User::where('name','like',"%$req->search%")->where('role','admin')->paginate(5);
+        $admins = User::where('role','admin')
+            ->when(filled($req->search), fn ($q) => $q->where('name','like',Like::contains((string) $req->search)))
+            ->paginate(5);
         return view('head.admin.index',compact('admins'));
     }
 

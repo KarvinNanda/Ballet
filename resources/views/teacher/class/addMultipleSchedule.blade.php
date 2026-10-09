@@ -1,54 +1,27 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Add Class')
+@section('title', 'Add weekly schedules · '.$course)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Class Form</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Add weekly schedules" :subtitle="$course">
+        <x-slot:actions>
+            <a href="{{ route('viewScheduleClassTeacher', $classId) }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to schedule</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
-
-                <!-- General Form Elements -->
-                <form action="{{route('addMultipleScheduleClassTeacher')}}" method="post">
-                    @csrf
-                    <input type="hidden" value="{{$classId}}" name="classId">
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Date&Time</label>
-                        <div class="col-sm-10">
-                            <input type="datetime-local" class="form-control" name="dateTime">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Schedule Loop</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" name="ScheduleLoop" placeholder="Schedule Loop">
-                        </div>
-                    </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
+    <form class="card" method="post" action="{{ route('addMultipleScheduleClassTeacher') }}">
+        @csrf
+        <input type="hidden" value="{{ $classId }}" name="classId">
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.section title="Weekly sessions">
+                <x-form.field name="dateTime" label="First session" type="datetime-local" :min="now('Asia/Jakarta')->format('Y-m-d\TH:i')" required />
+                <x-form.field name="ScheduleLoop" label="Number of weeks" type="number" min="1" max="52" required
+                              help="Creates one schedule per week, starting from the first session." />
+            </x-form.section>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Create schedules</button>
             </div>
         </div>
-    </section>
-
-
+    </form>
 @endsection

@@ -3,6 +3,10 @@
 @section('title', 'Update transaction · '.$row->LongName)
 
 @section('content')
+    {{-- old() is the failed save's own input, so it is checked like any return_url before it reaches an href. --}}
+    @php
+        $back = own_url(old('return_url', $return_url), url('/'));
+    @endphp
     @php
         $discount = filled($transaction->discount) ? $transaction->discount : '0';
         // Crafted array input must never reach Discount::total() or be echoed.
@@ -20,7 +24,7 @@
 
     <form class="card" method="post" action="{{ staff_route('transaction.update', $transaction) }}" data-transaction-form>
         @csrf
-        <input type="hidden" name="return_url" value="{{ $return_url }}">
+        <input type="hidden" name="return_url" value="{{ $back }}">
         <div class="card-body">
             <x-form.error-summary />
 

@@ -1,95 +1,31 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Change Profile')
+@section('title', 'My profile')
 
 @section('content')
+    <x-page-header title="My profile" />
 
-
-    <div class="pagetitle">
-        <h1>My Profile</h1>
-    </div><!-- End Page Title -->
-
-    <section class="section profile">
-        <div class="row d-flex justify-content-center ">
-
-            <div class="col-xl-8 w-100">
-
-                <div class="card">
-                    <div class="card-body pt-3">
-                        <!-- Bordered Tabs -->
-
-                        <div class="tab-content pt-2">
-
-                            <div class="tab-pane fade show active profile-edit pt-3" id="profile-edit">
-
-                                <!-- Profile Edit Form -->
-                                <form action="{{route('change-profile')}}" method="post">
-                                    @csrf
-
-
-                                    <div class="row mb-3">
-                                        <label class="col-md-4 col-lg-3 col-form-label">Full Name</label>
-                                        <div class="col-md-8 col-lg-9">
-{{--                                            <input name="fullName" type="text" class="form-control" id="fullName" value="Kevin Anderson">--}}
-                                            {{$user->name}}
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label class="col-md-4 col-lg-3 col-form-label">Date of Birth</label>
-                                        <div class="col-md-8 col-lg-9">
-{{--                                            <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>--}}
-                                            {{\Carbon\Carbon::parse($user->dob)->format('d M Y')}}
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label class="col-md-4 col-lg-3 col-form-label">Address</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="address" type="text" class="form-control" id="Address" value="{{$user->address}}">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label class="col-md-4 col-lg-3 col-form-label">Phone</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="phone" type="text" class="form-control" id="Phone" value="{{$user->phone}}">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label class="col-md-4 col-lg-3 col-form-label">Email</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="email" type="text" class="form-control" id="Email" value="{{$user->email}}">
-                                        </div>
-                                    </div>
-
-
-
-                                    <div class="text-center">
-                                        <button type="submit" class="btn btn-primary mb-3">Save Changes</button>
-                                    </div>
-
-                                    @if($errors->any())
-                                        @foreach($errors->all() as $error)
-                                            <div class="alert alert-danger" role="alert">
-                                                {{$error}}
-                                            </div>
-                                        @endforeach
-                                    @endif
-
-                                </form><!-- End Profile Edit Form -->
-
-                            </div>
-
-                        </div><!-- End Bordered Tabs -->
-
-                    </div>
+    <form class="card" method="post" action="{{ route('change-profile') }}">
+        @csrf
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.section title="Account">
+                {{-- Name and date of birth are not editable here: shown as text, not posted. --}}
+                <div class="form-field">
+                    <span class="form-label d-block">Name</span>
+                    <p class="form-static">{{ $user->name ?: '-' }}</p>
                 </div>
-
+                <div class="form-field">
+                    <span class="form-label d-block">Date of birth</span>
+                    <p class="form-static">{{ $user->dob ? \Carbon\Carbon::parse($user->dob)->format('d M Y') : '-' }}</p>
+                </div>
+                <x-form.field name="address" label="Address" type="textarea" :value="$user->address" required wide autocomplete="street-address" />
+                <x-form.field name="phone" label="Phone" type="tel" :value="$user->phone" required autocomplete="tel" help="10–12 digits" />
+                <x-form.field name="email" label="Email" type="email" :value="$user->email" required autocomplete="email" />
+            </x-form.section>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Save changes</button>
             </div>
         </div>
-    </section>
-
-</main><!-- End #main -->
+    </form>
 @endsection

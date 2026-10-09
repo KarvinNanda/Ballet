@@ -24,7 +24,7 @@ class AttendancePaymentGateTest extends TestCase
 
         $this->actingAs($teacher)->post(route('viewAbsen', $schedule->id))
             ->assertOk()
-            ->assertSee('Please Completed Payment');
+            ->assertSee('Payment required');
     }
 
     public function test_student_with_bill_10_days_before_class_can_attend(): void
@@ -34,7 +34,7 @@ class AttendancePaymentGateTest extends TestCase
 
         $this->actingAs($teacher)->post(route('viewAbsen', $schedule->id))
             ->assertOk()
-            ->assertDontSee('Please Completed Payment');
+            ->assertDontSee('Payment required');
     }
 
     /** @return array{0: User, 1: object, 2: int} */

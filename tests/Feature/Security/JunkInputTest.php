@@ -36,7 +36,7 @@ class JunkInputTest extends TestCase
         'head.schedule.destroy', 'head.report.class.print', 'head.report.teacher.print',
         'AdminDelete', 'RulesDelete',                                       // route-bound models only
         'viewDetailTeacher', 'viewAbsen', 'deleteScheduleTeacher',          // teacher: route ids only
-        'out', 'financeTeacherReport',                                      // finance: route ids only
+        'financeTeacherReport',                                             // finance: route ids only
     ];
 
     public static function cases(): array

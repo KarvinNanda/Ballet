@@ -1,139 +1,69 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Payment')
+@section('title', 'Record payment · '.$studentName)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Payment</h1>
-    </div><!-- End Page Title -->
+    {{-- old() is the failed save's own input, so it is checked like any return_url before it reaches an href. --}}
+    @php
+        $back = own_url(old('return_url', $return_url), url('/'));
+    @endphp
+    @php
+        $price = (int) $transaction->price;
+        $total = \App\Support\Discount::total($price, $transaction->discount);
+        $discountLabel = \App\Support\Discount::label($transaction->discount);
+        $date = fn ($value) => $value ? \Carbon\Carbon::parse($value)->format('d M Y') : '-';
+    @endphp
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
+    <x-page-header :title="'Record payment · '.$studentName">
+        <x-slot:actions>
+            <a href="{{ route('financeTransaction') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to transactions</a>
+        </x-slot:actions>
+    </x-page-header>
 
-                <!-- General Form Elements -->
-                <form action="{{route('doPaidTransaction',$trans)}}" method="post">
-                    @csrf
-                    <input type="hidden" name="return_url" value="{{$return_url}}">
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->LongName}}</p>
-                        </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <section class="form-section">
+                <h2 class="form-section-title">Billing</h2>
+                <dl class="detail-grid">
+                    <div><dt>Class</dt><dd>{{ $className ?? 'No class' }}</dd></div>
+                    <div><dt>Due date</dt><dd>{{ $date($transaction->transaction_date) }}</dd></div>
+                    <div><dt>Price</dt><dd>Rp{{ number_format($price) }}</dd></div>
+                    <div><dt>Discount</dt><dd>{{ $discountLabel !== '' ? $discountLabel : 'None' }}</dd></div>
+                    <div>
+                        <dt>Total</dt>
+                        <dd>
+                            Rp{{ number_format($total ?? $price) }}
+                            @if ($total === null)
+                                <span class="status-badge status-badge-warning">Invalid discount</span>
+                            @endif
+                        </dd>
                     </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Due Date</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{\Illuminate\Support\Carbon::parse($transaction->transaction_date)->toDateString()}}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">Class</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->class_name}}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Price</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price)}}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Discount</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->discount == 0 ? 0:$transaction->discount}}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Description</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->desc}}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Total</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">Rp.{{number_format($transaction->class_price - (($transaction->discount/100)*$transaction->class_price))}}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Quota</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputQuota" value="{{$transaction->transaction_quota}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Bank Account</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->bank_rek}}</p>
-                        </div>
-                    </div>
-                    
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Bank Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputBankName" value="{{@$data->Bank  ? $data->Bank->bank_name : ''}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Sender Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputSenderName" value="{{$data->nama_pengirim == '-' ? '' : $data->nama_pengirim}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Payment Date</label>
-                        <div class="col-sm-10">
-                            <input type="date" class="form-control" name="datePaid" value="{{$transaction->transaction_payment}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Payment Type</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="Type" value="{{$transaction->transaction_type}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Status</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$transaction->payment_status}}</p>
-                        </div>
-                    </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-warning p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
-            </div>
+                    <div><dt>Quota</dt><dd>{{ $transaction->transaction_quota ?? 0 }}</dd></div>
+                    <div><dt>Account number</dt><dd>{{ $student?->bank_rek ?: '-' }}</dd></div>
+                    <div><dt>Description</dt><dd>{{ $transaction->desc ?: '-' }}</dd></div>
+                </dl>
+            </section>
         </div>
-    </section>
+    </div>
 
-
+    @if ($transaction->payment_status !== 'Unpaid')
+        <div class="alert alert-info" role="status">This transaction is already settled.</div>
+    @else
+        <x-confirm-form :action="route('doPaidTransaction', $transaction->id)" :message="'Mark Rp'.number_format($total ?? $price).' from '.$studentName.' as paid?'" class="card">
+            <input type="hidden" name="return_url" value="{{ $back }}">
+            <div class="card-body">
+                <x-form.error-summary />
+                <x-form.section title="Payment">
+                    <x-form.field name="datePaid" label="Payment date" type="date" :value="$transaction->transaction_payment" required />
+                    <x-form.field name="Type" label="Payment type" :value="$transaction->transaction_type" required />
+                    <x-form.field name="inputBankName" label="Bank name" :value="$data?->Bank?->bank_name" required />
+                    <x-form.field name="inputSenderName" label="Sender name" :value="($data?->nama_pengirim === '-') ? '' : $data?->nama_pengirim" required />
+                    <x-form.field name="inputQuota" label="Quota" type="number" min="1" max="24" :value="$transaction->transaction_quota" required />
+                </x-form.section>
+                <div class="save-bar">
+                    <button type="submit" class="btn btn-primary">Mark as paid</button>
+                </div>
+            </div>
+        </x-confirm-form>
+    @endif
 @endsection

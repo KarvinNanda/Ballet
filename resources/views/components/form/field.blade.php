@@ -4,7 +4,7 @@
     $errorBag = $errors ?? new \Illuminate\Support\ViewErrorBag;
     $id = 'field-'.$name;
     $error = $errorBag->first($name);
-    $current = old($name, $value);
+    $current = $type === 'password' ? null : old($name, $value); // never render a password back into the page
     if (is_array($current)) {
         // Crafted array input (name[]=x): never echo an array.
         $current = null;

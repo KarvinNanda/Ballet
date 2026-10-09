@@ -3,6 +3,10 @@
 @section('title', 'Update stock item · '.$stock->name)
 
 @section('content')
+    {{-- old() is the failed save's own input, so it is checked like any return_url before it reaches an href. --}}
+    @php
+        $back = own_url(old('return_url', $return_url), url('/'));
+    @endphp
     <x-page-header title="Update stock item" :subtitle="$stock->name.' · '.$stock->size">
         <x-slot:actions>
             <a href="{{ staff_route('stock.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to stock</a>
@@ -11,7 +15,7 @@
 
     <form class="card" method="post" action="{{ staff_route('stock.update', $stock) }}">
         @csrf
-        <input type="hidden" name="return_url" value="{{ $return_url }}">
+        <input type="hidden" name="return_url" value="{{ $back }}">
         <div class="card-body">
             <x-form.error-summary />
             <x-form.section title="Item">

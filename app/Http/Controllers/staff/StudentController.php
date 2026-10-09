@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Support\Like;
 use App\Http\Requests\Staff\StoreStudentRequest;
 use App\Http\Requests\Staff\StudentListRequest;
 use App\Http\Requests\Staff\ToggleStudentStatusRequest;
@@ -51,18 +52,19 @@ class StudentController extends Controller
 
         return $query
             ->when($status !== 'all', fn ($q) => $q->where('students.Status', $status))
-            ->when($request->query('keyword'), function ($q, $keyword) {
-                $q->where(function ($q) use ($keyword) {
-                    $q->where('students.LongName',"LIKE","%$keyword%")
-                        ->orWhere('students.ShortName',"LIKE","%$keyword%")
-                        ->orWhere('students.Instagram',"LIKE","%$keyword%")
-                        ->orWhere('students.Phone1',"LIKE","%$keyword%")
-                        ->orWhere('students.Phone2',"LIKE","%$keyword%")
-                        ->orWhere('students.bank_rek',"LIKE","%$keyword%")
-                        ->orWhere('students.nama_orang_tua',"LIKE","%$keyword%")
-                        ->orWhere('students.Address',"LIKE","%$keyword%")
-                        ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
-                        ->orWhere('banks.bank_name',"LIKE","%$keyword%");
+            ->when(filled($keyword = $request->query('keyword')), function ($q) use ($keyword) {
+                $like = Like::contains($keyword);
+                $q->where(function ($q) use ($like) {
+                    $q->where('students.LongName',"LIKE",$like)
+                        ->orWhere('students.ShortName',"LIKE",$like)
+                        ->orWhere('students.Instagram',"LIKE",$like)
+                        ->orWhere('students.Phone1',"LIKE",$like)
+                        ->orWhere('students.Phone2',"LIKE",$like)
+                        ->orWhere('students.bank_rek',"LIKE",$like)
+                        ->orWhere('students.nama_orang_tua',"LIKE",$like)
+                        ->orWhere('students.Address',"LIKE",$like)
+                        ->orWhere('rekenings.nama_pengirim',"LIKE",$like)
+                        ->orWhere('banks.bank_name',"LIKE",$like);
                 });
             });
     }
