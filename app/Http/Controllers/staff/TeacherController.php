@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Http\Requests\SearchRequest;
 use App\Http\Controllers\Controller;
-use App\Mail\SendingEmail;
+use App\Http\Requests\Staff\StoreTeacherRequest;
+use App\Http\Requests\Staff\UpdateTeacherRequest;
+use App\Support\AccountInvite;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
 
 class TeacherController extends Controller
 {
-    public function index(Request $request){
+    public function index(SearchRequest $request){
         $teachers = User::where('role','teacher')
             ->when($request->query('search'), fn ($q, $s) => $q->where('name','like',"%{$s}%"))
             ->orderBy('id','desc')
@@ -26,20 +26,7 @@ class TeacherController extends Controller
         return view('staff.teacher.insert');
     }
 
-    public function store(Request $req){
-        $rules = [
-            'inputName' => 'required|string|max:255',
-            'inputEmail' => 'required|email:filter',
-            'inputDate_of_Birth' => 'required|date|before:tomorrow',
-            'inputAddress' => 'required|string|max:255',
-            'inputPhone' => 'required|numeric|digits_between:10,12'
-        ];
-
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
+    public function store(StoreTeacherRequest $req){
         $user = new User();
         $user->name = $req->inputName;
         $user->address = $req->inputAddress;
@@ -47,16 +34,9 @@ class TeacherController extends Controller
         $user->dob = $req->inputDate_of_Birth;
         $user->email = $req->inputEmail;
         $user->phone = $req->inputPhone;
-        $user->password = bcrypt('ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY'));
         $user->percent = 30;
         $user->save();
-
-        $credential = [
-            'email' => $req->inputEmail,
-            'password' => 'ballet'.Carbon::parse($req->inputDate_of_Birth)->format('dmY')
-        ];
-
-        Mail::to($user->email)->send(new SendingEmail($credential));
+        AccountInvite::send($user);
 
         return redirect(staff_route('teacher.index'))->with('msg','Success Create Data Teacher');
     }
@@ -67,22 +47,8 @@ class TeacherController extends Controller
         return view('staff.teacher.update',compact('teacher','return_url'));
     }
 
-    public function update(Request $req,User $teacher){
+    public function update(UpdateTeacherRequest $req,User $teacher){
         abort_unless($teacher->role === 'teacher', 404);
-        $rules = [
-            'inputName' => 'required|string|max:255',
-            'inputEmail' => 'required|email:filter',
-            'inputDate_of_Birth' => 'required|date|before:tomorrow',
-            'inputAddress' => 'required|string|max:255',
-            'inputBonus' => 'required|integer|min:0|max:2000000000',
-            'inputPhone' => 'required|numeric|digits_between:10,12'
-        ];
-
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
-        }
-
         $teacher->name = $req->inputName;
         $teacher->address = $req->inputAddress;
         $teacher->dob = $req->inputDate_of_Birth;
@@ -108,7 +74,7 @@ class TeacherController extends Controller
         return redirect()->back()->with('msg', 'Success Delete Data Teacher');
     }
 
-    public function switch(User $teacher, Request $req)
+    public function switch(User $teacher, SearchRequest $req)
     {
         abort_unless($teacher->role === 'teacher', 404);
 

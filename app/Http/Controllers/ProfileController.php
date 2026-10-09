@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Profile\ChangePasswordRequest;
+use App\Http\Requests\Profile\ChangeProfileRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class ProfileController extends Controller
 {
@@ -15,15 +14,11 @@ class ProfileController extends Controller
         return view('profile.profile',compact('user'));
     }
 
-    public function changeProfile(Request $request)
+    public function changeProfile(ChangeProfileRequest $request)
     {
         $user = $request->user();
 
-        $data = $request->validate([
-            'email' => ['required', 'email:filter', Rule::unique('users', 'email')->ignore($user->id)],
-            'address' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'numeric', 'digits_between:10,12'],
-        ]);
+        $data = $request->validated();
 
         $user->forceFill($data)->save();
 
@@ -35,12 +30,9 @@ class ProfileController extends Controller
         return view('profile.password',compact('user'));
     }
 
-    public function changePassword(Request $request)
+    public function changePassword(ChangePasswordRequest $request)
     {
-        $data = $request->validate([
-            'new_password' => ['required', PasswordRule::min(8)],
-            'confirm_password' => ['required', 'same:new_password'],
-        ]);
+        $data = $request->validated();
 
         // AuthenticateSession re-stores the new hash after this request, so this session stays logged in.
         $request->user()->forceFill(['password' => Hash::make($data['new_password'])])->save();

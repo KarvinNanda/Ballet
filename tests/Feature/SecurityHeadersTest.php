@@ -13,4 +13,15 @@ class SecurityHeadersTest extends TestCase
             ->assertHeader('X-Content-Type-Options', 'nosniff')
             ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     }
+
+    public function test_permissions_policy_is_present(): void
+    {
+        $this->get('/login')->assertHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    }
+
+    public function test_hsts_only_over_https(): void
+    {
+        $this->get('https://localhost/login')->assertHeader('Strict-Transport-Security', 'max-age=31536000');
+        $this->get('http://localhost/login')->assertHeaderMissing('Strict-Transport-Security');
+    }
 }

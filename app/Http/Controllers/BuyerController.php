@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ReportStock;
+use App\Http\Requests\SearchRequest;
+use App\Http\Requests\Buyer\BuyRequest;
 use App\Models\Stock;
+use App\Support\InsufficientStock;
+use App\Support\StockMovement;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
 
 class BuyerController extends Controller
 {
-    public function index(Request $req){
+    public function index(SearchRequest $req){
         $key = $req->search;
         if(!is_null($key)){
             $stocks = Stock::where('name','like',"%$key%")->orderBy('id','desc')->paginate(5);
@@ -29,56 +30,28 @@ class BuyerController extends Controller
         return view('buyer.index',compact('stocks','sort'));
     }
 
-    public function buyingPage($id){
+    public function buyingPage(Stock $stock){
         $return_url = url()->previous();
-        $stock = Stock::find($id);
         return view('buyer.buy',compact('stock','return_url'));
     }
 
-    public function buying(Request $req,$id){
-        $rules = [
-            'name' => 'required|string|max:255',
-            'qty' => 'required|integer|min:1|max:2000000000'
-        ];
+    public function buying(BuyRequest $req, Stock $stock){
+        $qty = (int) $req->validated('qty');
 
-        $validate = Validator::make($req->all(),$rules);
-        if($validate->fails()){
-            return redirect()->back()->withErrors($validate)->withInput();
+        try {
+            DB::transaction(function () use ($req, $stock, $qty) {
+                StockMovement::record($stock->id, 'out', $qty);
+                DB::table('buyers')->insert([
+                    'name' => $req->validated('name'),
+                    'stock_id' => $stock->id,
+                    'qty' => $qty,
+                    'served_by' => $req->user()->name,
+                    'created_at' => now()->setTimezone('GMT+7')->toDateString(),
+                ]);
+            });
+        } catch (InsufficientStock) {
+            return redirect()->back()->withInput()->with('error', 'Quantity is Exceed Stock');
         }
-        $stock = Stock::find($id);
-        $find = ReportStock::where('stock_id',$stock->id)->first();
-
-        if($req->qty > $stock->quantity){
-            return redirect()->back()->withErrors(['msg' => 'Quantity is Exceed Stock']);
-        }
-
-        DB::table('buyers')->insert([
-            'name' => $req->name,
-            'stock_id' => $id,
-            'qty' => $req->qty,
-            'served_by' => Auth::user()->name,
-            'created_at' => now()->setTimezone('GMT+7')->toDateString(),
-        ]);
-
-        if(!is_null($find)){
-            DB::table('report_stocks')->insert([
-                'stock_id' => $find->stock_id,
-                'out' => $req->qty,
-                'report_date' => now()->setTimezone('GMT+7')->toDateString(),
-                'first_qty' => $find->first_qty,
-            ]);
-        } else {
-            DB::table('report_stocks')->insert([
-                'stock_id' => $stock->id,
-                'out' => $req->qty,
-                'report_date' => now()->setTimezone('GMT+7')->toDateString(),
-                'first_qty' => $stock->quantity
-            ]);
-        }
-
-        DB::table('stocks')->where('id',$stock->id)->update([
-            'quantity' =>  $stock->quantity - $req->qty,
-        ]);
 
         return $this->backTo($req->return_url)->with(['msg' => 'Thank You']);
     }

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\staff;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Staff\RecordAttendanceRequest;
 use App\Models\Schedule;
 use App\Support\AttendancePaymentGate;
 use App\Support\AttendanceRecorder;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -39,13 +39,11 @@ class AttendanceController extends Controller
         return view('staff.attendance.edit', compact('schedule', 'students', 'details', 'mustPay'));
     }
 
-    public function update(Request $req, Schedule $schedule)
+    public function update(RecordAttendanceRequest $req, Schedule $schedule)
     {
-        Gate::authorize('attendance.record');
-
         // A new header is credited to the class's first mapped teacher (same as before the merge).
         $teacherId = DB::table('mapping_class_teachers')->where('class_id', $schedule->class_id)->value('user_id');
-        $rows = AttendanceRecorder::rowsFromRequest($req->all());
+        $rows = AttendanceRecorder::rowsFromRequest($req->validated());
         $saved = AttendanceRecorder::record($schedule, $rows, $teacherId, allowEdit: true);
 
         return redirect(staff_route('schedule.index', $schedule->class_id))

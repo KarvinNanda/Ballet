@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Head\RuleRequest;
 use App\Models\Rules;
 use App\Support\HtmlSanitizer;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -23,12 +23,9 @@ class HeadRuleController extends Controller
         return view('head.rule.insert');
     }
 
-    public function insert(Request $req, HtmlSanitizer $sanitizer)
+    public function insert(RuleRequest $req, HtmlSanitizer $sanitizer)
     {
-        $data = $req->validate([
-            'inputLanguage' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string', 'max:50000'], // raw input; keeps HTMLPurifier work bounded
-        ]);
+        $data = $req->validated();
 
         $content = $sanitizer->clean($data['content']);
         if (mb_strlen($content) > self::MAX_CONTENT_LENGTH) {
@@ -53,12 +50,9 @@ class HeadRuleController extends Controller
         return view('head.rule.update',compact('rules'));
     }
 
-    public function update(Rules $rules, Request $req, HtmlSanitizer $sanitizer)
+    public function update(Rules $rules, RuleRequest $req, HtmlSanitizer $sanitizer)
     {
-        $data = $req->validate([
-            'inputLanguage' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string', 'max:50000'], // raw input; keeps HTMLPurifier work bounded
-        ]);
+        $data = $req->validated();
 
         $content = $sanitizer->clean($data['content']);
         if (mb_strlen($content) > self::MAX_CONTENT_LENGTH) {

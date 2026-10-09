@@ -26,7 +26,7 @@ Route::post('/stock/delete/{stock}', [StockController::class, 'destroy'])->name(
 
 Route::get('/teacher', [TeacherController::class, 'index'])->name('teacher.index');
 Route::get('/teacher/add', [TeacherController::class, 'create'])->name('teacher.create');
-Route::post('/teacher/add', [TeacherController::class, 'store'])->name('teacher.store');
+Route::post('/teacher/add', [TeacherController::class, 'store'])->middleware('throttle:account-create')->name('teacher.store');
 Route::get('/teacher/update/{teacher}', [TeacherController::class, 'edit'])->name('teacher.edit');
 Route::post('/teacher/update/{teacher}', [TeacherController::class, 'update'])->name('teacher.update');
 Route::post('/teacher/delete/{teacher}', [TeacherController::class, 'destroy'])->name('teacher.destroy');
@@ -44,7 +44,7 @@ Route::post('/report/teacher/{month}', [ReportController::class, 'printTeacher']
 
 Route::get('/finance', [FinanceAccountController::class, 'index'])->name('finance.index');
 Route::get('/finance/add', [FinanceAccountController::class, 'create'])->name('finance.create');
-Route::post('/finance/add', [FinanceAccountController::class, 'store'])->name('finance.store');
+Route::post('/finance/add', [FinanceAccountController::class, 'store'])->middleware('throttle:account-create')->name('finance.store');
 Route::get('/finance/update/{user}', [FinanceAccountController::class, 'edit'])->name('finance.edit');
 Route::post('/finance/update/{user}', [FinanceAccountController::class, 'update'])->name('finance.update');
 Route::post('/finance/delete/{user}', [FinanceAccountController::class, 'destroy'])->name('finance.destroy');

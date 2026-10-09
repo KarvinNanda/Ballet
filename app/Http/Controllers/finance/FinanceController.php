@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\finance;
 
+use App\Http\Requests\Finance\StudentReportRequest;
+use App\Http\Requests\SearchRequest;
+use App\Support\TeacherReportQuery;
 use App\Http\Controllers\Controller;
 use App\Models\ClassType;
 use Illuminate\Http\Request;
@@ -13,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FinanceController extends Controller
 {
-    public function index(Request $req){
+    public function index(SearchRequest $req){
         $sort = 'asc';
         $search = $req->search;
         if(is_null($search)) $stocks = Stock::orderBy('id','desc')->paginate(5);
@@ -50,59 +53,16 @@ class FinanceController extends Controller
         $month = (int) $month;
         abort_unless($month >= 1 && $month <= 12, 404);
 
-        // Whole month of the current year, WIB: first day 00:00:00 to last day 23:59:59.
         $first = now()->setTimezone('GMT+7')->setDate(now()->setTimezone('GMT+7')->year, $month, 1)->startOfDay();
-        $last = $first->copy()->endOfMonth();
         $getmonth = [(object) ['month' => $first->format('F')]];
-
-        $report = DB::table('header_absens as ha')
-            ->join('schedules as s','s.id','ha.schedules_id')
-            ->join('users as u','u.id','ha.teacher_id')
-            ->join('mapping_class_children as mcc','s.class_id','mcc.class_id')
-            ->join('students as st','st.id','mcc.student_id')
-            ->join('transactions as t','mcc.student_id','t.students_id')
-            ->join('class_transactions as ct','ct.id','s.class_id')
-            ->join('class_types as ct2','ct.class_type_id','ct2.id')
-            ->selectRaw("
-                st.LongName as studentName,
-                u.name as teacherName,
-                ct2.class_name,
-                ct.class_transaction_price,
-                st.Quota as meet,
-                case
-                 when ct2.class_name = 'Intensive Class' then (ct.class_transaction_price / 12)
-                    when ct2.class_name = 'Intensive Kids' then (ct.class_transaction_price / 12)
-                    when ct2.class_name = 'Pointe Class' then (ct.class_transaction_price / 4)
-                    else (ct.class_transaction_price / 8)
-                end as paid,
-                u.percent as teacher_reward
-            ")
-            ->whereBetween('s.date',[$first,$last])
-            ->whereRaw("(
-                (ct2.class_name like '%intensive%' and st.Quota > 0)
-                or (ct2.class_name like '%Pointe%' and st.Quota > 0)
-                or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.Quota > 5)
-                or ((ct2.class_name not like '%pointe%' and ct2.class_name not like '%intensive%') and st.is_new = 1)
-            )")
-            ->where(function($q) use ($month){
-                if($month + 1 > 12){
-                    $q->whereRaw("month(t.transaction_date) = $month");
-                    $q->whereRaw("month(t.transaction_date) = 1");
-                } else {
-                    $q->whereRaw("month(t.transaction_date) between $month and ".($month+1));
-                }
-            })
-            ->distinct()
-            ->orderBy('ct.class_transaction_price')
-            ->get()
-            ->groupBy('teacherName');
+        $report = TeacherReportQuery::rows($month);
 
         $pdf = Pdf::loadView('finance.report.teacher.print',compact('report','getmonth'))
             ->stream('Laporan Kehadiran Guru '.now()->setTimezone("GMT+7")->format('dmY').'.pdf');
         return $pdf;
     }
 
-    public function reportStudent(Request $req){
+    public function reportStudent(StudentReportRequest $req){
         $report = Transaction::join('students','students.id','transactions.students_id')
             ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
             ->join('mapping_class_teachers','class_transactions.id','mapping_class_teachers.class_id')
@@ -118,11 +78,11 @@ class FinanceController extends Controller
             ')
             ->where('students.Status','aktif')
             ->where(function ($query) use ($req) {
-                if($req->status != null){
-                    $query->where('transactions.payment_status',$req->status);
+                if($req->validated('status') != null){
+                    $query->where('transactions.payment_status',$req->validated('status'));
                 }
-                if($req->class != null){
-                    $query->where('class_types.class_name',$req->class);
+                if($req->validated('class') != null){
+                    $query->where('class_types.class_name',$req->validated('class'));
                 }
             })
             ->distinct()

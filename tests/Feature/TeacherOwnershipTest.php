@@ -119,4 +119,32 @@ class TeacherOwnershipTest extends TestCase
         $this->get(route('viewAllScheduleTeacher', $this->teacher->id))->assertOk();
         $this->post(route('viewDetailTeacher', $own), ['id' => $own])->assertOk();
     }
+
+    public function test_attended_schedule_cannot_be_redated_or_deleted(): void
+    {
+        $teacher = User::where('email', 'teacher@gmail.com')->firstOrFail();
+        $classId = DB::table('mapping_class_teachers')->where('user_id', $teacher->id)->value('class_id');
+        $schedule = \App\Models\Schedule::where('class_id', $classId)->firstOrFail();
+        DB::table('header_absens')->insertOrIgnore(['schedules_id' => $schedule->id, 'teacher_id' => $teacher->id]);
+        $date = $schedule->date;
+
+        $this->actingAs($teacher)->post(route('updateScheduleClassTeacher'), ['scheduleId' => $schedule->id, 'dateTime' => '2030-01-01 10:00'])
+            ->assertSessionHas('error');
+        $this->post(route('deleteScheduleTeacher', [$schedule->id, $classId]))->assertSessionHas('error');
+
+        $this->assertEquals($date, $schedule->fresh()->date);
+    }
+
+    public function test_invalid_attendance_redirects_to_the_schedule_list_not_a_post_only_url(): void
+    {
+        $classId = DB::table('mapping_class_teachers')->where('user_id', $this->teacher->id)->value('class_id');
+        $schedule = \App\Models\Schedule::where('class_id', $classId)->firstOrFail();
+
+        $this->actingAs($this->teacher)->from(route('viewAbsen', $schedule->id))
+            ->post(route('getAbsen', $schedule->id), ['student_id' => [1], 'notes' => [str_repeat('x', 300)]])
+            ->assertRedirect(route('viewScheduleClassTeacher', $classId))
+            ->assertSessionHasErrors('notes.0')
+            ->assertSessionHas('error');
+        $this->get(route('viewScheduleClassTeacher', $classId))->assertOk();
+    }
 }

@@ -18,7 +18,7 @@ class ForgotPasswordEmail extends Mailable
      *
      * @return void
      */
-    public function __construct(public string $token, public string $email)
+    public function __construct(public string $token, public string $email, public bool $welcome = false)
     {
     }
 
@@ -30,7 +30,7 @@ class ForgotPasswordEmail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Halaman Reset Password',
+            subject: $this->welcome ? 'Akun En Pointe kamu sudah dibuat' : 'Halaman Reset Password',
         );
     }
 
@@ -44,7 +44,7 @@ class ForgotPasswordEmail extends Mailable
         return new Content(
             view: 'forgot-password.send-email',
             // Build from APP_URL, never from the request Host header (reset link poisoning).
-            with: ['url' => rtrim(config('app.url'), '/').route('reset-password-page', ['token' => $this->token, 'email' => $this->email], false)],
+            with: ['url' => rtrim(config('app.url'), '/').route('reset-password-page', ['token' => $this->token, 'email' => $this->email], false), 'welcome' => $this->welcome],
         );
     }
 

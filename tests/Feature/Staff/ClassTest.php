@@ -23,7 +23,9 @@ class ClassTest extends StaffTestCase
     public function test_freeze_detail_page_deletes_nothing(): void
     {
         $class = $this->frozenClass();
-        DB::table('mapping_class_children')->insert(['class_id' => $class->id, 'student_id' => $this->trialStudentId()]);
+        $studentId = $this->trialStudentId();
+        DB::table('mapping_class_children')->insertOrIgnore(['class_id' => $class->id, 'student_id' => $studentId]);
+        $this->assertDatabaseHas('mapping_class_children', ['class_id' => $class->id, 'student_id' => $studentId]);
         $before = DB::table('mapping_class_children')->count();
 
         $this->asRole('head')->get(route('head.class.freeze.show', $class))->assertOk();
@@ -335,5 +337,27 @@ class ClassTest extends StaffTestCase
             'inputType' => DB::table('class_types')->orderBy('id')->value('id'),
             'inputTeacher' => DB::table('users')->where('role', 'teacher')->orderBy('id')->value('id'),
         ];
+    }
+
+    public function test_adding_the_same_student_twice_creates_one_mapping_and_no_extra_transactions(): void
+    {
+        $mapping = DB::table('mapping_class_children')->first();
+        $before = DB::table('transactions')->count();
+
+        $this->asRole('head')->post(route('head.class.student.store'), ['classId' => $mapping->class_id, 'studentId' => $mapping->student_id])
+            ->assertSessionHas('error', 'Student is already in this class');
+
+        $this->assertSame(1, DB::table('mapping_class_children')->where('class_id', $mapping->class_id)->where('student_id', $mapping->student_id)->count());
+        $this->assertSame($before, DB::table('transactions')->count());
+    }
+
+    public function test_adding_the_same_teacher_twice_creates_one_mapping(): void
+    {
+        $mapping = DB::table('mapping_class_teachers')->first();
+
+        $this->asRole('head')->post(route('head.class.teacher.store'), ['classId' => $mapping->class_id, 'teacherId' => $mapping->user_id])
+            ->assertSessionHas('error', 'Teacher is already in this class');
+
+        $this->assertSame(1, DB::table('mapping_class_teachers')->where('class_id', $mapping->class_id)->where('user_id', $mapping->user_id)->count());
     }
 }

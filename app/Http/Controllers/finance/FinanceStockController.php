@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\finance;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DateRangeRequest;
+use App\Http\Requests\Finance\StockMovementRequest;
 use App\Models\Buyer;
 use App\Models\ReportStock;
 use App\Models\Stock;
+use App\Support\InsufficientStock;
+use App\Support\StockMovement;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -33,29 +37,12 @@ class FinanceStockController extends Controller
         return view('finance.in-out',compact('stock','type'));
     }
 
-    public function report(Stock $stock,$type,Request $req){
-        if(!empty($req->in_out) && $req->in_out != 0){
-            $find = ReportStock::where('stock_id',$stock->id)->first();
-            if(!is_null($find)){
-                DB::table('report_stocks')->insert([
-                    'stock_id' => $find->stock_id,
-                    $type => $req->in_out,
-                    'report_date' => now()->setTimezone('GMT+7')->toDateString(),
-                    'first_qty' => $find->first_qty,
-                ]);
-            } else {
-                DB::table('report_stocks')->insert([
-                    'stock_id' => $stock->id,
-                    $type => $req->in_out,
-                    'report_date' => now()->setTimezone('GMT+7')->toDateString(),
-                    'first_qty' => $stock->quantity
-                ]);
-            }
-
+    public function report(StockMovementRequest $req, Stock $stock, string $type){
+        try {
+            StockMovement::record($stock->id, $type, (int) $req->validated('in_out'));
+        } catch (InsufficientStock $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
-        DB::table('stocks')->where('id',$stock->id)->update([
-            'quantity' => $type == 'in' ? $stock->quantity + $req->in_out : $stock->quantity - $req->in_out
-        ]);
 
         return $this->backTo($req->return_url)->with('msg','Success Update Stock');
     }
@@ -65,9 +52,9 @@ class FinanceStockController extends Controller
         return view('finance.report.stock.index',compact('data'));
     }
 
-    public function printStock(Request $req){
-        $start_date = $req->start_date." 00:00:00";
-        $end_date = $req->end_date." 23:59:59";
+    public function printStock(DateRangeRequest $req){
+        $start_date = $req->validated('start_date')." 00:00:00";
+        $end_date = $req->validated('end_date')." 23:59:59";
         $report = ReportStock::whereBetween('report_date',[$start_date,$end_date])
             // ->groupBy('stock_id')
             ->selectRaw("

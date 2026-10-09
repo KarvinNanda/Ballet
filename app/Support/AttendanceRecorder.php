@@ -6,6 +6,7 @@ use App\Models\DetailAbsen;
 use App\Models\HeaderAbsen;
 use App\Models\Schedule;
 use App\Models\Student;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -37,7 +38,17 @@ class AttendanceRecorder
             if ($header !== null && ! $allowEdit) {
                 return 0;
             }
-            $header ??= HeaderAbsen::create(['schedules_id' => $schedule->id, 'teacher_id' => $teacherId]);
+            if ($header === null) {
+                try {
+                    $header = HeaderAbsen::create(['schedules_id' => $schedule->id, 'teacher_id' => $teacherId]);
+                } catch (UniqueConstraintViolationException) {
+                    // Another request recorded this schedule a moment ago (unique index on schedules_id).
+                    if (! $allowEdit) {
+                        return 0;
+                    }
+                    $header = HeaderAbsen::where('schedules_id', $schedule->id)->lockForUpdate()->firstOrFail();
+                }
+            }
 
             $saved = 0;
             foreach ($rows as $row) {

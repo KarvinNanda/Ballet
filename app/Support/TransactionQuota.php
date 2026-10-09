@@ -2,62 +2,52 @@
 
 namespace App\Support;
 
+use Closure;
 use Illuminate\Support\Facades\DB;
 
 class TransactionQuota
 {
     /**
-     * Adds the quota of this quarter's paid transactions (by transaction_date, Jakarta time) to the student's quota
-     * in one class, then refreshes students.MaxQuota. Moved verbatim from the old admin/head controllers.
+     * Runs $change (save, bulk update or delete of transactions of one student and class) and grants the
+     * difference in paid quota it caused: Unpaid→Paid adds the row's quota once, re-saving adds nothing,
+     * un-paying or deleting a paid row takes it back. Only payment_status 'Paid' counts.
+     * A null $studentId (legacy orphan row) runs $change without touching any quota.
+     * Must not be called inside an outer DB transaction: the "before" read would use the outer snapshot.
      */
-    public static function recalculate(int $studentId, int $classId): void
+    public static function track(?int $studentId, ?int $classId, Closure $change): mixed
     {
-        $months = self::quarterMonths(now('Asia/Jakarta')->month);
-
-        $student_quota_class = DB::table('mapping_class_children')
-            ->where('student_id', $studentId)
-            ->where('class_id', $classId)
-            ->selectRaw('sum(quota) as Quota')
-            ->first();
-
-        $get_trans_paid = DB::table('transactions')
-            ->where('students_id', $studentId)
-            ->where('class_transactions_id', $classId)
-            ->where('payment_status', 'Paid')
-            ->whereRaw('month(transaction_date) between ? and ?', $months)
-            ->selectRaw('sum(transaction_quota) as quota')
-            ->first();
-
-        DB::table('mapping_class_children')
-            ->where('student_id', $studentId)
-            ->where('class_id', $classId)
-            ->update([
-                'quota' => $student_quota_class->Quota + $get_trans_paid->quota,
-            ]);
-
-        $student_all_quota_class = DB::table('mapping_class_children')
-            ->where('student_id', $studentId)
-            ->selectRaw('sum(quota) as Quota')
-            ->first();
-
-        DB::table('students')->where('id', $studentId)->update([
-            'MaxQuota' => $student_all_quota_class->Quota,
-        ]);
-    }
-
-    /**
-     * First and last month of the calendar quarter that contains $month (1-12), e.g. 5 → [4, 6].
-     *
-     * @return array{0: int, 1: int}
-     */
-    public static function quarterMonths(int $month): array
-    {
-        if ($month < 1 || $month > 12) {
-            throw new \InvalidArgumentException("Month must be 1-12, got {$month}.");
+        if ($studentId === null) {
+            return $change();
         }
 
-        $first = intdiv($month - 1, 3) * 3 + 1;
+        return DB::transaction(function () use ($studentId, $classId, $change) {
+            // Serialise quota changes per student so two requests cannot both read the same "before".
+            DB::table('students')->where('id', $studentId)->lockForUpdate()->first();
 
-        return [$first, $first + 2];
+            $before = self::paidQuota($studentId, $classId);
+            $result = $change();
+            $delta = self::paidQuota($studentId, $classId) - $before;
+
+            if ($delta !== 0) {
+                if ($classId !== null) {
+                    DB::table('mapping_class_children')
+                        ->where('student_id', $studentId)->where('class_id', $classId)
+                        ->update(['quota' => DB::raw('COALESCE(quota, 0) + '.$delta)]);
+                }
+                DB::table('students')->where('id', $studentId)
+                    ->update(['MaxQuota' => DB::raw('COALESCE(MaxQuota, 0) + '.$delta)]);
+            }
+
+            return $result;
+        });
+    }
+
+    private static function paidQuota(int $studentId, ?int $classId): int
+    {
+        return (int) DB::table('transactions')
+            ->where('students_id', $studentId)
+            ->where('class_transactions_id', $classId) // null becomes "is null"
+            ->where('payment_status', 'Paid')
+            ->sum('transaction_quota');
     }
 }

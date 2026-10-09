@@ -69,7 +69,7 @@
                                     </td>
                                     <td >
                                         @if(!@$detail)
-                                            <input type="text" name="notes[{{$loop->index}}]" class="form-control">
+                                            <input type="text" name="notes[{{$loop->index}}]" class="form-control" maxlength="255">
                                         @else
                                             <input type="text" name="notes[{{$loop->index}}]" class="form-control" value="{{@$detail[$loop->iteration-1]->Notes}}" disabled>
                                         @endif

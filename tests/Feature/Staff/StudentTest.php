@@ -21,7 +21,7 @@ class StudentTest extends StaffTestCase
             'nama_orang_tua' => $s->nama_orang_tua, 'city' => $s->City, 'kode_pos' => $s->kode_pos,
             'Phone1' => $s->Phone1, 'Phone2' => $s->Phone2, 'Whatsapp' => $s->Whatsapp,
             'Instagram' => $s->Instagram, 'Line' => $s->Line, 'EnrollDate' => $s->EnrollDate,
-            'Quota' => $s->Quota ?? 0, 'MaxQuota' => 12, 'is_new' => 'No', 'status' => $s->Status,
+            'Quota' => $s->Quota ?? 0, 'Quota_original' => $s->Quota ?? 0, 'MaxQuota' => 12, 'is_new' => 'No', 'status' => $s->Status,
             'bank' => $rek->bank_name ?? 'BCA', 'accountno' => $s->bank_rek ?? '1234567890',
             'sender' => $rek->nama_pengirim ?? 'Parent',
         ], $override);
@@ -226,5 +226,102 @@ class StudentTest extends StaffTestCase
         $this->assertNotNull($classId, 'seed has no free class for this student');
 
         return [$student, $classId];
+    }
+
+    private function storePayload(array $override = []): array
+    {
+        return array_merge([
+            'inputLongName' => 'Ani Lestari', 'inputNickName' => 'Ani', 'inputParentName' => 'Ibu Ani', 'inputCity' => 'Jakarta',
+            'inputEmail' => 'ani@example.com', 'inputDate_of_Birth' => '2015-02-02', 'inputAddress' => 'Jl. B',
+            'inputPhone1' => '081234567890', 'inputWhatsapp' => '081234567890', 'inputPostalCode' => '12345',
+            'inputNis' => 'N-1', 'inputPhone2' => '', 'inputInstagram' => '', 'inputLine' => 'aniline',
+            'inputRekening' => '', 'inputBankName' => '', 'inputNamaPengirim' => '',
+        ], $override);
+    }
+
+    public function test_line_is_saved_even_without_instagram(): void // was '-' unless Instagram was filled
+    {
+        $this->asRole('head')->post(route('head.student.store'), $this->storePayload())->assertSessionHasNoErrors();
+        $this->assertSame('aniline', \App\Models\Student::where('Email', 'ani@example.com')->value('Line'));
+    }
+
+    public function test_long_optional_fields_are_validation_errors(): void
+    {
+        foreach (['inputNis', 'inputPhone2', 'inputInstagram', 'inputLine', 'inputRekening', 'inputBankName', 'inputNamaPengirim'] as $field) {
+            $this->asRole('head')->post(route('head.student.store'), $this->storePayload([$field => str_repeat('x', 300)]))
+                ->assertSessionHasErrors($field);
+        }
+    }
+
+    public function test_toggle_status_rejects_unknown_values(): void
+    {
+        $student = \App\Models\Student::where('Status', 'aktif')->firstOrFail();
+        $this->asRole('head')->post(route('head.student.status', $student), ['stats' => 'Banana'])->assertSessionHasErrors('stats');
+        $this->assertSame('aktif', $student->fresh()->Status);
+        $this->post(route('head.student.status', $student), ['stats' => 'Trial'])->assertRedirect();
+        $this->assertSame('trial', $student->fresh()->Status);
+    }
+
+    /** A student whose form was opened at Quota 5, after which attendance moved the DB value to 6. */
+    private function studentWithAttendanceWhileFormOpen(): array
+    {
+        $s = Student::where('Status', 'aktif')->firstOrFail();
+        DB::table('students')->where('id', $s->id)->update(['Quota' => 5]);
+        $opened = $this->updatePayload($s->fresh()); // Quota and Quota_original are 5
+        DB::table('students')->where('id', $s->id)->increment('Quota'); // attendance while the form is open
+
+        return [$s, $opened];
+    }
+
+    public function test_saving_without_touching_quota_keeps_attendance_recorded_meanwhile(): void
+    {
+        [$s, $opened] = $this->studentWithAttendanceWhileFormOpen();
+
+        $this->asRole('admin')->post(route('admin.student.update', $s), array_merge($opened, ['Phone1' => '081299990000']))
+            ->assertSessionHasNoErrors()->assertRedirect();
+
+        $this->assertSame(6, (int) $s->fresh()->Quota);
+        $this->assertSame('081299990000', $s->fresh()->Phone1);
+    }
+
+    public function test_manual_quota_change_on_a_stale_form_is_refused_and_saves_nothing(): void
+    {
+        [$s, $opened] = $this->studentWithAttendanceWhileFormOpen();
+        $phone = $s->fresh()->Phone1;
+
+        $this->asRole('head')->post(route('head.student.update', $s), array_merge($opened, ['Quota' => 3, 'Phone1' => '081299990000']))
+            ->assertSessionHas('error', 'Quota sudah berubah sejak halaman dibuka. Buka ulang halaman lalu coba lagi.');
+
+        $this->assertSame(6, (int) $s->fresh()->Quota);
+        $this->assertSame($phone, $s->fresh()->Phone1);
+    }
+
+    public function test_manual_quota_change_on_a_fresh_form_is_saved(): void
+    {
+        $s = Student::where('Status', 'aktif')->firstOrFail();
+        DB::table('students')->where('id', $s->id)->update(['Quota' => 5]);
+
+        $this->asRole('head')->post(route('head.student.update', $s), $this->updatePayload($s->fresh(), ['Quota' => 3]))
+            ->assertSessionHasNoErrors()->assertRedirect();
+
+        $this->assertSame(3, (int) $s->fresh()->Quota);
+    }
+
+    public function test_detail_form_posts_the_quota_it_was_opened_with(): void
+    {
+        $s = Student::where('Status', 'aktif')->firstOrFail();
+        DB::table('students')->where('id', $s->id)->update(['Quota' => 5]);
+
+        $this->asRole('admin')->get(route('admin.student.show', $s))->assertOk()
+            ->assertSee('name="Quota_original" value="5"', false);
+    }
+
+    public function test_missing_quota_original_is_a_validation_error(): void
+    {
+        $s = Student::where('Status', 'aktif')->firstOrFail();
+        $payload = $this->updatePayload($s);
+        unset($payload['Quota_original']);
+
+        $this->asRole('head')->post(route('head.student.update', $s), $payload)->assertSessionHasErrors('Quota_original');
     }
 }

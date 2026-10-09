@@ -4,6 +4,9 @@ namespace App\Http\Controllers\teacher;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\teacher\Concerns\AuthorizesTeacherClasses;
+use App\Http\Requests\Teacher\AddMultipleScheduleRequest;
+use App\Http\Requests\Teacher\AddScheduleRequest;
+use App\Http\Requests\Teacher\UpdateScheduleRequest;
 use App\Models\ClassTransaction;
 use App\Models\HeaderAbsen;
 use App\Models\Schedule;
@@ -83,15 +86,20 @@ class TeacherClassController extends Controller
     public function deleteScheduleClass($id, $classId)
     {
         $this->authorizeClass($classId);
-        $classDelete = DB::table('schedules')->where('schedules.id', $id)->where('class_id', $classId);
-        $classDelete->delete();
+        $schedule = Schedule::where('id', $id)->where('class_id', $classId)->firstOrFail();
+
+        if (HeaderAbsen::where('schedules_id', $schedule->id)->exists()) {
+            return redirect()->back()->with('error', 'Jadwal ini sudah diabsen, jadi tidak bisa diubah lagi.');
+        }
+
+        $schedule->delete();
         return redirect()->route("viewScheduleClassTeacher", ['id' => $classId])->with('msg','Success Delete Schedule');
     }
 
     public function viewUpdateScheduleClass(Request $req)
     {
         // Opened directly (no schedule posted from the schedule list): nothing to edit.
-        if (! $req->filled('scheduleId')) {
+        if (! filter_var($req->query('scheduleId'), FILTER_VALIDATE_INT)) {
             return redirect()->route('viewClass');
         }
 
@@ -104,10 +112,14 @@ class TeacherClassController extends Controller
         return view('teacher.class.viewUpdateSchedule', compact('schedule'));
     }
 
-    public function updateSchedule(Request $req)
+    public function updateSchedule(UpdateScheduleRequest $req)
     {
-        $this->authorizeSchedule($req->scheduleId);
-        $schedule = Schedule::find($req->scheduleId);
+        $schedule = $this->authorizeSchedule($req->integer('scheduleId'));
+
+        if (HeaderAbsen::where('schedules_id', $schedule->id)->exists()) {
+            return redirect()->back()->with('error', 'Jadwal ini sudah diabsen, jadi tidak bisa diubah lagi.');
+        }
+
         $schedule->date = Carbon::parse($req->dateTime);
         $schedule->save();
         return redirect()->route("viewScheduleClassTeacher", ['id' => $schedule->class_id])->with('msg','Success Update Schedule');
@@ -129,7 +141,7 @@ class TeacherClassController extends Controller
         return view('teacher.class.addMultipleSchedule', compact('classId'));
     }
 
-    public function addSchedule(Request $req, $id)
+    public function addSchedule(AddScheduleRequest $req, $id)
     {
         $this->authorizeClass($id);
         $date = Carbon::parse($req->dateTime);
@@ -157,13 +169,9 @@ class TeacherClassController extends Controller
         return redirect()->route("viewScheduleClassTeacher", ['id' => $id])->with('msg','Success Create Schedule');
     }
 
-    public function addMultipleSchedule(Request $req)
+    public function addMultipleSchedule(AddMultipleScheduleRequest $req)
     {
-        $this->authorizeClass($req->classId);
-        $req->validate([
-            'dateTime' => ['required', 'date'],
-            'ScheduleLoop' => ['required', 'integer', 'between:1,52'], // weekly, at most one year
-        ]);
+        $this->authorizeClass($req->integer('classId'));
         $date = Carbon::parse($req->dateTime);
 
         for ($i = 0; $i < $req->ScheduleLoop; $i++) {
