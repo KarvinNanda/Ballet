@@ -31,6 +31,7 @@ class AttendanceController extends Controller
             ->get();
 
         $headerId = DB::table('header_absens')->where('schedules_id', $schedule->id)->value('id');
+        $hasHeader = $headerId !== null;
         $details = $headerId === null ? collect() : DB::table('detail_absens')->where('header_absen_id', $headerId)->get()->keyBy('student_id');
 
         // A student without a record yet is refused on save when the payment gate applies; show it on the form too.
@@ -39,7 +40,7 @@ class AttendanceController extends Controller
 
         $class_label = ClassTransaction::find($schedule->class_id)?->label() ?? 'Class';
 
-        return view('staff.attendance.edit', compact('schedule', 'students', 'details', 'mustPay', 'class_label'));
+        return view('staff.attendance.edit', compact('schedule', 'students', 'details', 'mustPay', 'class_label', 'hasHeader'));
     }
 
     public function update(RecordAttendanceRequest $req, Schedule $schedule)

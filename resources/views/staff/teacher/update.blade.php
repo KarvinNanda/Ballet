@@ -3,6 +3,10 @@
 @section('title', 'Update teacher · '.$teacher->name)
 
 @section('content')
+    {{-- old() is the failed save's own input, so it is checked like any return_url before it reaches an href. --}}
+    @php
+        $back = own_url(old('return_url', $return_url), url('/'));
+    @endphp
     <x-page-header title="Update teacher" :subtitle="$teacher->name">
         <x-slot:actions>
             <a href="{{ staff_route('teacher.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to teachers</a>
@@ -11,7 +15,7 @@
 
     <form class="card" method="post" action="{{ staff_route('teacher.update', $teacher) }}">
         @csrf
-        <input type="hidden" name="return_url" value="{{ $return_url }}">
+        <input type="hidden" name="return_url" value="{{ $back }}">
         <div class="card-body">
             <x-form.error-summary />
             <x-form.account-fields :account="$teacher">

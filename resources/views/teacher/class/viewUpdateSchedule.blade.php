@@ -1,46 +1,30 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Add Class')
+@section('title', 'Update schedule · '.$course)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Class Form</h1>
-    </div><!-- End Page Title -->
+    @php
+        // datetime-local accepts only Y-m-d\TH:i; old() (a failed save) still wins inside x-form.field.
+        $value = \Carbon\Carbon::parse($schedule->date)->format('Y-m-d\TH:i');
+    @endphp
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
-                <!-- General Form Elements -->
-                <form action="{{route('updateScheduleClassTeacher')}}" method="post">
-                    @csrf
-                    <input type="hidden" value="{{$schedule->id}}" name="scheduleId">
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Date&Time</label>
-                        <div class="col-sm-10">
-                            <input type="datetime-local" class="form-control" name="dateTime" value="{{$schedule->date}}">
-                        </div>
-                    </div>
+    <x-page-header title="Update schedule" :subtitle="$course">
+        <x-slot:actions>
+            <a href="{{ route('viewScheduleClassTeacher', $schedule->class_id) }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to schedule</a>
+        </x-slot:actions>
+    </x-page-header>
 
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
+    <form class="card" method="post" action="{{ route('updateScheduleClassTeacher') }}">
+        @csrf
+        <input type="hidden" value="{{ $schedule->id }}" name="scheduleId">
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.section title="Session">
+                <x-form.field name="dateTime" label="Date and time" type="datetime-local" :value="$value" :min="now('Asia/Jakarta')->format('Y-m-d\TH:i')" required />
+            </x-form.section>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Save changes</button>
             </div>
         </div>
-    </section>
-
-
+    </form>
 @endsection

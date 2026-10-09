@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Support\Like;
 use App\Http\Requests\SearchRequest;
 use App\Http\Requests\Staff\StockRequest;
 use App\Http\Controllers\Controller;
@@ -26,7 +27,7 @@ class StockController extends Controller
 
     /** The list filter shared by index() and sort(), so a sort link keeps the search. SearchRequest already dropped junk values. */
     private function filtered(SearchRequest $request){
-        return Stock::query()->when($request->query('search'), fn ($q, $search) => $q->where('name', 'like', "%{$search}%"));
+        return Stock::query()->when(filled($search = $request->query('search')), fn ($q) => $q->where('name', 'like', Like::contains($search)));
     }
 
     public function create(){

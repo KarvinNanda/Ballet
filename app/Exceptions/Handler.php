@@ -36,6 +36,8 @@ class Handler extends ExceptionHandler
         'current_password',
         'password',
         'password_confirmation',
+        'new_password', // profile/password: x-form.field would print old() back into the page
+        'confirm_password',
     ];
 
     /**

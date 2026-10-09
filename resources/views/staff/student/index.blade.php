@@ -6,11 +6,16 @@
     @php
         $keyword = request('keyword');
         $status = request('status', 'all');
-        $filters = array_filter(['keyword' => $keyword, 'status' => $status === 'all' ? null : $status]);
+        $filters = array_filter(['keyword' => $keyword, 'status' => $status === 'all' ? null : $status], fn ($v) => $v !== null && $v !== '');
         $statusTabs = ['all' => 'All', 'aktif' => 'Active', 'non-aktif' => 'Inactive', 'trial' => 'Trial'];
         // Stored status => the value ToggleStudentStatusRequest expects.
         $statusActions = ['aktif' => 'Active', 'non-aktif' => 'Inactive', 'trial' => 'Trial'];
         $sortUrl = fn (string $column) => staff_route('student.sort', array_merge(['column' => $column, 'direction' => $sort], $filters));
+        // On a sort page the filter bar and the status links stay on that page, so the sort survives.
+        $here = fn (array $query) => url()->current().($query ? '?'.\Illuminate\Support\Arr::query($query) : '');
+        $sortedBy = request()->route('column');
+        $sortedDirection = request()->route('direction');
+        $isFiltered = filled($keyword) || $status !== 'all';
     @endphp
 
     <x-page-header title="Students">
@@ -19,13 +24,13 @@
         </x-slot:actions>
     </x-page-header>
 
-    <x-filter-bar :action="staff_route('student.index')">
+    <x-filter-bar :action="url()->current()" :reset="staff_route('student.index')">
         <label for="student-keyword" class="visually-hidden">Search students</label>
         <input id="student-keyword" class="form-control" type="search" name="keyword" value="{{ $keyword }}" placeholder="Search name, phone, parent, account…">
         <input type="hidden" name="status" value="{{ $status }}">
         <nav class="status-filter" aria-label="Filter by status">
             @foreach ($statusTabs as $value => $label)
-                <a href="{{ staff_route('student.index', array_filter(['keyword' => $keyword, 'status' => $value === 'all' ? null : $value])) }}"
+                <a href="{{ $here(array_filter(['keyword' => $keyword, 'status' => $value === 'all' ? null : $value], fn ($v) => $v !== null && $v !== '')) }}"
                    class="status-filter-link{{ $status === $value ? ' active' : '' }}" @if ($status === $value) aria-current="page"@endif>{{ $label }}</a>
             @endforeach
         </nav>
@@ -35,16 +40,18 @@
         <div class="card-body">
             @if ($students->isEmpty())
                 <x-empty-state icon="people" title="No students found">
-                    <x-slot:action>
-                        <a href="{{ staff_route('student.index') }}" class="btn btn-outline-secondary">Reset filters</a>
-                    </x-slot:action>
+                    @if ($isFiltered)
+                        <x-slot:action>
+                            <a href="{{ staff_route('student.index') }}" class="btn btn-outline-secondary">Reset filters</a>
+                        </x-slot:action>
+                    @endif
                 </x-empty-state>
             @else
                 <table class="table table-hover">
                     <thead>
                     <tr>
-                        <th scope="col"><a href="{{ $sortUrl('name') }}">Name</a></th>
-                        <th scope="col"><a href="{{ $sortUrl('dob') }}">Birthday</a></th>
+                        <x-sort-th :href="$sortUrl('name')" :active="$sortedBy === 'name'" :direction="$sortedDirection">Name</x-sort-th>
+                        <x-sort-th :href="$sortUrl('dob')" :active="$sortedBy === 'dob'" :direction="$sortedDirection">Birthday</x-sort-th>
                         <th scope="col">Parent</th>
                         <th scope="col" class="d-none d-lg-table-cell">Phone</th>
                         <th scope="col">Status</th>

@@ -1,104 +1,70 @@
-@inject('carbon', 'Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','In-Out Stock')
+@section('title', 'Record stock in · '.$stock->name)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Detail Stock Form</h1>
-    </div><!-- End Page Title -->
+    {{-- old() is the failed save's own input, so it is checked like any return_url before it reaches an href. --}}
+    @php
+        $back = own_url(old('return_url', $return_url), url('/'));
+    @endphp
+    <x-page-header :title="'Record stock in · '.$stock->name">
+        <x-slot:actions>
+            <a href="{{ route('finance') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to stock</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
+    <div class="card mb-4">
+        <div class="card-body">
+            <dl class="detail-grid">
+                <div><dt>Name</dt><dd>{{ $stock->name }}</dd></div>
+                <div><dt>Size</dt><dd>{{ $stock->size ?: '-' }}</dd></div>
+                <div><dt>Quantity</dt><dd>{{ (int) $stock->quantity }}</dd></div>
+            </dl>
+        </div>
+    </div>
 
-                <!-- General Form Elements -->
-                <form action="{{route('makeReport',[$stock,$type])}}" method="post">
-                    @csrf
-                    <input type="hidden" name="return_url" value="{{$return_url}}">
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$stock->name}}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">Size</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$stock->size}}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">Quantity</label>
-                        <div class="col-sm-10">
-                            <p class="form-control bg-success bg-opacity-10">{{$stock->quantity}}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label class="col-sm-2 col-form-label">{{$type == 'in' ? 'IN' : 'OUT'}} (Optional)</label>
-                        <div class="col-sm-10">
-                            <input type="number" name="in_out" class="form-control">
-                        </div>
-                    </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-primary p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
-                        <tr>
-                            <th scope="col">Buyer</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Buy Date</th>
-                            <th scope="col">Served By</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @if($buyer)
-                        @foreach($buyer as $b)
-                            <tr>
-                                <td>{{$b->name}}</td>
-                                <td>{{$b->qty}}</td>
-                                <td>{{$carbon::parse($b->created_at)->format('Y-m-d')}}</td>
-                                <td>{{$b->served_by}}</td>
-                            </tr>
-                        @endforeach
-                        @else
-                            <tr>
-                                <td colspan="3"></td>
-                            </tr>
-                        @endif
-                        </tbody>
-                    </div>
-                </table>
-
-                @if($buyer)
-                <div class="alert text-center" role="alert">
-                    {{$buyer->links()}}
-                </div>
-                @endif
-
+    <form class="card" method="post" action="{{ route('makeReport', [$stock, $type]) }}">
+        @csrf
+        <input type="hidden" name="return_url" value="{{ $back }}">
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.section title="Stock in">
+                <x-form.field name="in_out" label="Quantity in" type="number" min="1" required />
+            </x-form.section>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Record stock in</button>
             </div>
         </div>
+    </form>
+
+    <section class="card mt-4" aria-labelledby="purchase-history-title">
+        <div class="card-body">
+            <h2 id="purchase-history-title" class="h5">Purchase history</h2>
+            @if ($buyer->isEmpty())
+                <x-empty-state icon="bag" title="No purchases yet" />
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Buyer</th>
+                        <th scope="col">Qty</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Served by</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($buyer as $purchase)
+                        <tr>
+                            <td>{{ $purchase->name }}</td>
+                            <td>{{ $purchase->qty }}</td>
+                            <td>{{ $purchase->created_at ? \Carbon\Carbon::parse($purchase->created_at)->format('d M Y') : '-' }}</td>
+                            <td>{{ $purchase->served_by ?? '-' }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+                <div class="mt-3">{{ $buyer->links() }}</div>
+            @endif
+        </div>
     </section>
-
-
 @endsection

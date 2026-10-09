@@ -1,48 +1,42 @@
-@inject('carbon', 'Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Dashboard')
+@section('title', 'Dashboard')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Schedules</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Schedules" subtitle="Sessions of active classes up to 7 days ahead, latest first." />
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th scope="col">Teacher Name</th>
-                        <th scope="col">Class Name</th>
-                        <th scope="col">Day</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Time</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($data as $item)
-                        <tr>
-                            <td>{{$item->teacherName}}</td>
-                            <td>{{$item->class}}</td>
-                            <td>{{$carbon::parse($item->date)->englishDayOfWeek}}</td>
-                            <td>{{$carbon::parse($item->date)->format('d M Y')}}</td>
-                            <td>{{$carbon::parse($item->date)->format('H:i:s')}}</td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{$data->links()}}
+    <section class="card">
+        <div class="card-body">
+            @if ($data->isEmpty())
+                <x-empty-state icon="calendar3" title="No upcoming or recent sessions" />
+            @else
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Teacher</th>
+                                <th scope="col">Class</th>
+                                <th scope="col">Day</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($data as $item)
+                                @php($date = \Illuminate\Support\Carbon::parse($item->date))
+                                <tr>
+                                    <td>{{ $item->teacherName }}</td>
+                                    <td>{{ $item->class }}</td>
+                                    <td>{{ $date->englishDayOfWeek }}</td>
+                                    <td>{{ $date->format('d M Y') }}</td>
+                                    <td>{{ $date->format('H:i') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-
-            </div>
+                <div class="mt-3">{{ $data->links() }}</div>
+            @endif
         </div>
     </section>
-
-
 @endsection

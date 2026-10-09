@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Support\Like;
 use App\Http\Requests\SearchRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\StoreTeacherRequest;
@@ -15,7 +16,7 @@ class TeacherController extends Controller
 {
     public function index(SearchRequest $request){
         $teachers = User::where('role','teacher')
-            ->when($request->query('search'), fn ($q, $s) => $q->where('name','like',"%{$s}%"))
+            ->when(filled($s = $request->query('search')), fn ($q) => $q->where('name','like',Like::contains($s)))
             ->orderBy('id','desc')
             ->paginate(5)
             ->withQueryString();
@@ -81,7 +82,7 @@ class TeacherController extends Controller
         $keyword = $req->query('search');
         $teachers = User::where('role', 'teacher')
             ->where('id', '!=', $teacher->id)
-            ->when($keyword, fn ($q) => $q->where('name', 'like', "%{$keyword}%"))
+            ->when(filled($keyword), fn ($q) => $q->where('name', 'like', Like::contains($keyword)))
             ->orderBy('id', 'desc')
             ->paginate(5)
             ->withQueryString();

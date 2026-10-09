@@ -1,61 +1,61 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Stock')
+@section('title', 'Items')
 
 @section('content')
-<div class="d-none">
-    {{ $keyword = request('search') }}
-</div>
+    @php
+        $search = request('search');
+        $sortUrl = fn (string $column) => route('buyerSorting', array_filter(['value' => $column, 'type' => $sort, 'search' => $search], fn ($v) => $v !== null && $v !== ''));
+        $sortedBy = request()->route('value');
+        $sortedDirection = request()->route('type');
+    @endphp
 
-    <div class="pagetitle">
-        <h1>Item Tables</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Items" />
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="GET" action="{{route('buyer')}}">
-                    @csrf
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
-                </form>
-            </div>
-            <div class="card-body">
+    <x-filter-bar :action="url()->current()" :reset="route('buyer')">
+        <label for="item-search" class="visually-hidden">Search by item name</label>
+        <input id="item-search" class="form-control" type="search" name="search" value="{{ $search }}" placeholder="Search item name…">
+    </x-filter-bar>
 
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
+    <div class="card">
+        <div class="card-body">
+            @if ($stocks->isEmpty())
+                <x-empty-state icon="box-seam" title="No items found">
+                    @if (filled($search))
+                        <x-slot:action>
+                            <a href="{{ route('buyer') }}" class="btn btn-outline-secondary">Reset search</a>
+                        </x-slot:action>
+                    @endif
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <x-sort-th :href="$sortUrl('name')" :active="$sortedBy === 'name'" :direction="$sortedDirection">Name</x-sort-th>
+                        <x-sort-th :href="$sortUrl('size')" :active="$sortedBy === 'size'" :direction="$sortedDirection">Size</x-sort-th>
+                        <x-sort-th :href="$sortUrl('quantity')" :active="$sortedBy === 'quantity'" :direction="$sortedDirection">Quantity</x-sort-th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($stocks as $stock)
                         <tr>
-                            <th scope="col"><a href="{{route("buyerSorting",['value' => "name",'type' => $sort])}}">Name</a></th>
-                            <th scope="col"><a href="{{route("buyerSorting",['value' => "size",'type' => $sort])}}">Size</a></th>
-                            <th scope="col"><a href="{{route("buyerSorting",['value' => "quantity",'type' => $sort])}}">Quantity</a></th>
-                            <th scope="col">Action</th>
-{{--                            <th scope="col">Delete</th>--}}
+                            <td>{{ $stock->name }}</td>
+                            <td>{{ $stock->size }}</td>
+                            <td>{{ (int) $stock->quantity }}</td>
+                            <td class="text-end text-nowrap">
+                                @if ((int) $stock->quantity > 0)
+                                    <a href="{{ route('buyingItem', $stock->id) }}" class="btn btn-sm btn-primary">Sell</a>
+                                @else
+                                    <span class="status-badge status-badge-neutral">Sold out</span>
+                                @endif
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($stocks as $stock)
-                            <tr>
-                                <td>{{$stock->name}}</td>
-                                <td>{{$stock->size}}</td>
-                                <td>{{$stock->quantity}}</td>
-                                <td>
-                                    <form action="{{route('buyingItem',$stock->id)}}" method="get">
-                                        <button type="submit" class="btn btn-info">Buy</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </div>
+                    @endforeach
+                    </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{$stocks->appends(['search'=>$keyword])->links()}}
-                </div>
-            </div>
+                <div class="mt-3">{{ $stocks->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

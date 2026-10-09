@@ -20,9 +20,11 @@
         <div class="card-body">
             @if ($finances->isEmpty())
                 <x-empty-state icon="wallet2" title="No finance accounts found">
-                    <x-slot:action>
-                        <a href="{{ staff_route('finance.index') }}" class="btn btn-outline-secondary">Reset search</a>
-                    </x-slot:action>
+                    @if (filled($search))
+                        <x-slot:action>
+                            <a href="{{ staff_route('finance.index') }}" class="btn btn-outline-secondary">Reset search</a>
+                        </x-slot:action>
+                    @endif
                 </x-empty-state>
             @else
                 <table class="table table-hover">

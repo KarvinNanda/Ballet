@@ -13,7 +13,13 @@
     <div class="card">
         <div class="card-body">
             @if ($classes->isEmpty())
-                <x-empty-state icon="snow" title="No frozen classes found" />
+                <x-empty-state icon="snow" title="No frozen classes found">
+                    @if (filled(request('keyword')))
+                        <x-slot:action>
+                            <a href="{{ staff_route('class.freeze.index') }}" class="btn btn-outline-secondary">Reset search</a>
+                        </x-slot:action>
+                    @endif
+                </x-empty-state>
             @else
                 <table class="table table-hover">
                     <thead><tr><th scope="col">Class</th><th scope="col">Teacher</th><th scope="col">Price</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>

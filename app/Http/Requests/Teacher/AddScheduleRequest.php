@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Teacher;
 
 use App\Rules\BoundedDate;
+use App\Rules\NotBeforeJakartaNow;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AddScheduleRequest extends FormRequest
@@ -16,7 +17,7 @@ class AddScheduleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'dateTime' => BoundedDate::rules(),
+            'dateTime' => BoundedDate::rules(true, [new NotBeforeJakartaNow()]),
         ];
     }
 }

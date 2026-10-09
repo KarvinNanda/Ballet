@@ -18,9 +18,8 @@ class FinanceController extends Controller
 {
     public function index(SearchRequest $req){
         $sort = 'asc';
-        $search = $req->search;
-        if(is_null($search)) $stocks = Stock::orderBy('id','desc')->paginate(5);
-        else $stocks = Stock::where('name','like',"%$search%")->orderBy('id','desc')->paginate(5);
+        // SearchRequest has already dropped junk search values.
+        $stocks = Stock::search($req->query('search'))->orderBy('id','desc')->paginate(5)->withQueryString();
         return view('finance.index',compact('stocks','sort'));
     }
 

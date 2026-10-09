@@ -17,7 +17,13 @@
     <div class="card">
         <div class="card-body">
             @if ($students->isEmpty())
-                <x-empty-state icon="people" title="No student to add" />
+                <x-empty-state icon="people" title="No student to add">
+                    @if (filled(request('keyword')))
+                        <x-slot:action>
+                            <a href="{{ staff_route('class.student.create', $class_id) }}" class="btn btn-outline-secondary">Reset search</a>
+                        </x-slot:action>
+                    @endif
+                </x-empty-state>
             @else
                 <table class="table table-hover">
                     <thead><tr><th scope="col">Name</th><th scope="col">Age</th><th scope="col" class="d-none d-md-table-cell">Phone</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>

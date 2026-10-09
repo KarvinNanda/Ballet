@@ -36,9 +36,11 @@
         <div class="card-body">
             @if ($teachers->isEmpty())
                 <x-empty-state icon="person-badge" title="No other teachers found">
-                    <x-slot:action>
-                        <a href="{{ staff_route('teacher.switch', $teacher) }}" class="btn btn-outline-secondary">Reset search</a>
-                    </x-slot:action>
+                    @if (filled($search))
+                        <x-slot:action>
+                            <a href="{{ staff_route('teacher.switch', $teacher) }}" class="btn btn-outline-secondary">Reset search</a>
+                        </x-slot:action>
+                    @endif
                 </x-empty-state>
             @else
                 <table class="table table-hover">

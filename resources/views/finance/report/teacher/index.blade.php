@@ -1,45 +1,37 @@
-@inject('carbon', 'Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Report Teacher Attendance')
+@section('title', 'Teacher attendance report')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Report Teacher Attendance</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Teacher attendance report" />
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
+    <div class="card">
+        <div class="card-body">
+            @if ($data->isEmpty())
+                <x-empty-state icon="calendar-x" title="No months with attendance yet" />
+            @else
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th scope="col">Month</th>
-                        <th scope="col">Action</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($data as $item)
-                            <tr>
-                                <td>{{$item->month}}</td>
-                                <td>
-                                    <form action="{{route('financeTeacherReport',$item->month_num)}}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary">Report</button>
-                                    </form>
-                                </td>
+                    @foreach ($data as $item)
+                        <tr>
+                            <td>{{ $item->month }}</td>
+                            <td class="text-end">
+                                <form method="POST" action="{{ route('financeTeacherReport', $item->month_num) }}" target="_blank">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Report</button>
+                                </form>
+                            </td>
+                        </tr>
                     @endforeach
                     </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-
-            </div>
+            @endif
         </div>
-    </section>
-
-    <script>
-
-    </script>
+    </div>
 @endsection

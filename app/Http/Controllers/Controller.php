@@ -18,9 +18,7 @@ class Controller extends BaseController
      */
     protected function backTo(mixed $url): RedirectResponse
     {
-        $url = is_string($url) ? $url : null;
-
-        return redirect()->to($this->isOwnUrl($url) ? $url : url('/'));
+        return redirect()->to(own_url($url, url('/')));
     }
 
     /**
@@ -35,23 +33,5 @@ class Controller extends BaseController
         abort_unless(in_array($column, $columns, true) && in_array($direction, ['asc', 'desc'], true), 404);
 
         return [$column, $direction];
-    }
-
-    private function isOwnUrl(?string $url): bool
-    {
-        if ($url === null || $url === '' || str_contains($url, '\\')) {
-            return false;
-        }
-
-        if (str_starts_with($url, '/') && ! str_starts_with($url, '//')) {
-            return true;
-        }
-
-        $parts = parse_url($url);
-        $app = parse_url(url('/'));
-
-        return in_array($parts['scheme'] ?? null, ['http', 'https'], true)
-            && ($parts['host'] ?? null) === ($app['host'] ?? null)
-            && ($parts['port'] ?? null) === ($app['port'] ?? null);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Support\Like;
 use App\Http\Requests\SearchRequest;
 use App\Http\Requests\Staff\ClassIdRequest;
 use App\Http\Requests\Staff\ClassListRequest;
@@ -78,11 +79,12 @@ class ClassController extends Controller
             ->leftJoin('users','users.id','mapping_class_teachers.user_id')
             ->where('class_transactions.is_freeze', $frozen ? '=' : '!=', 1)
             ->when($status !== 'all', fn ($q) => $q->where('class_transactions.Status', $status))
-            ->when($keyword, function ($q, $keyword) {
-                $q->where(function ($q) use ($keyword) {
-                    $q->where('class_types.class_name','like',"%$keyword%")
-                        ->orWhere('users.name','like',"%$keyword%")
-                        ->orWhere('students.LongName','like',"%$keyword%");
+            ->when(filled($keyword), function ($q) use ($keyword) {
+                $like = Like::contains($keyword);
+                $q->where(function ($q) use ($like) {
+                    $q->where('class_types.class_name','like',$like)
+                        ->orWhere('users.name','like',$like)
+                        ->orWhere('students.LongName','like',$like);
                 });
             })
             ->groupBy('class_transactions.id');
@@ -247,14 +249,14 @@ class ClassController extends Controller
 
     public function studentCreate(SearchRequest $req, ClassTransaction $class){
         $class_id = $class->id;
-        $keyword = $req->keyword;
+        $keyword = $req->query('keyword'); // the query bag SearchRequest cleaned, never a JSON body
         $students = DB::table('students')
             ->whereNotIn('id',function($q) use ($class_id){
                 $q->select('mapping_class_children.student_id')
                     ->from('mapping_class_children')
                     ->where('mapping_class_children.class_id',$class_id);
             })
-            ->when($keyword, fn ($q) => $q->where('students.LongName','like',"%$keyword%"))
+            ->when(filled($keyword), fn ($q) => $q->where('students.LongName','like',Like::contains($keyword)))
             ->whereIn('students.Status', ['aktif', 'trial'])
             ->paginate(5)
             ->withQueryString();

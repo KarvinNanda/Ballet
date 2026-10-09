@@ -46,7 +46,7 @@ class BuyerTest extends TestCase
         $stock = Stock::firstOrFail();
         $stock->forceFill(['quantity' => 1])->save();
         $reports = DB::table('report_stocks')->count();
-        $this->actingAs($this->buyer())->post(route('buying', $stock), ['name' => 'Ani', 'qty' => 2])->assertSessionHas('error');
+        $this->actingAs($this->buyer())->post(route('buying', $stock), ['name' => 'Ani', 'qty' => 2])->assertSessionHasErrors('qty');
         $this->assertSame(1, (int) $stock->fresh()->quantity);
         $this->assertSame(0, DB::table('buyers')->where('name', 'Ani')->count());
         $this->assertSame($reports, DB::table('report_stocks')->count());

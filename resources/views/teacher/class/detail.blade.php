@@ -1,46 +1,47 @@
-@inject('carbon','Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Student List')
+@section('title', 'Students · '.$course)
 
 @section('content')
+    @php
+        // Same rule as the staff class detail: trial → 2; no class quota set → the course default.
+        $quotaPay = match ($course) {
+            'Pointe Class' => 4,
+            'Intensive Kids', 'Intensive Class' => 12,
+            default => 3,
+        };
+    @endphp
 
-    <div class="pagetitle">
-        <h1>Student Tables</h1>
-    </div><!-- End Page Title -->
+    <x-page-header :title="'Students · '.$course">
+        <x-slot:actions>
+            <a href="{{ route('viewClass') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to my classes</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-
-            <div class="card-body">
-
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
+    <div class="card">
+        <div class="card-body">
+            @if ($students->isEmpty())
+                <x-empty-state icon="people" title="No students in this class yet" />
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Quota</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($students as $student)
                         <tr>
-                            <th scope="col">Nama</th>
-                            <th scope="col">DOB</th>
-                            <th scope="col">Age</th>
+                            <td>{{ $student->name }}</td>
+                            <td><x-age :dob="$student->dob" /></td>
+                            <td>{{ (int) $student->quota }} / {{ $student->status === 'trial' ? 2 : ((int) $student->max_quota === 0 ? $quotaPay : $student->max_quota) }}</td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($data as $item)
-                            <tr>
-                                <td>{{$item->student_name}}</td>
-                                <td>{{$carbon::parse($item->student_dob)->format('d M Y')}}</td>
-                                <td>{{$item->student_old}} Tahun</td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </div>
+                    @endforeach
+                    </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-
-            </div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

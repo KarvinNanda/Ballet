@@ -44,10 +44,10 @@ class TeacherOwnershipTest extends TestCase
         $this->actingAs($this->teacher);
 
         $this->post(route('addScheduleClassTeacher', $classId), ['dateTime' => now()->addDays(3)->toDateTimeString()])->assertForbidden();
-        $this->post(route('addMultipleScheduleClassTeacher'), ['classId' => $classId, 'dateTime' => now()->toDateTimeString(), 'ScheduleLoop' => 2])->assertForbidden();
+        $this->post(route('addMultipleScheduleClassTeacher'), ['classId' => $classId, 'dateTime' => now()->addDay()->toDateTimeString(), 'ScheduleLoop' => 2])->assertForbidden();
         $this->post(route('deleteScheduleTeacher', ['id' => $this->otherSchedule->id, 'classId' => $classId]))->assertForbidden();
         $this->get(route('viewUpdateScheduleClassTeacher', ['scheduleId' => $this->otherSchedule->id]))->assertForbidden();
-        $this->post(route('updateScheduleClassTeacher'), ['scheduleId' => $this->otherSchedule->id, 'dateTime' => now()->toDateTimeString()])->assertForbidden();
+        $this->post(route('updateScheduleClassTeacher'), ['scheduleId' => $this->otherSchedule->id, 'dateTime' => now()->addDay()->toDateTimeString()])->assertForbidden();
 
         $this->assertSame($before, DB::table('schedules')->where('class_id', $classId)->count());
         $this->assertDatabaseHas('schedules', ['id' => $this->otherSchedule->id, 'date' => $this->otherSchedule->date]);
@@ -106,7 +106,7 @@ class TeacherOwnershipTest extends TestCase
         $own = DB::table('mapping_class_teachers')->where('user_id', $this->teacher->id)->value('class_id');
 
         $this->actingAs($this->teacher)->from(route('viewaddMultipleScheduleClass', $own))
-            ->post(route('addMultipleScheduleClassTeacher'), ['classId' => $own, 'dateTime' => now()->toDateTimeString(), 'ScheduleLoop' => 100000])
+            ->post(route('addMultipleScheduleClassTeacher'), ['classId' => $own, 'dateTime' => now()->addDay()->toDateTimeString(), 'ScheduleLoop' => 100000])
             ->assertSessionHasErrors('ScheduleLoop');
     }
 

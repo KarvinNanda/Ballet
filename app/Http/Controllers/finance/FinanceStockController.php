@@ -5,6 +5,7 @@ namespace App\Http\Controllers\finance;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\DateRangeRequest;
 use App\Http\Requests\Finance\StockMovementRequest;
+use App\Http\Requests\SearchRequest;
 use App\Models\Buyer;
 use App\Models\ReportStock;
 use App\Models\Stock;
@@ -25,16 +26,12 @@ class FinanceStockController extends Controller
         return view('finance.in-out',compact('stock','type','buyer','return_url'));
     }
 
-    public function financeStock($value,$sort){
+    public function financeStock(SearchRequest $req, $value, $sort){
         [$value, $sort] = $this->sortOrFail($value, $sort, ['name', 'quantity', 'size']);
-        $stocks = Stock::orderBy($value,$sort)->paginate(5);
+        // Same search filter as FinanceController::index, so the sort links keep it.
+        $stocks = Stock::search($req->query('search'))->orderBy($value,$sort)->orderBy('id','desc')->paginate(5)->withQueryString();
         $sort = $sort == 'asc' ? 'desc' : 'asc';
         return view('finance.index',compact('stocks','sort'));
-    }
-
-    public function out(Stock $stock){
-        $type = 'out';
-        return view('finance.in-out',compact('stock','type'));
     }
 
     public function report(StockMovementRequest $req, Stock $stock, string $type){

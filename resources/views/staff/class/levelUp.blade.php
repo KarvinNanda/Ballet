@@ -3,9 +3,13 @@
 @section('title', 'Freeze class')
 
 @section('content')
+    {{-- old() is the failed save's own input, so it is checked like any return_url before it reaches an href. --}}
+    @php
+        $back = own_url(old('return_url', $return_url), url('/'));
+    @endphp
     <x-page-header :title="'Freeze class '.$class_name">
         <x-slot:actions>
-            <a href="{{ $return_url }}" class="btn btn-outline-secondary">Cancel</a>
+            <a href="{{ $back }}" class="btn btn-outline-secondary">Cancel</a>
         </x-slot:actions>
     </x-page-header>
 
@@ -36,7 +40,7 @@
 
             <x-confirm-form :action="staff_route('class.level.store')" :message="'Freeze '.$class_name.'? This cannot be undone.'" class="save-bar">
                 <input type="hidden" name="classId" value="{{ $class_id }}">
-                <input type="hidden" name="return_url" value="{{ $return_url }}">
+                <input type="hidden" name="return_url" value="{{ $back }}">
                 <button type="submit" class="btn btn-danger">Freeze class</button>
             </x-confirm-form>
         </div>

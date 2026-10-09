@@ -90,7 +90,7 @@ class AttendanceSubmitTest extends TestCase
 
         $html = $this->actingAs($teacher)->post(route('viewAbsen', $schedule->id))->assertOk()->getContent();
 
-        $this->assertStringContainsString('Please Completed Payment', $html);
+        $this->assertStringContainsString('Payment required', $html);
         $this->assertStringNotContainsString('value="'.$gated->id.'" name="student_id', $html, 'gated row must not submit its student id');
         $this->assertStringContainsString('name="keterangan[1]"', $html, 'fields carry the row index');
         $this->assertStringNotContainsString('name="keterangan[]"', $html);

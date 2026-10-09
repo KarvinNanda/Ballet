@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Support\Like;
 use App\Http\Requests\SearchRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\StoreFinanceAccountRequest;
@@ -15,7 +16,7 @@ class FinanceAccountController extends Controller
 {
     public function index(SearchRequest $request){
         $finances = User::where('role','finance')
-            ->when($request->query('search'), fn ($q, $s) => $q->where('name','like',"%{$s}%"))
+            ->when(filled($s = $request->query('search')), fn ($q) => $q->where('name','like',Like::contains($s)))
             ->orderBy('id','desc')
             ->paginate(5)
             ->withQueryString();

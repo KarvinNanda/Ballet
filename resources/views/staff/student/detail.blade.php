@@ -3,6 +3,10 @@
 @section('title', 'Student · '.$detail->LongName)
 
 @section('content')
+    {{-- old() is the failed save's own input, so it is checked like any return_url before it reaches an href. --}}
+    @php
+        $back = own_url(old('return_url', $return_url), url('/'));
+    @endphp
     @php
         $tab = in_array(request('tab'), ['classes', 'transactions'], true) ? request('tab') : 'profile';
         if ($errors->any() || session()->has('error')) {
@@ -42,7 +46,7 @@
         <x-tab-pane name="profile" :active="$tab === 'profile'">
             <form class="card card-tabbed" method="post" action="{{ staff_route('student.update', $detail->id) }}">
                 @csrf
-                <input type="hidden" name="return_url" value="{{ $return_url }}">
+                <input type="hidden" name="return_url" value="{{ $back }}">
                 <div class="card-body">
                     <x-form.error-summary />
 

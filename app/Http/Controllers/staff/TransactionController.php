@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\staff;
 
+use App\Support\Like;
 use App\Http\Requests\Staff\TransactionListRequest;
 use App\Http\Requests\Staff\StoreTransactionRequest;
 use App\Http\Requests\Staff\UpdateTransactionRequest;
@@ -67,12 +68,12 @@ class TransactionController extends Controller
 
         return $query
             ->when($status !== 'all', fn ($q) => $q->where('transactions.payment_status', $status))
-            ->when($req->query('search'), fn ($q, $keyword) => $q->where('students.LongName','like',"%$keyword%"));
+            ->when(filled($keyword = $req->query('search')), fn ($q) => $q->where('students.LongName','like',Like::contains($keyword)));
     }
 
     public function show(Transaction $transaction){
         $detail = $this->joinedRow($transaction);
-        $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
+        $data = $this->rekeningOf($transaction);
         return view('staff.transaction.detail',compact('detail','data','transaction'));
     }
 
@@ -103,25 +104,30 @@ class TransactionController extends Controller
         Gate::authorize('transaction.edit-paid', $transaction);
         $return_url = url()->previous();
         $row = $this->joinedRow($transaction);
-        $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
+        $data = $this->rekeningOf($transaction);
         return view('staff.transaction.update',compact('transaction','row','data','return_url'));
     }
 
     public function update(UpdateTransactionRequest $req,Transaction $transaction){
-        $bankId = $req->filled('inputBankName')
-            ? Banks::firstOrCreate(['bank_name' => $req->inputBankName])->id
-            : Rekenings::where('bank_rek', $transaction->Students->bank_rek)->value('banks_id');
-
-        if($req->filled('inputSenderName')){
-            DB::table('rekenings')->where('bank_rek',$transaction->Students->bank_rek)->update([
-                'banks_id' => $bankId,
-                'nama_pengirim' => $req->inputSenderName
-            ]);
-        }
-
         $hasPaymentDate = $req->filled('inputTanggalBayar');
 
         TransactionQuota::track($transaction->students_id, $transaction->class_transactions_id, function () use ($req, $transaction, $hasPaymentDate) {
+            // The request checked the row as it was loaded; check again under the lock so an admin cannot
+            // overwrite a row that another request settled in between (403, nothing written).
+            Gate::authorize('transaction.edit-paid', Transaction::whereKey($transaction->id)->lockForUpdate()->firstOrFail());
+
+            // Only the student's own account row; a student without a number (NULL or '') has none.
+            $bankRek = $transaction->Students?->bank_rek;
+            if(filled($bankRek) && $req->filled('inputSenderName')){
+                $bankId = $req->filled('inputBankName')
+                    ? Banks::firstOrCreate(['bank_name' => $req->inputBankName])->id
+                    : Rekenings::where('bank_rek', $bankRek)->value('banks_id');
+                DB::table('rekenings')->where('bank_rek', $bankRek)->update([
+                    'banks_id' => $bankId,
+                    'nama_pengirim' => $req->inputSenderName
+                ]);
+            }
+
             if($req->has('all_transaction') && $hasPaymentDate){
                 $bulk = DB::table('transactions')
                     ->where('students_id',$transaction->students_id)
@@ -167,6 +173,14 @@ class TransactionController extends Controller
         // From the detail page "back" would be the deleted record (404), so that form sends return_url.
         $back = $req->filled('return_url') ? $this->backTo($req->input('return_url')) : redirect()->back();
         return $back->with('msg','Success Delete Transaction');
+    }
+
+    /** The student's own account row, or null when the student is gone or has no account number. */
+    private function rekeningOf(Transaction $transaction): ?Rekenings
+    {
+        $bankRek = $transaction->Students?->bank_rek;
+
+        return filled($bankRek) ? Rekenings::where('bank_rek', $bankRek)->first() : null;
     }
 
     /** Transaction joined with its student and class names, for the detail and update pages. */
