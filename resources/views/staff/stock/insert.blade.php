@@ -1,60 +1,26 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Add Stock')
+@section('title', 'Add stock item')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Stock Form</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Add stock item">
+        <x-slot:actions>
+            <a href="{{ staff_route('stock.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to stock</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
-
-                <!-- General Form Elements -->
-                <form action="{{staff_route('stock.store')}}" method="post">
-                    @csrf
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputName">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Size</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputSize">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputDOB" class="col-sm-2 col-form-label">Quantity</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" name="inputQty">
-                        </div>
-                    </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-success p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
+    <form class="card" method="post" action="{{ staff_route('stock.store') }}">
+        @csrf
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.section title="Item">
+                <x-form.field name="inputName" label="Name" required />
+                <x-form.field name="inputSize" label="Size" required />
+                <x-form.field name="inputQty" label="Quantity" type="number" min="0" required />
+            </x-form.section>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Create stock item</button>
             </div>
         </div>
-    </section>
-
-
+    </form>
 @endsection

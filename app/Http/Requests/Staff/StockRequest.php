@@ -17,7 +17,7 @@ class StockRequest extends FormRequest
         return [
             'inputName' => 'required|string|max:255',
             'inputSize' => 'required|string|max:255',
-            'inputQty' => 'required|integer|min:1|max:2000000000',
+            'inputQty' => 'required|integer|min:0|max:2000000000', // 0 = sold out; sales bring items there
         ];
     }
 }

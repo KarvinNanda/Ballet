@@ -1,274 +1,160 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Detail Student')
+@section('title', 'Student · '.$detail->LongName)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Student Form</h1>
-    </div><!-- End Page Title -->
+    @php
+        $tab = in_array(request('tab'), ['classes', 'transactions'], true) ? request('tab') : 'profile';
+        if ($errors->any() || session()->has('error')) {
+            $tab = 'profile'; // the rejected values live in the Profile form
+        }
+        $tabs = [
+            'profile' => 'Profile',
+            'classes' => 'Classes ('.count($courses_taken).')',
+            'transactions' => 'Transactions ('.count($transactions).')',
+        ];
+        $unpaid = collect($transactions)->where('payment_status', 'Unpaid')->count();
+        $meta = array_filter([
+            $detail->nis ? 'NIS '.$detail->nis : null,
+            $detail->age !== null ? $detail->age.' yrs' : null,
+            $detail->nama_orang_tua ? 'Parent: '.$detail->nama_orang_tua : null,
+        ]);
+    @endphp
 
-    <section class="section">
-        <form class="card" method="post" action="{{staff_route('student.update', $detail->id)}}">
-            @csrf
-            <input type="hidden" name="return_url" value="{{$return_url}}">
-            <div class="card-body">
-                <div class="row mb-3">
-                    <label for="inputName" class="col-sm-2 col-form-label">NIS</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="nis" value="{{$detail->nis}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputName" class="col-sm-2 col-form-label">Long Name</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="LongName" value="{{$detail->LongName}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputName" class="col-sm-2 col-form-label">Nick Name</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="ShortName" value="{{$detail->ShortName}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputName" class="col-sm-2 col-form-label">Age</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="age" value="{{$detail->age}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="Email" value="{{$detail->Email}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputDOB" class="col-sm-2 col-form-label">DOB</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="dob" value="{{$detail->dob}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="Address" value="{{$detail->Address}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Parent Name</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="nama_orang_tua" value="{{$detail->nama_orang_tua}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Bank Name</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="bank" value="{{$detail->bank}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Sender Name</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="sender" value="{{$detail->pengirim}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Account Number</label>
-                    <div class="col-sm-10">
-                            <input class="form-control bg-opacity-10" name="accountno" value="{{$detail->rek}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">City</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="city" value="{{$detail->City}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Postal Code</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="kode_pos" value="{{$detail->kode_pos}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">First Phone</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="Phone1" value="{{$detail->Phone1}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Second Phone</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="Phone2" value="{{$detail->Phone2}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Whatsapp</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="Whatsapp" value="{{$detail->Whatsapp}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Instagram</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="Instagram" value="{{$detail->Instagram}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Line</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="Line" value="{{$detail->Line}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Enroll Date</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="EnrollDate" value="{{$detail->EnrollDate}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Quota</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="Quota" value="{{$detail->Quota}}">
-                        {{-- Quota when this page was opened: the server refuses a manual Quota edit if attendance changed it meanwhile. --}}
-                        <input type="hidden" name="Quota_original" value="{{$detail->Quota ?? 0}}">
-                    </div>
-                </div>
-
-                {{-- <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Max Quota</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="MaxQuota" value="{{$detail->MaxQuota}}">
-                    </div>
-                </div> --}}
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">New Student</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="is_new" value="{{$detail->is_new == 1 ? 'Yes' : 'No'}}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label for="inputPhone" class="col-sm-2 col-form-label">Status</label>
-                    <div class="col-sm-10">
-                        <input class="form-control bg-opacity-10" name="status" value="{{$detail->Status}}">
-                    </div>
-                </div>
-
-                <section class="section">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                                <h5 class="card-title">Courses Taken</h5>
-
-                                <a class="btn btn-success p-2 ps-3 pe-3 m-3" role="button" href="{{staff_route('student.class.create',$detail->id)}}">
-                                    Add Class
-                                </a>
-                            </div>
-                            
-
-                            <table class="table">
-                                <thead>
-                                <th>Course Name</th>
-                                <th>Price</th>
-                                <th>Quota</th>
-                                </thead>
-                                <tbody>
-                                @foreach ($courses_taken as $data)
-                                    @php
-                                        if($data->class_name == 'Pointe Class') $quota_pay = 4;
-                                        else if($data->class_name == 'Intensive Kids' || $data->class_name == 'Intensive Class')$quota_pay = 12;
-                                        else $quota_pay = 3;
-                                    @endphp
-                                    <tr>
-                                        <td>{{$data->class_name}}</td>
-                                        <td>{{"Rp.".number_format($data->class_price)}}</td>
-                                        <td>{{$data->quota == 0 ? $quota_pay : $data->quota}}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="section">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Transactions</h5>
-
-                            <table class="table">
-                                <thead>
-                                <th>Transaction Date</th>
-                                <th>Class</th>
-                                <th>Total</th>
-                                <th>Transaction Payment Date</th>
-                                <th>Transaction Status</th>
-                                <th>Quota</th>
-                                </thead>
-                                <tbody>
-                                @foreach ($transactions as $trans)
-                                    <tr>
-                                        <td>
-                                            <form action="{{staff_route('transaction.show',$trans->id)}}" method="get">
-                                                <button type="submit" style="border : none; background : none; color:blue;">{{$trans->transaction_date}}</button>
-                                            </form>
-                                        </td>
-                                        <td>{{$trans->class_name}}</td>
-                                        @if(str_contains($trans->discount, '%'))
-                                        @php
-                                            $disc = str_replace("%","",$trans->discount);
-                                        @endphp
-                                            <td>
-                                                Rp.{{number_format($trans->price - (($disc/100)*$trans->price))}}
-                                            </td>
-                                        @else
-                                            <td>Rp.{{number_format($trans->price - $trans->discount)}}</td>
-                                        @endif
-                                        <td>{{is_null($trans->transaction_payment) ? 'Waiting for Payment' : $trans->transaction_payment}}</td>
-                                        <td>{{$trans->payment_status}}</td>
-                                        <td>{{is_null($trans->transaction_quota) ? 0 : $trans->transaction_quota}}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
+    <div class="card summary-card">
+        <div class="summary-head">
+            <div>
+                <h1 class="page-title summary-name">{{ $detail->LongName }}</h1>
+                <p class="summary-meta">{{ implode(' · ', $meta) }}</p>
             </div>
-            @if($errors->any())
-                @foreach($errors->all() as $error)
-                    <div class="alert alert-danger" role="alert">
-                        {{$error}}
+            <x-status-badge :status="$detail->Status" />
+        </div>
+        <div class="stat-grid">
+            <div class="stat"><span class="stat-label">Quota</span><span class="stat-value">{{ $detail->Quota ?? 0 }}</span></div>
+            <div class="stat"><span class="stat-label">Classes</span><span class="stat-value">{{ count($courses_taken) }}</span></div>
+            <div class="stat"><span class="stat-label">Unpaid</span><span class="stat-value">{{ $unpaid }}</span></div>
+        </div>
+    </div>
+
+    <x-tabs :tabs="$tabs" :active="$tab" />
+
+    <div class="tab-content">
+        <x-tab-pane name="profile" :active="$tab === 'profile'">
+            <form class="card card-tabbed" method="post" action="{{ staff_route('student.update', $detail->id) }}">
+                @csrf
+                <input type="hidden" name="return_url" value="{{ $return_url }}">
+                <div class="card-body">
+                    <x-form.error-summary />
+
+                    <x-form.section title="Identity">
+                        <x-form.field name="nis" label="NIS" :value="$detail->nis" />
+                        <x-form.field name="LongName" label="Long name" :value="$detail->LongName" required />
+                        <x-form.field name="ShortName" label="Nick name" :value="$detail->ShortName" />
+                        <x-form.field name="dob" label="Date of birth" type="date" :value="$detail->dob" required />
+                    </x-form.section>
+
+                    <x-form.section title="Contact">
+                        <x-form.field name="nama_orang_tua" label="Parent name" :value="$detail->nama_orang_tua" required />
+                        <x-form.field name="Email" label="Email" type="email" :value="$detail->Email" required />
+                        <x-form.field name="Phone1" label="First phone" type="tel" :value="$detail->Phone1" required />
+                        <x-form.field name="Phone2" label="Second phone" type="tel" :value="$detail->Phone2" />
+                        <x-form.field name="Whatsapp" label="WhatsApp" type="tel" :value="$detail->Whatsapp" required />
+                        <x-form.field name="Instagram" label="Instagram" :value="$detail->Instagram" />
+                        <x-form.field name="Line" label="Line" :value="$detail->Line" />
+                        <x-form.field name="city" label="City" :value="$detail->City" required />
+                        <x-form.field name="kode_pos" label="Postal code" :value="$detail->kode_pos" required />
+                        <x-form.field name="Address" label="Address" type="textarea" :value="$detail->Address" required wide />
+                    </x-form.section>
+
+                    <x-form.section title="Payment">
+                        <x-form.field name="bank" label="Bank name" :value="$detail->bank" />
+                        <x-form.field name="sender" label="Sender name" :value="$detail->pengirim" required />
+                        <x-form.field name="accountno" label="Account number" :value="$detail->rek" required />
+                    </x-form.section>
+
+                    <x-form.section title="Status & quota">
+                        <x-form.field name="status" label="Status" type="select" :value="$detail->Status" required
+                                      :options="['aktif' => 'Active', 'non-aktif' => 'Inactive', 'trial' => 'Trial']" />
+                        <x-form.field name="is_new" label="New student" type="select" :value="$detail->is_new == 1 ? 'Yes' : 'No'" required
+                                      :options="['Yes' => 'Yes', 'No' => 'No']" />
+                        <div class="form-field">
+                            <x-form.field name="Quota" label="Quota" type="number" min="0" :value="$detail->Quota ?? 0" required />
+                            {{-- Quota when this page was opened: the server refuses a manual Quota edit if attendance changed it meanwhile. --}}
+                            <input type="hidden" name="Quota_original" value="{{ old('Quota_original', $detail->Quota ?? 0) }}">
+                        </div>
+                        <x-form.field name="EnrollDate" label="Enroll date" type="date" :value="$detail->EnrollDate" />
+                    </x-form.section>
+
+                    <div class="save-bar">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
                     </div>
-                @endforeach
-            @endif
+                </div>
+            </form>
+        </x-tab-pane>
 
-            <button type="submit" class="btn btn-success p-2 ps-5 pe-5 m-3">Save Data</button>
+        <x-tab-pane name="classes" :active="$tab === 'classes'">
+            <div class="card card-tabbed">
+                <div class="card-body">
+                    <div class="d-flex justify-content-end mb-2">
+                        <a href="{{ staff_route('student.class.create', $detail->id) }}" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add class</a>
+                    </div>
+                    @if (count($courses_taken) === 0)
+                        <x-empty-state icon="journal" title="Not enrolled in any class yet" />
+                    @else
+                        <table class="table">
+                            <thead><tr><th scope="col">Course</th><th scope="col">Price</th><th scope="col">Quota</th></tr></thead>
+                            <tbody>
+                            @foreach ($courses_taken as $data)
+                                @php
+                                    if($data->class_name == 'Pointe Class') $quota_pay = 4;
+                                    else if($data->class_name == 'Intensive Kids' || $data->class_name == 'Intensive Class')$quota_pay = 12;
+                                    else $quota_pay = 3;
+                                @endphp
+                                <tr>
+                                    <td>{{ $data->class_name }}</td>
+                                    <td>Rp{{ number_format($data->class_price) }}</td>
+                                    <td>{{ $data->quota == 0 ? $quota_pay : $data->quota }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
+            </div>
+        </x-tab-pane>
 
-        </form>
-    </section>
-
-
+        <x-tab-pane name="transactions" :active="$tab === 'transactions'">
+            <div class="card card-tabbed">
+                <div class="card-body">
+                    @if (count($transactions) === 0)
+                        <x-empty-state icon="receipt" title="No transactions yet" />
+                    @else
+                        <table class="table">
+                            <thead>
+                            <tr><th scope="col">Date</th><th scope="col">Class</th><th scope="col">Total</th><th scope="col">Paid on</th><th scope="col">Status</th><th scope="col">Quota</th></tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($transactions as $trans)
+                                @php($total = \App\Support\Discount::total($trans->price, $trans->discount))
+                                <tr>
+                                    <td><a href="{{ staff_route('transaction.show', $trans->id) }}">{{ $trans->transaction_date }}</a></td>
+                                    <td>{{ $trans->class_name }}</td>
+                                    <td>
+                                        Rp{{ number_format($total ?? $trans->price) }}
+                                        @if ($total === null)
+                                            <span class="status-badge status-badge-warning">Invalid discount</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $trans->transaction_payment ?? 'Waiting for payment' }}</td>
+                                    <td><x-status-badge :status="$trans->payment_status" /></td>
+                                    <td>{{ $trans->transaction_quota ?? 0 }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
+            </div>
+        </x-tab-pane>
+    </div>
 @endsection

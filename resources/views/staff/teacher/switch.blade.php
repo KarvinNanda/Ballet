@@ -1,67 +1,74 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Teacher Switch Form')
+@section('title', 'Replace '.$teacher->name)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Teacher Tables</h1>
-    </div><!-- End Page Title -->
+    @php
+        $search = request('search');
+        $n = $classCount;
+        $classes = $n.' '.\Illuminate\Support\Str::plural('class', $n);
+        $f = $frozenClassCount;
+        $confirm = fn ($candidate) => $n > 0
+            ? "Move {$classes} from {$teacher->name} to {$candidate->name} and delete {$teacher->name}'s account?"
+            : "Delete {$teacher->name}'s account? It has no classes to move.";
+    @endphp
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="get" action="{{staff_route('teacher.switch',$teacher)}}">
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
-                </form>
-            </div>
-            <div class="card-body">
-                <div class="d-block text-danger">
-                    <h4 class="pe-5">{{$teacher->name}} has an active class</h4>
-                    <h5 class="pe-5">Please select teachers below to replace</h5>
-                </div>
+    <x-page-header :title="'Replace '.$teacher->name">
+        <x-slot:actions>
+            <a href="{{ staff_route('teacher.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to teachers</a>
+        </x-slot:actions>
+    </x-page-header>
 
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
+    <div class="alert alert-warning" role="alert">
+        @if ($n > 0)
+            The {{ $classes }} of {{ $teacher->name }}{{ $f > 0 ? " (including {$f} frozen)" : '' }} {{ $n === 1 ? 'moves' : 'move' }} to the teacher you choose, then {{ $teacher->name }}'s account is deleted. This cannot be undone from the app.
+        @else
+            {{ $teacher->name }} has no classes. Choosing a teacher below only deletes {{ $teacher->name }}'s account. This cannot be undone from the app.
+        @endif
+    </div>
+
+    <x-filter-bar :action="staff_route('teacher.switch', $teacher)">
+        <label for="replacement-search" class="visually-hidden">Search by teacher name</label>
+        <input id="replacement-search" class="form-control" type="search" name="search" value="{{ $search }}" placeholder="Search teacher name…">
+    </x-filter-bar>
+
+    <div class="card">
+        <div class="card-body">
+            @if ($teachers->isEmpty())
+                <x-empty-state icon="person-badge" title="No other teachers found">
+                    <x-slot:action>
+                        <a href="{{ staff_route('teacher.switch', $teacher) }}" class="btn btn-outline-secondary">Reset search</a>
+                    </x-slot:action>
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Reward %</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Email</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($teachers as $candidate)
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Percentage</th>
-                            <th scope="col">DOB</th>
-                            <th scope="col">Address</th>
-                            <th scope="col">Phone</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Action</th>
+                            <td>{{ $candidate->name }}</td>
+                            <td>{{ $candidate->percent ?? 0 }}%</td>
+                            <td>{{ $candidate->phone ?? '-' }}</td>
+                            <td>{{ $candidate->email }}</td>
+                            <td class="text-end text-nowrap">
+                                <x-confirm-form :action="staff_route('teacher.replace', ['teacher' => $teacher, 'replacement' => $candidate->id])" :message="$confirm($candidate)">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Replace with this teacher…</button>
+                                </x-confirm-form>
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($teachers as $t)
-                            <tr>
-                                <td>{{$t->name}}</td>
-                                <td>{{$t->percent}}%</td>
-                                <td>{{\Carbon\Carbon::parse($t->dob)->format('d M Y')}}</td>
-                                <td>{{$t->address}}</td>
-                                <td>{{$t->phone}}</td>
-                                <td>{{$t->email}}</td>
-                                <td >
-                                    <form action="{{staff_route('teacher.replace',['teacher' =>$teacher,'replacement' => $t->id])}}" method="post">
-                                    @csrf
-                                        <button type="submit" class="btn btn-danger">Select</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </div>
+                    @endforeach
+                    </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{ $teachers->links() }}
-                    
-                </div>
-            </div>
+                <div class="mt-3">{{ $teachers->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

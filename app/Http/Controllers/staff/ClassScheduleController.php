@@ -17,13 +17,16 @@ class ClassScheduleController extends Controller
     public function index(ClassTransaction $class)
     {
         $schedules = Schedule::where('class_id', $class->id)->orderBy('date', 'desc')->paginate(5);
+        $class_label = $class->label();
 
-        return view('staff.schedule.index', compact('class', 'schedules'));
+        return view('staff.schedule.index', compact('class', 'schedules', 'class_label'));
     }
 
     public function create(ClassTransaction $class)
     {
-        return view('staff.schedule.insert', compact('class'));
+        $class_label = $class->label();
+
+        return view('staff.schedule.insert', compact('class', 'class_label'));
     }
 
     public function store(ScheduleDateRequest $req, ClassTransaction $class)
@@ -54,8 +57,9 @@ class ClassScheduleController extends Controller
             ->where('class_transactions.Status', 'aktif')
             ->orderBy('class_types.class_name')
             ->get(['class_transactions.id', 'class_types.class_name']);
+        $class_label = $class?->label();
 
-        return view('staff.schedule.multiple', compact('class', 'classes'));
+        return view('staff.schedule.multiple', compact('class', 'classes', 'class_label'));
     }
 
     public function storeMultiple(StoreMultipleScheduleRequest $req)
@@ -76,7 +80,9 @@ class ClassScheduleController extends Controller
 
     public function edit(Schedule $schedule)
     {
-        return view('staff.schedule.update', compact('schedule'));
+        $class_label = ClassTransaction::find($schedule->class_id)?->label() ?? 'Class';
+
+        return view('staff.schedule.update', compact('schedule', 'class_label'));
     }
 
     public function update(ScheduleDateRequest $req, Schedule $schedule)

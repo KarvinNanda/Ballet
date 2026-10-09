@@ -1,90 +1,101 @@
-@inject('carbon','Carbon\Carbon')
-@extends('Master.master')
-@section('title','Transaction')
+@extends('layouts.app')
+
+@section('title', 'Transactions')
 
 @section('content')
-<div class="d-none">
-    {{ $keyword = request('search') }}
-</div>
+    @php
+        $search = request('search');
+        $status = request('status', 'all');
+        $filters = array_filter(['search' => $search, 'status' => $status === 'all' ? null : $status]);
+        $statusTabs = ['all' => 'All', 'Unpaid' => 'Unpaid', 'Paid' => 'Paid'];
+        $sortUrl = fn (string $column) => staff_route('transaction.sort', array_merge(['column' => $column, 'direction' => $sort], $filters));
+    @endphp
 
-    <div class="pagetitle">
-        <h1>Transaction Tables</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Transactions">
+        <x-slot:actions>
+            <a href="{{ staff_route('transaction.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add transaction</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="GET" action="{{staff_route('transaction.index')}}">
-                    <input class="form-control" type="text" name="search" placeholder="Search" value="{{$keyword}}" title="Enter search keyword">
-                </form>
-                <a href="{{staff_route("transaction.create")}}"><button class="btn btn-success me-3 mb-3 me-5"> Add Transaction</button></a>
-            </div>
-            <div class="card-body">
+    <x-filter-bar :action="staff_route('transaction.index')">
+        <label for="transaction-search" class="visually-hidden">Search by student name</label>
+        <input id="transaction-search" class="form-control" type="search" name="search" value="{{ $search }}" placeholder="Search student name…">
+        <input type="hidden" name="status" value="{{ $status }}">
+        <nav class="status-filter" aria-label="Filter by status">
+            @foreach ($statusTabs as $value => $label)
+                <a href="{{ staff_route('transaction.index', array_filter(['search' => $search, 'status' => $value === 'all' ? null : $value])) }}"
+                   class="status-filter-link{{ $status === $value ? ' active' : '' }}" @if ($status === $value) aria-current="page"@endif>{{ $label }}</a>
+            @endforeach
+        </nav>
+    </x-filter-bar>
 
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
+    <div class="card">
+        <div class="card-body">
+            @if ($transactions->isEmpty())
+                <x-empty-state icon="receipt" title="No transactions found">
+                    <x-slot:action>
+                        <a href="{{ staff_route('transaction.index') }}" class="btn btn-outline-secondary">Reset filters</a>
+                    </x-slot:action>
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Student</th>
+                        <th scope="col">Class</th>
+                        <th scope="col" class="d-none d-lg-table-cell">Due date</th>
+                        <th scope="col"><a href="{{ $sortUrl('price') }}">Total</a></th>
+                        <th scope="col" class="d-none d-lg-table-cell">Paid on</th>
+                        <th scope="col"><a href="{{ $sortUrl('payment_status') }}">Status</a></th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($transactions as $transaction)
+                        @php
+                            $total = \App\Support\Discount::total($transaction->price, $transaction->discount);
+                            $discountLabel = \App\Support\Discount::label($transaction->discount);
+                            $canEdit = auth()->user()->can('transaction.edit-paid', $transaction);
+                            $canDelete = auth()->user()->can('transaction.delete');
+                        @endphp
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Due Date</th>
-                            <th scope="col"><a href="{{staff_route('transaction.sort',['column' => 'price','direction' => $sort])}}">Price</a></th>
-                            <th scope="col">Discount</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Payment Date</th>
-                            <th scope="col"><a href="{{staff_route('transaction.sort',['column' => 'payment_status','direction' => $sort])}}">Status</a></th>
-                            <th colspan="2" class="text-center" scope="col">Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($transactions as $transaction)
-                            <tr>
-                                <td>{{$transaction->LongName}}</td>
-                                <td>{{$carbon::parse($transaction->transaction_date)->format('d M Y')}}</td>
-                                <td>Rp.{{number_format($transaction->price)}}</td>
-                                <td>{{str_contains($transaction->discount, '%') ? $transaction->discount : 'Rp '.number_format($transaction->discount) }}</td>
-                                @if(str_contains($transaction->discount, '%'))
-                                @php
-                                    $disc = str_replace("%","",$transaction->discount);
-                                @endphp
-                                    <td>
-                                        Rp.{{number_format($transaction->price - (($disc/100)*$transaction->price))}}
-                                    </td>
-                                @else
-                                    <td>Rp.{{number_format($transaction->price - $transaction->discount)}}</td>
+                            <td>{{ $transaction->LongName }}</td>
+                            <td>{{ $transaction->class_name ?? '-' }}</td>
+                            <td class="d-none d-lg-table-cell">{{ $transaction->transaction_date ? \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y') : '-' }}</td>
+                            <td>
+                                Rp{{ number_format($total ?? $transaction->price) }}
+                                @if ($total === null)
+                                    <span class="status-badge status-badge-warning">Invalid discount</span>
+                                @elseif ($discountLabel !== '')
+                                    <div class="row-note">Rp{{ number_format($transaction->price) }} − {{ $discountLabel }}</div>
                                 @endif
-                                <td>{{is_null($transaction->transaction_payment) ? 'Waiting for Payment' : $carbon::parse($transaction->transaction_payment)->format('d M Y')}}</td>
-                                <td>{{$transaction->payment_status}}</td>
-                                <td class="d-flex">
-                                    @can('transaction.edit-paid', $transaction)
-                                    <form action="{{staff_route('transaction.edit',$transaction->id)}}" method="get">
-                                        <button type="submit" class="btn btn-warning me-2">Update</button>
-                                    </form>
-                                    @endcan
-
-                                    <form action="{{staff_route('transaction.show',$transaction->id)}}" method="get">
-                                        <button type="submit" class="btn btn-secondary me-2">Detail</button>
-                                    </form>
-
-                                    @can('transaction.delete')
-                                    <form action="{{staff_route('transaction.destroy',$transaction->id)}}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger ">Delete</button>
-                                    </form>
-                                    @endcan
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </div>
+                            </td>
+                            <td class="d-none d-lg-table-cell">{{ $transaction->transaction_payment ? \Carbon\Carbon::parse($transaction->transaction_payment)->format('d M Y') : 'Waiting' }}</td>
+                            <td><x-status-badge :status="$transaction->payment_status" /></td>
+                            <td class="text-end text-nowrap">
+                                <a href="{{ staff_route('transaction.show', $transaction->id) }}" class="btn btn-sm btn-outline-secondary">Detail</a>
+                                @if ($canEdit || $canDelete)
+                                    <x-row-menu :label="'More actions for the transaction of '.$transaction->LongName">
+                                        @if ($canEdit)
+                                            <li><a href="{{ staff_route('transaction.edit', $transaction->id) }}" class="dropdown-item">Update</a></li>
+                                        @endif
+                                        @if ($canDelete)
+                                            @if ($canEdit)<li><hr class="dropdown-divider"></li>@endif
+                                            <li>
+                                                <x-confirm-form :action="staff_route('transaction.destroy', $transaction->id)" :message="'Delete this transaction of '.$transaction->LongName.'? This cannot be undone.'">
+                                                    <button type="submit" class="dropdown-item text-danger">Delete…</button>
+                                                </x-confirm-form>
+                                            </li>
+                                        @endif
+                                    </x-row-menu>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{$transactions->appends(['search' => $keyword])->links()}}
-                </div>
-            </div>
+                <div class="mt-3">{{ $transactions->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

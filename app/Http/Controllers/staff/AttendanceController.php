@@ -4,6 +4,7 @@ namespace App\Http\Controllers\staff;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\RecordAttendanceRequest;
+use App\Models\ClassTransaction;
 use App\Models\Schedule;
 use App\Support\AttendancePaymentGate;
 use App\Support\AttendanceRecorder;
@@ -36,7 +37,9 @@ class AttendanceController extends Controller
         $mustPay = $students->filter(fn ($s) => ! $details->has($s->id) && AttendancePaymentGate::requiresPayment($s, $schedule->date, $className))
             ->pluck('id')->flip();
 
-        return view('staff.attendance.edit', compact('schedule', 'students', 'details', 'mustPay'));
+        $class_label = ClassTransaction::find($schedule->class_id)?->label() ?? 'Class';
+
+        return view('staff.attendance.edit', compact('schedule', 'students', 'details', 'mustPay', 'class_label'));
     }
 
     public function update(RecordAttendanceRequest $req, Schedule $schedule)

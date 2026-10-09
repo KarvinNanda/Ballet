@@ -25,25 +25,34 @@ use Illuminate\Support\Facades\Gate;
 
 class ClassController extends Controller
 {
+    private const PER_PAGE = 20;
+
     public function index(ClassListRequest $request){
         $sort = 'asc';
         $classes = $this->listQuery(false, $request->query('keyword'), $request->query('status', 'all'))
             ->orderBy('class_transactions.id','desc')
-            ->paginate(5)
+            ->paginate(self::PER_PAGE)
             ->withQueryString();
 
         return view('staff.class.index', compact('classes','sort'));
     }
 
-    public function sort($column,$direction){
+    public function sort(ClassListRequest $request, $column, $direction){
         [$column, $direction] = $this->sortOrFail($column, $direction, ['class_name', 'status']);
-        $classes = $this->listQuery(false, null, 'all')
+        $classes = $this->listQuery(false, $request->query('keyword'), $request->query('status', 'all'))
             ->orderBy($column === 'status' ? 'class_transactions.Status' : 'class_types.class_name', $direction)
-            ->paginate(5)
+            ->orderBy('class_transactions.id','desc')
+            ->paginate(self::PER_PAGE)
             ->withQueryString();
         $sort = $direction == 'asc' ? 'desc':'asc';
 
         return view('staff.class.index', compact('classes','sort'));
+    }
+
+    /** "Course – Teacher" for page titles; see ClassTransaction::label(). */
+    private function classLabel(ClassTransaction $class): string
+    {
+        return $class->label();
     }
 
     /**
@@ -134,6 +143,8 @@ class ClassController extends Controller
 
         $class_id = $class->id;
         $class_name = $class->Type?->class_name;
+        $class_label = $this->classLabel($class);
+        $class_status = $class->Status;
 
         $teachers = DB::table('mapping_class_teachers')
             ->join('users','mapping_class_teachers.user_id','users.id')
@@ -147,7 +158,8 @@ class ClassController extends Controller
             ')
             ->where('mapping_class_teachers.class_id',$class_id)
             ->paginate(5, ['*'], 'teachers')
-            ->withQueryString();
+            ->withQueryString()
+            ->appends(['tab' => 'teachers']);
 
         $students = DB::table('mapping_class_children')
             ->join('students','mapping_class_children.student_id','students.id')
@@ -165,9 +177,10 @@ class ClassController extends Controller
             ->where('students.Status','!=','non-aktif')
             ->where('mapping_class_children.class_id',$class_id)
             ->paginate(5, ['*'], 'students')
-            ->withQueryString();
+            ->withQueryString()
+            ->appends(['tab' => 'students']);
 
-        return view($view, compact('teachers','students','class_id','class_name'));
+        return view($view, compact('teachers','students','class_id','class_name','class_label','class_status'));
     }
 
     public function toggleStatus(ClassTransaction $class){
@@ -210,7 +223,8 @@ class ClassController extends Controller
                     ->where('class_id','=',$class_id);
             })
             ->paginate(5);
-        return view('staff.class.viewTeacher',compact('teachers','class_id'));
+        $class_label = $this->classLabel($class);
+        return view('staff.class.viewTeacher',compact('teachers','class_id','class_label'));
     }
 
     public function teacherStore(MapTeacherRequest $req){
@@ -244,7 +258,8 @@ class ClassController extends Controller
             ->whereIn('students.Status', ['aktif', 'trial'])
             ->paginate(5)
             ->withQueryString();
-        return view('staff.class.viewStudent',compact('students','class_id'));
+        $class_label = $this->classLabel($class);
+        return view('staff.class.viewStudent',compact('students','class_id','class_label'));
     }
 
     public function studentStore(MapStudentRequest $req){
@@ -346,6 +361,7 @@ class ClassController extends Controller
     public function levelUp(ClassIdRequest $req){
         $return_url = url()->previous();
         $class_id = (int) $req->classId;
+        $class_name = $this->classLabel(ClassTransaction::with('Type')->findOrFail($class_id));
 
         $students = DB::table('mapping_class_children')
             ->join('students','mapping_class_children.student_id','students.id')
@@ -358,7 +374,7 @@ class ClassController extends Controller
             ->where('mapping_class_children.class_id',$class_id)
             ->get();
 
-        return view('staff.class.levelUp',compact('students','class_id','return_url'));
+        return view('staff.class.levelUp',compact('students','class_id','class_name','return_url'));
     }
 
     public function levelUpStudent(ClassIdRequest $req){
@@ -373,7 +389,7 @@ class ClassController extends Controller
         $sort = 'asc';
         $classes = $this->listQuery(true, $request->query('keyword'), $request->query('status', 'all'))
             ->orderBy('class_transactions.id','desc')
-            ->paginate(5)
+            ->paginate(self::PER_PAGE)
             ->withQueryString();
 
         return view('staff.class.viewFreeze', compact('classes','sort'));
@@ -395,7 +411,8 @@ class ClassController extends Controller
             ->where('ct.id',$class_id)
             ->first();
         abort_if($class === null, 404);
-        return view('staff.class.updateFreeze',compact('class','class_id','return_url'));
+        $class_label = $class->class_name.($class->name ? ' – '.$class->name : '');
+        return view('staff.class.updateFreeze',compact('class','class_id','return_url','class_label'));
     }
 
     public function freezeUpdate(FreezePriceRequest $req, ClassTransaction $class){

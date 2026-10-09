@@ -1,86 +1,26 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Update Teacher')
+@section('title', 'Update admin · '.$user->name)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Teacher Form</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Update admin" :subtitle="$user->name">
+        <x-slot:actions>
+            <a href="{{ route('headAdminPage') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to admin accounts</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
-
-                <!-- General Form Elements -->
-                <form action="{{route('headAdminUpdate',$user)}}" method="post">
-                    @csrf
-                    <input type="hidden" name="return_url" value="{{$return_url}}">
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputName" value="{{$user->name}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputEmail" value="{{$user->email}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputDOB" class="col-sm-2 col-form-label">DOB</label>
-                        <div class="col-sm-10">
-                            <input type="date" class="form-control" name="inputDate_of_Birth" value="{{$user->dob}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
-                        <div class="col-sm-10">
-                            @if($user->address == '' || is_null($user->address))
-                            <textarea class="form-control" style="height: 100px" name="inputAddress"></textarea>
-                            @else
-                                <textarea class="form-control" style="height: 100px" name="inputAddress">{{$user->address}}</textarea>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Phone</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputPhone" value="{{$user->phone}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Percentage(%)</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputBonus" value="{{$user->percent}}">
-                        </div>
-                    </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-success p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
+    <form class="card" method="post" action="{{ route('headAdminUpdate', $user) }}">
+        @csrf
+        <input type="hidden" name="return_url" value="{{ $return_url }}">
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.account-fields :account="$user">
+                <x-form.field name="inputBonus" label="Bonus %" type="number" min="0" max="100" :value="$user->percent ?? 0" required
+                              help="Stored on the account; not used by any report." />
+            </x-form.account-fields>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Save changes</button>
             </div>
         </div>
-    </section>
-
-
+    </form>
 @endsection

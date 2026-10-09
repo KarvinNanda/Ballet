@@ -38,7 +38,7 @@ class ScheduleTest extends StaffTestCase
         $this->asRole('admin');
         $this->get(route('admin.schedule.create', $classId))->assertOk();
         $this->get(route('admin.schedule.multiple.create', $classId))->assertOk()->assertSee('value="'.$classId.'" name="classId"', false);
-        $this->get(route('admin.schedule.multiple.create'))->assertOk()->assertSee('<select class="form-select" id="classId"', false);
+        $this->get(route('admin.schedule.multiple.create'))->assertOk()->assertSee('<select id="field-classId" name="classId" class="form-select" required', false);
         $this->get('/admin/view/addMultipleSchedule/class?classId='.$classId)->assertRedirect(route('admin.schedule.multiple.create', $classId));
 
         $when = Carbon::parse('2031-03-03 10:00:00');

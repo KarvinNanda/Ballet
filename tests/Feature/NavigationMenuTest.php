@@ -62,7 +62,7 @@ class NavigationMenuTest extends TestCase
             foreach (Route::getRoutes()->getRoutes() as $route) {
                 $uri = $route->uri();
                 $isRolePage = $uri === $role || str_starts_with($uri, "{$role}/");
-                $isPage = in_array('GET', $route->methods(), true) && ! preg_match('/delete|get-price/i', $uri);
+                $isPage = in_array('GET', $route->methods(), true) && ! preg_match('/delete/i', $uri);
 
                 if ($isRolePage && $isPage) {
                     $path = preg_replace('/\{[^}]+\}/', '1', $uri);

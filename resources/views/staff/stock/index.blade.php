@@ -1,73 +1,70 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Stock')
+@section('title', 'Stock')
 
 @section('content')
-<div class="d-none">
-    {{ $keyword = request('search') }}
-</div>
+    @php
+        $search = request('search');
+        $sortUrl = fn (string $column) => staff_route('stock.sort', array_filter(['column' => $column, 'direction' => $sort, 'search' => $search]));
+    @endphp
 
-    <div class="pagetitle">
-        <h1>Stock Tables</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Stock">
+        <x-slot:actions>
+            @can('stock.manage')
+                <a href="{{ staff_route('stock.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add stock</a>
+            @endcan
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="get" action="{{staff_route('stock.index')}}">
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
-                </form>
-                @can('stock.manage')
-                <a href="{{staff_route('stock.create')}}"><button class="btn btn-success me-3 mb-3"> Add Stock</button></a>
-                @endcan
-            </div>
-            <div class="card-body">
+    <x-filter-bar :action="staff_route('stock.index')">
+        <label for="stock-search" class="visually-hidden">Search by item name</label>
+        <input id="stock-search" class="form-control" type="search" name="search" value="{{ $search }}" placeholder="Search item name…">
+    </x-filter-bar>
 
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
+    <div class="card">
+        <div class="card-body">
+            @if ($stocks->isEmpty())
+                <x-empty-state icon="box-seam" title="No stock items found">
+                    <x-slot:action>
+                        <a href="{{ staff_route('stock.index') }}" class="btn btn-outline-secondary">Reset search</a>
+                    </x-slot:action>
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col"><a href="{{ $sortUrl('name') }}">Name</a></th>
+                        <th scope="col"><a href="{{ $sortUrl('size') }}">Size</a></th>
+                        <th scope="col"><a href="{{ $sortUrl('quantity') }}">Quantity</a></th>
+                        @can('stock.manage')
+                            <th scope="col"><span class="visually-hidden">Actions</span></th>
+                        @endcan
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($stocks as $stock)
                         <tr>
-                            <th scope="col"><a href="{{staff_route("stock.sort",['column' => "name",'direction' => $sort])}}">Name</a></th>
-                            <th scope="col"><a href="{{staff_route("stock.sort",['column' => "size",'direction' => $sort])}}">Size</a></th>
-                            <th scope="col"><a href="{{staff_route("stock.sort",['column' => "quantity",'direction' => $sort])}}">Quantity</a></th>
+                            <td>{{ $stock->name }}</td>
+                            <td>{{ $stock->size }}</td>
+                            <td>{{ $stock->quantity }}</td>
                             @can('stock.manage')
-                            <th scope="col">Update</th>
-                            <th scope="col">Delete</th>
+                                <td class="text-end text-nowrap">
+                                    <a href="{{ staff_route('stock.edit', $stock) }}" class="btn btn-sm btn-outline-secondary">Update</a>
+                                    <x-row-menu :label="'More actions for '.$stock->name">
+                                        <li>
+                                            <x-confirm-form :action="staff_route('stock.destroy', $stock)" :message="'Delete '.$stock->name.' ('.$stock->size.')? This cannot be undone.'">
+                                                <button type="submit" class="dropdown-item text-danger">Delete…</button>
+                                            </x-confirm-form>
+                                        </li>
+                                    </x-row-menu>
+                                </td>
                             @endcan
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($stocks as $stock)
-                            <tr>
-                                <td>{{$stock->name}}</td>
-                                <td>{{$stock->size}}</td>
-                                <td>{{$stock->quantity}}</td>
-                                @can('stock.manage')
-                                <td>
-                                    <form action="{{staff_route('stock.edit',$stock)}}" method="get">
-                                        <button type="submit" class="btn btn-warning">Update</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    <form action="{{staff_route('stock.destroy',$stock)}}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
-                                </td>
-                                @endcan
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </div>
+                    @endforeach
+                    </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{$stocks->appends(['search' => $keyword])->links()}}
-                </div>
-            </div>
+                <div class="mt-3">{{ $stocks->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

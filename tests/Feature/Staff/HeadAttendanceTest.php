@@ -67,7 +67,7 @@ class HeadAttendanceTest extends StaffTestCase
         // Stronger: within that student's own row (before the next student_id[] field), Sick is the selected option.
         $own = '/value="'.$rows[1]->id.'" name="student_id\\[\\d+\\]">(?:(?!name="student_id\\[).)*?<option value="Sick" selected>/s';
         $this->assertMatchesRegularExpression($own, $html);
-        $first = '/value="'.$rows[0]->id.'" name="student_id\\[\\d+\\]">(?:(?!name="student_id\\[).)*?<option value="Attend" selected>/s';
+        $first = '/value="'.$rows[0]->id.'" name="student_id\\[\\d+\\]">(?:(?!name="student_id\\[).)*?value="on" checked>/s';
         $this->assertMatchesRegularExpression($first, $html);
     }
 

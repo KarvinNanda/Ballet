@@ -1,74 +1,22 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Add Teacher')
+@section('title', 'Add teacher')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Teacher Form</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Add teacher">
+        <x-slot:actions>
+            <a href="{{ staff_route('teacher.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to teachers</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
-
-                <!-- General Form Elements -->
-                <form action="{{staff_route('teacher.store')}}" method="post">
-                    @csrf
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputName" value="{{old('inputName')}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputEmail" value="{{old('inputEmail')}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputDOB" class="col-sm-2 col-form-label">DOB</label>
-                        <div class="col-sm-10">
-                            <input type="date" class="form-control" name="inputDate_of_Birth" value="{{old('inputDate_of_Birth')}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputAddress" class="col-sm-2 col-form-label">Address</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" style="height: 100px" name="inputAddress">{{old('inputAddress')}}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputPhone" class="col-sm-2 col-form-label">Phone</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputPhone" value="{{old('inputPhone')}}">
-                        </div>
-                    </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-success p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
+    <form class="card" method="post" action="{{ staff_route('teacher.store') }}">
+        @csrf
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.account-fields />
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Create teacher</button>
             </div>
         </div>
-    </section>
-
-
+    </form>
 @endsection

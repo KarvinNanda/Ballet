@@ -1,70 +1,67 @@
-@inject('carbon', 'Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Finance List')
+@section('title', 'Finance accounts')
 
 @section('content')
-<div class="d-none">
-    {{ $keyword = request('search') }}
-</div>
+    @php($search = request('search'))
 
-    <div class="pagetitle">
-        <h1>Finance Tables</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Finance accounts">
+        <x-slot:actions>
+            <a href="{{ staff_route('finance.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add finance account</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="get" action="{{staff_route('finance.index')}}">
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
-                </form>
-                <a href="{{staff_route('finance.create')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Finance</button></a>
-            </div>
-            <div class="card-body">
+    <x-filter-bar :action="staff_route('finance.index')">
+        <label for="finance-search" class="visually-hidden">Search by name</label>
+        <input id="finance-search" class="form-control" type="search" name="search" value="{{ $search }}" placeholder="Search name…">
+    </x-filter-bar>
 
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
+    <div class="card">
+        <div class="card-body">
+            @if ($finances->isEmpty())
+                <x-empty-state icon="wallet2" title="No finance accounts found">
+                    <x-slot:action>
+                        <a href="{{ staff_route('finance.index') }}" class="btn btn-outline-secondary">Reset search</a>
+                    </x-slot:action>
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th scope="col">Name</th>
-                        <th scope="col">DOB</th>
-                        <th scope="col">Address</th>
+                        <th scope="col">Age</th>
                         <th scope="col">Phone</th>
                         <th scope="col">Email</th>
-                        <th scope="col">Action</th>
+                        @can('finance.manage')
+                            <th scope="col"><span class="visually-hidden">Actions</span></th>
+                        @endcan
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($finances as $finance)
-                    <tr>
-                        <td>{{$finance->name}}</td>
-                        <td>{{$carbon::parse($finance->dob)->format('d M Y')}}</td>
-                        <td>{{$finance->address}}</td>
-                        <td>{{$finance->phone}}</td>
-                        <td>{{$finance->email}}</td>
-                        <td class="d-flex">
+                    @foreach ($finances as $finance)
+                        <tr>
+                            <td>{{ $finance->name }}</td>
+                            <td><x-age :dob="$finance->dob" /></td>
+                            <td>{{ $finance->phone ?? '-' }}</td>
+                            <td>{{ $finance->email }}</td>
                             @can('finance.manage')
-                            <form action="{{staff_route('finance.destroy',$finance)}}" method="post">
-                                @csrf
-                                <button type="submit" class="btn btn-danger me-3">Delete</button>
-                            </form>
-                            <form action="{{staff_route('finance.edit',$finance)}}" method="get">
-                                <button type="submit" class="btn btn-warning">Update</button>
-                            </form>
+                                <td class="text-end text-nowrap">
+                                    <a href="{{ staff_route('finance.edit', $finance) }}" class="btn btn-sm btn-outline-secondary">Update</a>
+                                    <x-row-menu :label="'More actions for '.$finance->name">
+                                        <li>
+                                            <x-confirm-form :action="staff_route('finance.destroy', $finance)" :message="'Delete '.$finance->name.'? This cannot be undone.'">
+                                                <button type="submit" class="dropdown-item text-danger">Delete…</button>
+                                            </x-confirm-form>
+                                        </li>
+                                    </x-row-menu>
+                                </td>
                             @endcan
-                        </td>
-                    </tr>
+                        </tr>
                     @endforeach
                     </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{$finances->appends(['search' => $keyword])->links()}}
-                </div>
-            </div>
+                <div class="mt-3">{{ $finances->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

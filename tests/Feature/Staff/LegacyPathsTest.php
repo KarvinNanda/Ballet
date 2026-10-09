@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Staff;
 
-/** get-price is omitted on purpose: it is an AJAX endpoint that answers 422 without its query parameters. */
 class LegacyPathsTest extends StaffTestCase
 {
     private const ADMIN = [

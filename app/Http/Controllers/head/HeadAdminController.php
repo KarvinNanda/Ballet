@@ -4,6 +4,7 @@ namespace App\Http\Controllers\head;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Head\SearchAdminRequest;
+use App\Http\Requests\SearchRequest;
 use App\Http\Requests\Head\StoreAdminRequest;
 use App\Http\Requests\Head\UpdateAdminRequest;
 use App\Support\AccountInvite;
@@ -12,8 +13,12 @@ use Illuminate\Http\Request;
 
 class HeadAdminController extends Controller
 {
-    public function index(){
-        $admins = User::where('role','admin')->orderBy('id','desc')->paginate(5);
+    public function index(SearchRequest $request){
+        $admins = User::where('role','admin')
+            ->when($request->query('search'), fn ($q, $s) => $q->where('name','like',"%{$s}%"))
+            ->orderBy('id','desc')
+            ->paginate(5)
+            ->withQueryString();
         return view('head.admin.index',compact('admins'));
     }
 

@@ -1,68 +1,68 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Teacher List')
+@section('title', 'Teachers')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Teacher Tables</h1>
-    </div><!-- End Page Title -->
+    @php($search = request('search'))
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form class="search-form d-flex align-items-center" method="get" action="{{staff_route('teacher.index')}}">
-                    <input type="text" name="search" placeholder="Search" title="Enter search keyword">
-                </form>
-                <a href="{{staff_route('teacher.create')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Teacher</button></a>
-            </div>
-            <div class="card-body">
+    <x-page-header title="Teachers">
+        <x-slot:actions>
+            <a href="{{ staff_route('teacher.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add teacher</a>
+        </x-slot:actions>
+    </x-page-header>
 
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
+    <x-filter-bar :action="staff_route('teacher.index')">
+        <label for="teacher-search" class="visually-hidden">Search by teacher name</label>
+        <input id="teacher-search" class="form-control" type="search" name="search" value="{{ $search }}" placeholder="Search teacher name…">
+    </x-filter-bar>
+
+    <div class="card">
+        <div class="card-body">
+            @if ($teachers->isEmpty())
+                <x-empty-state icon="person-badge" title="No teachers found">
+                    <x-slot:action>
+                        <a href="{{ staff_route('teacher.index') }}" class="btn btn-outline-secondary">Reset search</a>
+                    </x-slot:action>
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Reward %</th>
+                        <th scope="col">Age</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Email</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($teachers as $t)
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Percentage</th>
-                            <th scope="col">DOB</th>
-                            <th scope="col">Address</th>
-                            <th scope="col">Phone</th>
-                            <th scope="col">Email</th>
-                            <th scope="col" colspan="2">Action</th>
+                            <td>{{ $t->name }}</td>
+                            <td>{{ $t->percent ?? 0 }}%</td>
+                            <td><x-age :dob="$t->dob" /></td>
+                            <td>{{ $t->phone ?? '-' }}</td>
+                            <td>{{ $t->email }}</td>
+                            <td class="text-end text-nowrap">
+                                <a href="{{ staff_route('teacher.edit', $t) }}" class="btn btn-sm btn-outline-secondary">Update</a>
+                                <x-row-menu :label="'More actions for '.$t->name">
+                                    <li><a href="{{ staff_route('teacher.switch', $t) }}" class="dropdown-item">Replace &amp; delete…</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        {{-- A teacher with any class (frozen included) is sent to the Replace page instead (TeacherController::destroy). --}}
+                                        <x-confirm-form :action="staff_route('teacher.destroy', $t)" :message="'Delete '.$t->name.'? This cannot be undone.'">
+                                            <button type="submit" class="dropdown-item text-danger">Delete…</button>
+                                        </x-confirm-form>
+                                    </li>
+                                </x-row-menu>
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($teachers as $teacher)
-                            <tr>
-                                <td>{{$teacher->name}}</td>
-                                <td>{{$teacher->percent}}%</td>
-                                <td>{{\Carbon\Carbon::parse($teacher->dob)->format('d M Y')}}</td>
-                                <td>{{$teacher->address}}</td>
-                                <td>{{$teacher->phone}}</td>
-                                <td>{{$teacher->email}}</td>
-                                <td class="d-flex">
-                                    <form action="{{staff_route('teacher.destroy',$teacher)}}" method="post" data-confirm="Hapus data ini?">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger me-3">Delete</button>
-                                    </form>
-
-                                    <form action="{{staff_route('teacher.edit',$teacher)}}" method="get">
-                                        <button type="submit" class="btn btn-warning">Update</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </div>
+                    @endforeach
+                    </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{ $teachers->links() }}
-                    
-                </div>
-            </div>
+                <div class="mt-3">{{ $teachers->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

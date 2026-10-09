@@ -60,7 +60,7 @@ class StockTest extends StaffTestCase
     public function test_get_search_form_does_not_put_the_csrf_token_in_the_url(): void
     {
         $html = $this->asRole('head')->get(route('head.stock.index'))->assertOk()->getContent();
-        $this->assertMatchesRegularExpression('/<form[^>]*method="get"[^>]*>(?:(?!<\/form>).)*name="search"/s', $html);
-        $this->assertDoesNotMatchRegularExpression('/<form[^>]*method="get"[^>]*>(?:(?!<\/form>).)*name="_token"/s', $html);
+        $this->assertMatchesRegularExpression('/<form[^>]*method="get"[^>]*>(?:(?!<\/form>).)*name="search"/si', $html);
+        $this->assertDoesNotMatchRegularExpression('/<form[^>]*method="get"[^>]*>(?:(?!<\/form>).)*name="_token"/si', $html);
     }
 }

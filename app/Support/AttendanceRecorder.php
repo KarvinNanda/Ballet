@@ -67,7 +67,7 @@ class AttendanceRecorder
                 $note = $row['keterangan'] ?: 'Select...';
                 $values = [
                     'Description' => $row['check'] === 'on' ? 'Attend' : ($note === 'Select...' ? 'Absent' : $note),
-                    'Notes' => $note === 'Permission' ? $row['notes'] : '',
+                    'Notes' => (string) ($row['notes'] ?? ''),
                 ];
 
                 if ($isNew) {

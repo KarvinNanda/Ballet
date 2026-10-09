@@ -116,6 +116,7 @@ class StudentTest extends StaffTestCase
             'inputEmail' => 'nk@example.com', 'inputDate_of_Birth' => '2015-01-01', 'inputAddress' => 'Somewhere',
             'inputPhone1' => '081234567890', 'inputWhatsapp' => '081234567890', 'inputPostalCode' => '14480',
             'inputRekening' => '5550008888', 'inputNamaPengirim' => 'Other', 'inputBankName' => 'BCA',
+            'terms_accepted' => '1',
         ])->assertSessionHasNoErrors();
 
         $this->assertSame(1, DB::table('rekenings')->where('bank_rek', '5550008888')->count());
@@ -179,7 +180,7 @@ class StudentTest extends StaffTestCase
 
     public function test_pager_keeps_status_and_keyword(): void
     {
-        Student::factory()->count(6)->create(['Status' => 'aktif', 'LongName' => 'Pagerkid']);
+        Student::factory()->count(21)->create(['Status' => 'aktif', 'LongName' => 'Pagerkid']);
         $this->asRole('admin')->get(route('admin.student.index', ['status' => 'aktif', 'keyword' => 'Pagerkid']))
             ->assertSee('status=aktif', false)->assertSee('keyword=Pagerkid', false);
     }
@@ -214,20 +215,6 @@ class StudentTest extends StaffTestCase
         $this->asRole('head')->get(route('head.student.show', 999999))->assertNotFound();
     }
 
-    /** @return array{0: Student, 1: int} an active student and an active, non-frozen class they are not in yet, with a schedule */
-    private function studentAndFreeClass(): array
-    {
-        $student = Student::where('Status', 'aktif')->firstOrFail();
-        $classId = DB::table('class_transactions')
-            ->where('is_freeze', '!=', 1)
-            ->whereIn('id', DB::table('schedules')->whereRaw('date >= curdate()')->pluck('class_id'))
-            ->whereNotIn('id', DB::table('mapping_class_children')->where('student_id', $student->id)->pluck('class_id'))
-            ->value('id');
-        $this->assertNotNull($classId, 'seed has no free class for this student');
-
-        return [$student, $classId];
-    }
-
     private function storePayload(array $override = []): array
     {
         return array_merge([
@@ -236,6 +223,7 @@ class StudentTest extends StaffTestCase
             'inputPhone1' => '081234567890', 'inputWhatsapp' => '081234567890', 'inputPostalCode' => '12345',
             'inputNis' => 'N-1', 'inputPhone2' => '', 'inputInstagram' => '', 'inputLine' => 'aniline',
             'inputRekening' => '', 'inputBankName' => '', 'inputNamaPengirim' => '',
+            'terms_accepted' => '1',
         ], $override);
     }
 

@@ -1,54 +1,32 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Update Type')
+@section('title', 'Update course · '.$type->class_name)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Class Type Form</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Update course" :subtitle="$type->class_name">
+        <x-slot:actions>
+            <a href="{{ staff_route('class-type.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to courses</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
-
-                <!-- General Form Elements -->
-                <form action="{{staff_route('class-type.update')}}" method="post">
-                    @csrf
-                    <input type="hidden" name="typeID" value="{{$type->id}}">
-                    <input type="hidden" name="return_url" value="{{$return_url}}">
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Class Type Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" value="{{$type->class_name}}" disabled>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label  class="col-sm-2 col-form-label">Class Type Price</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" name="inputPrice" value="{{$type->class_price}}">
-                        </div>
-                    </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-success p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
+    <form class="card" method="post" action="{{ staff_route('class-type.update') }}">
+        @csrf
+        <input type="hidden" name="typeID" value="{{ $type->id }}">
+        <input type="hidden" name="return_url" value="{{ $return_url }}">
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.section title="Course">
+                {{-- The name cannot be changed here: shown as text, not posted. --}}
+                <div class="form-field">
+                    <span class="form-label d-block">Course</span>
+                    <p class="form-static">{{ $type->class_name }}</p>
+                </div>
+                <x-form.field name="inputPrice" label="Price (Rp)" type="number" min="0" :value="$type->class_price" required
+                              help="The new price applies to Unpaid transactions and to classes that are not frozen." />
+            </x-form.section>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Save changes</button>
             </div>
         </div>
-    </section>
-
-
+    </form>
 @endsection

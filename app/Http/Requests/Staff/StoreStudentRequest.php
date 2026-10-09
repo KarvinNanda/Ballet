@@ -32,6 +32,12 @@ class StoreStudentRequest extends FormRequest
             'inputRekening' => 'nullable|string|max:255',
             'inputBankName' => 'nullable|string|max:255',
             'inputNamaPengirim' => 'nullable|string|max:255',
+            'terms_accepted' => 'accepted', // the parent agreed to the T&C shown in the form's modal; not stored
         ];
+    }
+
+    public function messages(): array
+    {
+        return ['terms_accepted.accepted' => 'You must confirm the terms and conditions.'];
     }
 }

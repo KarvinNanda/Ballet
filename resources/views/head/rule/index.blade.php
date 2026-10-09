@@ -1,60 +1,50 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Rule List')
+@section('title', 'Rules')
 
 @section('content')
-<div class="d-none">
-    {{ $keyword = request('search') }}
-</div>
+    <x-page-header title="Rules & regulations">
+        <x-slot:actions>
+            <a href="{{ route('RulesAddPage') }}" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add rule</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <div class="pagetitle">
-        <h1>Rules & Regulations Tables</h1>
-    </div><!-- End Page Title -->
-
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <div></div>
-                <a href="{{route('RulesAddPage')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Rule</button></a>
-            </div>
-            <div class="card-body">
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
+    <div class="card">
+        <div class="card-body">
+            @if ($rules->isEmpty())
+                <x-empty-state icon="file-text" title="No rules yet">
+                    <x-slot:action>
+                        <a href="{{ route('RulesAddPage') }}" class="btn btn-primary">Add rule</a>
+                    </x-slot:action>
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Language</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($rules as $rule)
                         <tr>
-                            <th scope="col">Language</th>
-                            <th scope="col" colspan="2">Action</th>
+                            <td>{{ $rule->lang }}</td>
+                            <td class="text-end text-nowrap">
+                                <a href="{{ route('RulesUpdatePage', $rule->id) }}" class="btn btn-sm btn-outline-secondary">Update</a>
+                                <x-row-menu :label="'More actions for the '.$rule->lang.' rule'">
+                                    <li>
+                                        <x-confirm-form :action="route('RulesDelete', $rule->id)" :message="'Delete the '.$rule->lang.' rule? This cannot be undone.'">
+                                            <button type="submit" class="dropdown-item text-danger">Delete…</button>
+                                        </x-confirm-form>
+                                    </li>
+                                </x-row-menu>
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($rules as $rule)
-                            <tr>
-                                <td>{{$rule->lang}}</td>
-                                <td class="d-flex">
-                                    <form action="{{route('RulesDelete',$rule->id)}}" method="post" data-confirm="Hapus data ini?">
-                                        @csrf
-                                        <button type="submit" class="btn btn-danger me-3">Delete</button>
-                                    </form>
-                                    <form action="{{route('RulesUpdatePage',$rule->id)}}" method="get">
-                                        <button type="submit" class="btn btn-warning">Update</button>
-                                    </form>
-                                </td>
-
-
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </div>
+                    @endforeach
+                    </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{$rules->links()}}
-                </div>
-            </div>
+                <div class="mt-3">{{ $rules->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

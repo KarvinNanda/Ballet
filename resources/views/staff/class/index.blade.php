@@ -1,115 +1,102 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Class List')
+@section('title', 'Classes')
 
 @section('content')
     @php
         $keyword = request('keyword');
         $status = request('status', 'all');
+        $filters = array_filter(['keyword' => $keyword, 'status' => $status === 'all' ? null : $status]);
+        $statusTabs = ['all' => 'All', 'aktif' => 'Active', 'non-aktif' => 'Inactive'];
+        $sortUrl = fn (string $column) => staff_route('class.sort', array_merge(['column' => $column, 'direction' => $sort], $filters));
     @endphp
 
-    <div class="pagetitle">
-        <h1>Class Tables</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Classes">
+        <x-slot:actions>
+            <a href="{{ staff_route('class.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add class</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form
-                    class="d-flex align-items-center justify-content-center gap-2"
-                    method="GET"
-                    action="{{staff_route('class.index')}}"
-                >
-                    <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
+    <x-filter-bar :action="staff_route('class.index')">
+        <label for="class-keyword" class="visually-hidden">Search classes</label>
+        <input id="class-keyword" class="form-control" type="search" name="keyword" value="{{ $keyword }}" placeholder="Search course, teacher or student…">
+        <input type="hidden" name="status" value="{{ $status }}">
+        <nav class="status-filter" aria-label="Filter by status">
+            @foreach ($statusTabs as $value => $label)
+                <a href="{{ staff_route('class.index', array_filter(['keyword' => $keyword, 'status' => $value === 'all' ? null : $value])) }}"
+                   class="status-filter-link{{ $status === $value ? ' active' : '' }}" @if ($status === $value) aria-current="page"@endif>{{ $label }}</a>
+            @endforeach
+        </nav>
+    </x-filter-bar>
 
-                    <select class="form-select" name="status">
-                        <option value="all" {{ $status == 'all' ? 'selected' : '' }}>All</option>
-                        <option value="aktif" {{ $status == 'aktif' ? 'selected' : '' }}>Active</option>
-                        <option value="non-aktif" {{ $status == 'non-aktif' ? 'selected' : '' }}>Non Active</option>
-                    </select>
-
-                    <button type="submit" class="btn btn-primary text-nowrap">Apply Filters</button>
-                </form>
-                <a href="{{staff_route('class.create')}}"><button class="btn btn-success me-5 mt-2 mb-2"> Add Class</button></a>
-            </div>
-            <div class="card-body">
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
+    <div class="card">
+        <div class="card-body">
+            @if ($classes->isEmpty())
+                <x-empty-state icon="easel" title="No classes found">
+                    <x-slot:action>
+                        <a href="{{ staff_route('class.index') }}" class="btn btn-outline-secondary">Reset filters</a>
+                    </x-slot:action>
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
                     <thead>
                     <tr>
-                        <th scope="col">
-                            <a href="{{staff_route('class.sort', ['column' => 'class_name', 'direction' => $sort])}}">
-                                Class Name
-                            </a>
-                        </th>
-                        <th scope="col">Price</th>
-                        <th scope="col">
-                            <a href="{{staff_route('class.sort', ['column' => 'status', 'direction' => $sort])}}">
-                                Status
-                            </a>
-                        </th>
-                        <th scope="col">Detail</th>
-                        <th scope="col">Schedule Detail</th>
-                        <th scope="col">Freeze</th>
-                        <th scope="col">Action</th>
+                        <th scope="col"><a href="{{ $sortUrl('class_name') }}">Class</a></th>
+                        <th scope="col">Teacher</th>
+                        <th scope="col">Students</th>
+                        <th scope="col" class="d-none d-lg-table-cell">Price</th>
+                        <th scope="col"><a href="{{ $sortUrl('status') }}">Status</a></th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($classes as $class)
+                    @foreach ($classes as $class)
+                        @php
+                            $teacher = $class->mapping->first()?->getUser?->name;
+                            $label = ($class->Type?->class_name ?? 'Class').($teacher ? ' – '.$teacher : '');
+                            $active = $class->Status === 'aktif';
+                        @endphp
                         <tr>
-                            <td>
-                                {{$class->Type?->class_name}} -
-                                {{$class->mapping->first()?->getUser?->name ?? '-'}}
-                                - {{$class->people_count}}
-                            </td>
-                            <td>Rp.{{number_format($class->class_transaction_price)}}</td>
-                            <td>
-                                <form action="{{staff_route('class.status', $class)}}" method="post">
-                                    @csrf
-                                    @if($class->Status == 'aktif')
-                                        <button type="submit" class="btn btn-primary">Active</button>
-                                    @else
-                                        <button type="submit" class="btn btn-primary">Inactive</button>
+                            <td>{{ $class->Type?->class_name ?? '-' }}</td>
+                            <td>{{ $teacher ?? '-' }}</td>
+                            <td>{{ $class->people_count }}</td>
+                            <td class="d-none d-lg-table-cell">Rp{{ number_format($class->class_transaction_price) }}</td>
+                            <td><x-status-badge :status="$class->Status" /></td>
+                            <td class="text-end text-nowrap">
+                                @if ($active)
+                                    <a href="{{ staff_route('class.show', $class) }}" class="btn btn-sm btn-outline-secondary">Detail</a>
+                                    <a href="{{ staff_route('schedule.index', $class->id) }}" class="btn btn-sm btn-outline-secondary">Schedule</a>
+                                @endif
+                                <x-row-menu :label="'More actions for '.$label">
+                                    <li>
+                                        <x-confirm-form :action="staff_route('class.status', $class)" :message="'Set '.$label.' to '.($active ? 'Inactive' : 'Active').'?'">
+                                            <button type="submit" class="dropdown-item">Set {{ $active ? 'Inactive' : 'Active' }}</button>
+                                        </x-confirm-form>
+                                    </li>
+                                    @if ($active)
+                                        <li>
+                                            {{-- No confirm here: the next page is the confirmation. --}}
+                                            <form action="{{ staff_route('class.level') }}" method="post">
+                                                @csrf
+                                                <input type="hidden" name="classId" value="{{ $class->id }}">
+                                                <button type="submit" class="dropdown-item">Freeze…</button>
+                                            </form>
+                                        </li>
                                     @endif
-                                </form>
-                            </td>
-                            @if($class->Status == 'aktif')
-                            <td>
-                                <a href="{{staff_route('class.show', $class)}}"><button type="button" class="btn btn-secondary">Detail</button></a>
-                            </td>
-                            <td>
-                                <a href="{{staff_route('schedule.index', $class->id)}}"><button type="button" class="btn btn-info">Schedule</button></a>
-                            </td>
-                            <td>
-                                <form action="{{staff_route('class.level')}}" method="post">
-                                    @csrf
-                                    <input type="hidden" value="{{$class->id}}" name="classId">
-                                    <button type="submit" class="btn btn-info">Freeze</button>
-                                </form>
-                            </td>
-                            @else
-                            <td>None</td>
-                            <td>None</td>
-                            <td>None</td>
-                            @endif
-                            <td>
-                                <form action="{{staff_route('class.destroy', $class)}}" method="post" data-confirm="Hapus kelas ini?">
-                                    @csrf
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <x-confirm-form :action="staff_route('class.destroy', $class)" :message="'Delete '.$label.'? This cannot be undone.'">
+                                            <button type="submit" class="dropdown-item text-danger">Delete…</button>
+                                        </x-confirm-form>
+                                    </li>
+                                </x-row-menu>
                             </td>
                         </tr>
                     @endforeach
                     </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{$classes->links()}}
-                </div>
-            </div>
+                <div class="mt-3">{{ $classes->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection
