@@ -13,17 +13,20 @@ class StockController extends Controller
 {
     public function index(SearchRequest $request){
         $sort = 'asc';
-        $search = $request->search;
-        if(is_null($search)) $stocks = Stock::orderBy('id','desc')->paginate(5);
-        else  $stocks = Stock::where('name','like',"%$search%")->orderBy('id','desc')->paginate(5);
+        $stocks = $this->filtered($request)->orderBy('id','desc')->paginate(5)->withQueryString();
         return view('staff.stock.index',compact('stocks','sort'));
     }
 
-    public function sort($column,$direction){
+    public function sort(SearchRequest $request, $column, $direction){
         [$column, $direction] = $this->sortOrFail($column, $direction, ['name', 'quantity', 'size']);
-        $stocks = Stock::orderBy($column,$direction)->paginate(5);
+        $stocks = $this->filtered($request)->orderBy($column,$direction)->orderBy('id','desc')->paginate(5)->withQueryString();
         $sort = $direction == 'asc' ? 'desc' : 'asc';
         return view('staff.stock.index',compact('stocks','sort'));
+    }
+
+    /** The list filter shared by index() and sort(), so a sort link keeps the search. SearchRequest already dropped junk values. */
+    private function filtered(SearchRequest $request){
+        return Stock::query()->when($request->query('search'), fn ($q, $search) => $q->where('name', 'like', "%{$search}%"));
     }
 
     public function create(){

@@ -1,55 +1,52 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Class List')
+@section('title', 'Add class')
 
 @section('content')
+    @php
+        // Only classes that have at least one schedule can be joined.
+        $available = collect($data)->filter(fn ($class) => in_array($class->id, $schedules));
+    @endphp
 
+    <x-page-header :title="'Add class for '.$student->LongName">
+        <x-slot:actions>
+            <a href="{{ staff_route('student.show', ['student' => $student->id, 'tab' => 'classes']) }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> Back to student
+            </a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <div class="pagetitle">
-        <h1>Class Tables</h1>
-    </div><!-- End Page Title -->
-
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
+    <div class="card">
+        <div class="card-body">
+            @if ($available->isEmpty())
+                <x-empty-state icon="calendar-x" title="No class with a schedule is available" />
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Class</th>
+                        <th scope="col">Teacher</th>
+                        <th scope="col">Students</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($available as $class)
                         <tr>
-                            <th scope="col">Teacher</th>
-                            <th scope="col">Class</th>
-                            <th scope="col">Students</th>
-                            <th scope="col">Action</th>
+                            <td>{{ $class->class_name }}</td>
+                            <td>{{ $class->user }}</td>
+                            <td>{{ $class->students }}</td>
+                            <td class="text-end">
+                                <form action="{{ staff_route('student.class.store', ['class' => $class->id, 'student' => $student->id]) }}" method="post">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-primary">Add</button>
+                                </form>
+                            </td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($data as $d)
-                            @if(in_array($d->id,$schedules))
-                            <tr>
-                                <td>{{$d->user}}</td>
-                                <td>{{$d->class_name}}</td>
-                                <td>{{$d->students}}</td>
-                                <td>
-                                    <form action="{{staff_route('student.class.store',['class' => $d->id,'student' => $student->id])}}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success">Add Class</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @endif
-                        @endforeach
-                        </tbody>
-                    </div>
+                    @endforeach
+                    </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                {{-- <div class="alert text-center" role="alert">
-                    {{$students->links()}}
-                </div> --}}
-            </div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

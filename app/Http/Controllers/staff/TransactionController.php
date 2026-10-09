@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\staff;
 
-use App\Http\Requests\SearchRequest;
+use App\Http\Requests\Staff\TransactionListRequest;
 use App\Http\Requests\Staff\StoreTransactionRequest;
 use App\Http\Requests\Staff\UpdateTransactionRequest;
 use App\Http\Controllers\Controller;
@@ -15,16 +15,38 @@ use App\Support\TransactionQuota;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
 
 class TransactionController extends Controller
 {
-    public function index(SearchRequest $req){
+    private const PER_PAGE = 20;
+
+    public function index(TransactionListRequest $req){
         $sort = 'asc';
-        $keyword = $req->search;
-        $transactions = Transaction::join('students','students.id','transactions.students_id')
-            ->leftjoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
-            ->leftjoin('class_types','class_transactions.class_type_id','class_types.id')
+        $transactions = $this->filtered($this->listQuery(), $req)
+            ->orderBy('transactions.id','desc')
+            ->paginate(self::PER_PAGE)
+            ->withQueryString();
+
+        return view('staff.transaction.index',compact('transactions','sort'));
+    }
+
+    public function sort(TransactionListRequest $req, $column, $direction){
+        [$column, $direction] = $this->sortOrFail($column, $direction, ['payment_status', 'price']);
+        $transactions = $this->filtered($this->listQuery(), $req)
+            ->orderBy('transactions.'.$column, $direction)
+            ->orderBy('transactions.id','desc')
+            ->paginate(self::PER_PAGE)
+            ->withQueryString();
+        $sort = $direction == 'asc' ? 'desc' : 'asc';
+
+        return view('staff.transaction.index',compact('transactions','sort'));
+    }
+
+    /** Rows of the list page: transactions of active students, with the class name. */
+    private function listQuery(){
+        return Transaction::join('students','students.id','transactions.students_id')
+            ->leftJoin('class_transactions','class_transactions.id','transactions.class_transactions_id')
+            ->leftJoin('class_types','class_transactions.class_type_id','class_types.id')
             ->selectRaw('
                 transactions.id,
                 transactions.transaction_date,
@@ -33,44 +55,25 @@ class TransactionController extends Controller
                 transactions.price as price,
                 transactions.discount,
                 students.LongName,
-                students.id as student_id
+                students.id as student_id,
+                class_types.class_name
             ')
-            ->where(function ($query) use ($keyword){
-                if(!is_null($keyword)){
-                    $query->where('students.Longname','like',"%$keyword%");
-                }
-            })
-            ->where('students.Status','aktif')
-            ->orderBy('transactions.id','desc')
-            ->paginate(20);
-        return view('staff.transaction.index',compact('transactions','sort'));
+            ->where('students.Status','aktif');
     }
 
-    public function sort($column,$direction){
-        [$column, $direction] = $this->sortOrFail($column, $direction, ['payment_status', 'price']);
-        $transactions = Transaction::join('students','students.id','transactions.students_id')
-            ->join('class_transactions','class_transactions.id','transactions.class_transactions_id')
-            ->selectRaw('
-                transactions.id,
-                transactions.transaction_date,
-                transactions.transaction_payment,
-                transactions.payment_status,
-                transactions.price,
-                transactions.discount,
-                students.LongName,
-                students.id as student_id
-            ')
-            ->where('students.Status','aktif')
-            ->orderBy($column,$direction)
-            ->paginate(20);
-        $sort = $direction == 'asc' ? 'desc' : 'asc';
-        return view('staff.transaction.index',compact('transactions','sort'));
+    /** Search and status filters; TransactionListRequest has already dropped invalid values. */
+    private function filtered($query, TransactionListRequest $req){
+        $status = $req->query('status', 'all');
+
+        return $query
+            ->when($status !== 'all', fn ($q) => $q->where('transactions.payment_status', $status))
+            ->when($req->query('search'), fn ($q, $keyword) => $q->where('students.LongName','like',"%$keyword%"));
     }
 
     public function show(Transaction $transaction){
         $detail = $this->joinedRow($transaction);
         $data = Rekenings::where('bank_rek',$transaction->Students->bank_rek)->first();
-        return view('staff.transaction.detail',compact('detail','data'));
+        return view('staff.transaction.detail',compact('detail','data','transaction'));
     }
 
     public function create(){
@@ -79,7 +82,7 @@ class TransactionController extends Controller
                         ->leftJoin('mapping_class_teachers as mct','mct.class_id','ct.id')
                         ->leftJoin('users as u','mct.user_id','u.id')
                         ->where('ct.status','aktif')
-                        ->selectRaw('ct.id,u.name,class_types.class_name')
+                        ->selectRaw('ct.id,u.name,class_types.class_name,ct.class_transaction_price as class_price')
                         ->get();
         return view('staff.transaction.insert',compact('students','class_transaction'));
     }
@@ -96,18 +99,6 @@ class TransactionController extends Controller
         return redirect(staff_route('transaction.index'))->with('msg','Success Create Transaction');
     }
 
-    /** AJAX for the class dropdown. Option text is "<class name> - <teacher>"; answers the plain price. */
-    public function price(Request $req)
-    {
-        if (! is_string($req->query('text')) || ! $req->filled('text')) {
-            return response()->json(['message' => 'The text field is required.'], 422);
-        }
-
-        $className = trim(Str::before($req->query('text'), ' - '));
-
-        return response((string) (ClassType::where('class_name', $className)->value('class_price') ?? 0));
-    }
-
     public function edit(Transaction $transaction){
         Gate::authorize('transaction.edit-paid', $transaction);
         $return_url = url()->previous();
@@ -117,10 +108,6 @@ class TransactionController extends Controller
     }
 
     public function update(UpdateTransactionRequest $req,Transaction $transaction){
-        if(!$req->filled('inputTanggalBayar') && ucfirst($req->inputStatus) == 'Paid'){
-            return back()->withInput()->with('error', 'Please fill the payment date when the status is Paid');
-        }
-
         $bankId = $req->filled('inputBankName')
             ? Banks::firstOrCreate(['bank_name' => $req->inputBankName])->id
             : Rekenings::where('bank_rek', $transaction->Students->bank_rek)->value('banks_id');
@@ -164,6 +151,8 @@ class TransactionController extends Controller
                 if($hasPaymentDate){
                     $transaction->transaction_payment = $req->inputTanggalBayar;
                     $transaction->payment_status = 'Paid';
+                } elseif($transaction->payment_status === 'Unpaid'){
+                    $transaction->transaction_payment = null; // an unpaid row has no payment date (the request refuses one)
                 }
                 $transaction->save();
             }
@@ -172,10 +161,12 @@ class TransactionController extends Controller
         return $this->backTo($req->return_url)->with('msg','Success Update Transaction');
     }
 
-    public function destroy(Transaction $transaction){
+    public function destroy(Request $req, Transaction $transaction){
         Gate::authorize('transaction.delete');
         TransactionQuota::track($transaction->students_id, $transaction->class_transactions_id, fn () => $transaction->delete());
-        return redirect()->back()->with('msg','Success Delete Transaction');
+        // From the detail page "back" would be the deleted record (404), so that form sends return_url.
+        $back = $req->filled('return_url') ? $this->backTo($req->input('return_url')) : redirect()->back();
+        return $back->with('msg','Success Delete Transaction');
     }
 
     /** Transaction joined with its student and class names, for the detail and update pages. */

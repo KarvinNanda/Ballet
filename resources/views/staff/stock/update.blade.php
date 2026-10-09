@@ -1,97 +1,58 @@
-@inject('carbon', 'Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Update Stock')
+@section('title', 'Update stock item · '.$stock->name)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Stock Form</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Update stock item" :subtitle="$stock->name.' · '.$stock->size">
+        <x-slot:actions>
+            <a href="{{ staff_route('stock.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to stock</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
-
-                <!-- General Form Elements -->
-                <form action="{{staff_route('stock.update',$stock)}}" method="post">
-                    @csrf
-                    <input type="hidden" name="return_url" value="{{$return_url}}">
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Name</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputName" value="{{$stock->name}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Size</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputSize" value="{{$stock->size}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputDOB" class="col-sm-2 col-form-label">Quantity</label>
-                        <div class="col-sm-10">
-                            <input type="number" class="form-control" name="inputQty" value="{{$stock->quantity}}">
-                        </div>
-                    </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-warning p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
-                <table class="table table-striped">
-                    <div class="container">
-                        <thead>
-                        <tr>
-                            <th scope="col">Buyer</th>
-                            <th scope="col">Total</th>
-                            <th scope="col">Buy Date</th>
-                            <th scope="col">Served By</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @if($buyer)
-                            @foreach($buyer as $b)
-                                <tr>
-                                    <td>{{$b->name}}</td>
-                                    <td>{{$b->qty}}</td>
-                                    <td>{{$carbon::parse($b->created_at)->format('Y-m-d')}}</td>
-                                    <td>{{$b->served_by}}</td>
-                                </tr>
-                            @endforeach
-                        @else
-                            <tr>
-                                <td colspan="3"></td>
-                            </tr>
-                        @endif
-                        </tbody>
-                    </div>
-                </table>
-
-                @if($buyer)
-                    <div class="alert text-center" role="alert">
-                        {{$buyer->links()}}
-                    </div>
-                @endif
-
+    <form class="card" method="post" action="{{ staff_route('stock.update', $stock) }}">
+        @csrf
+        <input type="hidden" name="return_url" value="{{ $return_url }}">
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.section title="Item">
+                <x-form.field name="inputName" label="Name" :value="$stock->name" required />
+                <x-form.field name="inputSize" label="Size" :value="$stock->size" required />
+                <x-form.field name="inputQty" label="Quantity" type="number" min="0" :value="$stock->quantity" required />
+            </x-form.section>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Save changes</button>
             </div>
         </div>
+    </form>
+
+    <section class="card mt-4" aria-labelledby="purchase-history-title">
+        <div class="card-body">
+            <h2 id="purchase-history-title" class="h5">Purchase history</h2>
+            @if ($buyer->isEmpty())
+                <x-empty-state icon="bag" title="No purchases yet" />
+            @else
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">Buyer</th>
+                        <th scope="col">Qty</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Served by</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach ($buyer as $purchase)
+                        <tr>
+                            <td>{{ $purchase->name }}</td>
+                            <td>{{ $purchase->qty }}</td>
+                            <td>{{ $purchase->created_at ? \Carbon\Carbon::parse($purchase->created_at)->format('d M Y') : '-' }}</td>
+                            <td>{{ $purchase->served_by ?? '-' }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+                <div class="mt-3">{{ $buyer->links() }}</div>
+            @endif
+        </div>
     </section>
-
-
 @endsection

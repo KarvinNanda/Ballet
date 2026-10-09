@@ -138,10 +138,92 @@ h4, h5, h6, .card-title { font-family: var(--ep-font-body); font-weight: 600; }
   .table-cards > tbody > tr > td.cell-actions form { flex: 1 1 0; display: flex; gap: .4rem; margin: 0; }
   .table-cards > tbody > tr > td.cell-actions br { display: none; }
   .table-cards > tbody > tr > td.cell-actions .btn {
-    flex: 1 1 0; width: 100%; min-height: 40px; margin: 0 !important; padding: .4rem .5rem;
+    display: block; flex: 1 1 0; width: 100%; min-height: 40px; margin: 0 !important; padding: .4rem .5rem;
     font-size: .8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .table-cards > tbody > tr > td.cell-actions > a { flex: 1 1 0; display: flex; }
+  .table-cards > tbody > tr > td.cell-actions > .dropdown { flex: 0 0 auto; display: flex; }
+  .table-cards > tbody > tr > td.cell-actions > .dropdown > .btn { flex: 0 0 44px; width: 44px; }
+  .table-cards > tbody > tr > td.cell-actions .dropdown-menu form { display: block; }
+}
+
+/* ---------- Page kit (SP2a components) ---------- */
+.page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: .75rem 1rem; margin-bottom: 1rem; }
+.page-header .page-title { font-size: 1.75rem; margin: 0; }
+.page-subtitle { color: var(--ep-muted); margin: .25rem 0 0; }
+.page-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+.filter-bar { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; padding: .75rem; }
+.filter-bar > .form-control { flex: 1 1 260px; min-width: 0; }
+.filter-bar > .form-control, .filter-bar > .form-select { min-height: 44px; }
+.filter-bar-buttons { display: flex; gap: .5rem; }
+.status-filter { display: inline-flex; border: 1px solid var(--ep-border); border-radius: 8px; overflow: hidden; }
+.status-filter-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .4rem .8rem; color: var(--ep-text); font-weight: 500; text-decoration: none; transition: background-color .15s var(--ep-ease); }
+.status-filter-link + .status-filter-link { border-left: 1px solid var(--ep-border); }
+.status-filter-link:hover { background: var(--ep-bg); color: var(--ep-text); }
+.status-filter-link.active { background: var(--ep-accent-soft); color: var(--ep-accent); font-weight: 600; }
+
+.status-badge { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+.status-badge-success { background: #DCFCE7; color: #166534; }
+.status-badge-warning { background: #FEF3C7; color: #92400E; }
+.status-badge-neutral { background: #F1F5F9; color: #475569; }
+
+.empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--ep-muted); }
+.empty-state > .bi { display: block; font-size: 2rem; margin-bottom: .5rem; }
+.empty-state-title { margin: 0 0 .75rem; font-weight: 600; color: var(--ep-text); }
+
+.form-section { min-width: 0; margin: 0 0 1.5rem; padding: 0; border: 0; }
+.form-section-title {
+  float: none; width: 100%; margin-bottom: .75rem; padding-bottom: .4rem; border-bottom: 1px solid var(--ep-border);
+  font-family: var(--ep-font-body); font-size: .8rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ep-muted);
+}
+.form-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: .9rem 1.25rem; }
+.required-mark { margin-left: .15rem; color: var(--ep-accent); }
+.form-static { padding: .45rem 0; }
+.save-bar { position: sticky; bottom: 0; z-index: 5; display: flex; justify-content: flex-end; gap: .5rem; padding: .75rem 0; background: var(--ep-surface); border-top: 1px solid var(--ep-border); }
+@media (min-width: 768px) {
+  .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .form-field-wide { grid-column: 1 / -1; }
+}
+@media (max-width: 991.98px) {
+  .save-bar { bottom: var(--ep-bottom-nav-h); }
+  .save-bar > .btn { flex: 1 1 auto; }
+}
+
+.summary-card { padding: 1rem 1.25rem; }
+.summary-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .5rem 1rem; }
+.summary-name { margin: 0; font-size: 1.75rem; }
+.summary-meta { margin: .15rem 0 0; color: var(--ep-muted); }
+.stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin-top: 1rem; }
+.stat { padding: .6rem .75rem; text-align: center; border: 1px solid var(--ep-border); border-radius: var(--ep-radius); }
+.stat-label { display: block; font-size: .75rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--ep-muted); }
+.stat-value { display: block; font-size: 1.35rem; font-weight: 700; }
+.nav-tabs {
+  --bs-nav-tabs-link-active-color: var(--ep-accent);
+  --bs-nav-tabs-link-active-border-color: var(--ep-border) var(--ep-border) var(--ep-surface);
+  flex-wrap: nowrap; overflow-x: auto;
+}
+.nav-tabs .nav-link { min-height: 44px; color: var(--ep-muted); font-weight: 500; white-space: nowrap; }
+.nav-tabs .nav-link.active { font-weight: 600; }
+.card-tabbed { border-top-left-radius: 0; border-top: 0; }
+
+/* Touch targets (app-wide): 44px buttons, 36px small buttons, 40px menu items. */
+.btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; }
+.btn-sm { min-height: 36px; }
+.dropdown-item { min-height: 40px; display: flex; align-items: center; }
+.nav-tabs .nav-link:focus-visible { outline: 2px solid var(--ep-accent); outline-offset: -2px; box-shadow: none; }
+
+.detail-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: .9rem 1.25rem; margin: 0; }
+.detail-grid dt { font-size: .75rem; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; color: var(--ep-muted); }
+.detail-grid dd { margin: .15rem 0 0; overflow-wrap: anywhere; }
+@media (min-width: 768px) { .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+@media (max-width: 767.98px) {
+  .page-actions, .page-actions > .btn { width: 100%; }
+  .status-filter { width: 100%; }
+  .status-filter-link { flex: 1 1 0; padding: .4rem .25rem; }
+  .filter-bar-buttons { width: 100%; }
+  .filter-bar-buttons > .btn { flex: 1 1 0; }
 }
 
 /* ---------- NiceAdmin compatibility (classes used by existing pages) ---------- */

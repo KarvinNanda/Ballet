@@ -1,69 +1,40 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Class Freeze List')
+@section('title', 'Frozen classes')
 
 @section('content')
-    @php($keyword = request('keyword'))
+    <x-page-header title="Frozen classes" />
 
-    <div class="pagetitle">
-        <h1>Class Tables</h1>
-    </div><!-- End Page Title -->
+    <x-filter-bar :action="staff_route('class.freeze.index')">
+        <label for="freeze-keyword" class="visually-hidden">Search frozen classes</label>
+        <input id="freeze-keyword" class="form-control" type="search" name="keyword" value="{{ request('keyword') }}" placeholder="Search course, teacher or student…">
+    </x-filter-bar>
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <form
-                    class="d-flex align-items-center justify-content-center gap-2"
-                    method="GET"
-                    action="{{staff_route('class.freeze.index')}}"
-                >
-                    <input class="form-control" type="text" value="{{$keyword}}" name="keyword" placeholder="Search">
-
-                    <button type="submit" class="btn btn-primary text-nowrap">Apply Filters</button>
-                </form>
-            </div>
-            <div class="card-body">
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th scope="col">Class Name</th>
-                        <th scope="col">Price</th>
-                        <th scope="col">Detail</th>
-                        @can('class.freeze-price')
-                            <th scope="col">Update</th>
-                        @endcan
-                    </tr>
-                    </thead>
+    <div class="card">
+        <div class="card-body">
+            @if ($classes->isEmpty())
+                <x-empty-state icon="snow" title="No frozen classes found" />
+            @else
+                <table class="table table-hover">
+                    <thead><tr><th scope="col">Class</th><th scope="col">Teacher</th><th scope="col">Price</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
                     <tbody>
-                    @foreach($classes as $class)
+                    @foreach ($classes as $class)
                         <tr>
-                            <td>
-                                {{$class->Type?->class_name}} -
-                                {{$class->mapping->first()?->getUser?->name ?? '-'}}
-                                - {{$class->people_count}}
+                            <td>{{ $class->Type?->class_name ?? '-' }}</td>
+                            <td>{{ $class->mapping->first()?->getUser?->name ?? '-' }}</td>
+                            <td>Rp{{ number_format($class->class_transaction_price) }}</td>
+                            <td class="text-end text-nowrap">
+                                <a href="{{ staff_route('class.freeze.show', $class) }}" class="btn btn-sm btn-outline-secondary">Detail</a>
+                                @can('class.freeze-price')
+                                    <a href="{{ staff_route('class.freeze.edit', $class) }}" class="btn btn-sm btn-outline-secondary">Update price</a>
+                                @endcan
                             </td>
-                            <td>Rp.{{number_format($class->class_transaction_price)}}</td>
-                            <td>
-                                <a href="{{staff_route('class.freeze.show', $class)}}"><button type="button" class="btn btn-secondary">Detail</button></a>
-                            </td>
-                            @can('class.freeze-price')
-                                <td>
-                                    <a href="{{staff_route('class.freeze.edit', $class)}}"><button type="button" class="btn btn-warning">Update</button></a>
-                                </td>
-                            @endcan
                         </tr>
                     @endforeach
                     </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-                <div class="alert text-center" role="alert">
-                    {{$classes->links()}}
-                </div>
-            </div>
+                <div class="mt-3">{{ $classes->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

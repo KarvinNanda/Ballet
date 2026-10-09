@@ -55,7 +55,6 @@ class JunkInputTest extends TestCase
             'finance account list' => ['head', 'get', 'head.finance.index', $none, $noPayload, ['search']],
             'stock list' => ['head', 'get', 'head.stock.index', $none, $noPayload, ['search']],
             'transaction list' => ['head', 'get', 'head.transaction.index', $none, $noPayload, ['search']],
-            'transaction price' => ['head', 'get', 'head.transaction.price', $none, fn () => ['text' => 'Pointe Class - x'], ['text']],
             'schedule multiple page' => ['head', 'get', 'head.schedule.multiple.create', $none, $noPayload, ['classId']],
             'teacher home' => ['teacher', 'get', 'teacher', $none, $noPayload, ['keyword']],
             'finance stock list' => ['finance', 'get', 'finance', $none, $noPayload, ['search']],
@@ -67,6 +66,7 @@ class JunkInputTest extends TestCase
                 'inputLongName' => 'Ani', 'inputNickName' => 'Ani', 'inputParentName' => 'Ibu', 'inputCity' => 'Jkt',
                 'inputEmail' => 'junk@example.com', 'inputDate_of_Birth' => '2015-02-02', 'inputAddress' => 'Jl',
                 'inputPhone1' => '081234567890', 'inputWhatsapp' => '081234567890', 'inputPostalCode' => '12345',
+                'terms_accepted' => '1',
             ], ['inputNis', 'inputLongName', 'inputNickName', 'inputPhone2', 'inputInstagram', 'inputLine', 'inputRekening', 'inputBankName', 'inputNamaPengirim', 'inputEmail', 'inputDate_of_Birth', 'inputPostalCode']],
             'student update' => ['head', 'post', 'head.student.update', fn () => [DB::table('students')->value('id')], fn () => [
                 'LongName' => 'Ani', 'nama_orang_tua' => 'Ibu', 'city' => 'Jkt', 'Email' => 'junk@example.com', 'dob' => '2015-02-02',
@@ -201,8 +201,8 @@ class JunkInputTest extends TestCase
                 $response = ($user ? $this->actingAs($user) : $this)->call(strtoupper($method), $url, $data);
 
                 $this->assertLessThan(500, $response->getStatusCode(), "{$route}: {$field} = ".json_encode($junk));
-                // price answers 422 for an array text, and the update page redirects to the class list for a non-integer id, both on purpose
-                if ($method === 'get' && ! in_array($route, ['head.transaction.price', 'viewUpdateScheduleClassTeacher'], true)) {
+                // the update page redirects to the class list for a non-integer id, on purpose
+                if ($method === 'get' && ! in_array($route, ['viewUpdateScheduleClassTeacher'], true)) {
                     $this->assertSame(200, $response->getStatusCode(), "{$route}: {$field} = ".json_encode($junk).' did not render');
                 }
             }

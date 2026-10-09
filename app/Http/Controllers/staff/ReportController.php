@@ -27,7 +27,8 @@ class ReportController extends Controller
             ->selectRaw('
                 class_types.class_name as class_name,
                 class_transactions.id as class_id,
-                users.name as teacher
+                users.name as teacher,
+                (select count(*) from mapping_class_children where mapping_class_children.class_id = class_transactions.id) as students
             ')
             ->orderBy('schedules.date')
             ->groupBy('class_transactions.id')
@@ -132,13 +133,12 @@ class ReportController extends Controller
     }
 
     public function activeStudent(){
-        $classes = ClassType::all();
+        $classes = ClassType::orderBy('class_name')->get();
         return view('staff.report.active-student.index',compact('classes'));
     }
 
     public function stock(){
-        $data = ReportStock::all()->groupBy('report_date');
-        return view('staff.report.stock.index',compact('data'));
+        return view('staff.report.stock.index');
     }
 
     public function printStock(DateRangeRequest $req){

@@ -53,7 +53,6 @@ Route::get('/transaction', [TransactionController::class, 'index'])->name('trans
 Route::get('/transaction/sorting/{column}/{direction}', [TransactionController::class, 'sort'])->name('transaction.sort');
 Route::get('/transaction/add', [TransactionController::class, 'create'])->name('transaction.create');
 Route::post('/transaction/add', [TransactionController::class, 'store'])->name('transaction.store');
-Route::get('/transaction/get-price', [TransactionController::class, 'price'])->name('transaction.price');
 Route::get('/transaction/detail/{transaction}', [TransactionController::class, 'show'])->name('transaction.show');
 Route::get('/transaction/{transaction}', [TransactionController::class, 'edit'])->whereNumber('transaction')->name('transaction.edit');
 Route::post('/transaction/update/{transaction}', [TransactionController::class, 'update'])->name('transaction.update');

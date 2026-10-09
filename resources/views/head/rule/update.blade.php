@@ -1,56 +1,34 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-
-@section('title','Update Rule')
+@section('title', 'Update rule · '.$rules->lang)
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Rules & Regulations Form</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Update rule" :subtitle="$rules->lang">
+        <x-slot:actions>
+            <a href="{{ route('Rules') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to rules</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"></h5>
-
-                <!-- General Form Elements -->
-                <form action="{{route('RulesUpdate',$rules)}}" method="post">
-                    @csrf
-                    <div class="row mb-3">
-                        <label for="inputName" class="col-sm-2 col-form-label">Language</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" name="inputLanguage" value="{{$rules->lang}}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <label for="inputEmail" class="col-sm-2 col-form-label">Content</label>
-                        <div class="col-sm-10">
-                            {{-- <input type="text" class="form-control" name="inputContent"> --}}
-                            {{-- <textarea  name="content" rows="10" cols="80"></textarea> --}}
-                            <textarea id="content" name="content" rows="10" cols="80">{{$rules->content}}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="justify-content-end d-flex">
-                        <button class="btn btn-success p-2 ps-5 pe-5 mb-3">
-                            Submit
-                        </button>
-                    </div>
-
-                    @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            <div class="alert alert-danger" role="alert">
-                                {{$error}}
-                            </div>
-                        @endforeach
-                    @endif
-
-                </form><!-- End General Form Elements -->
-
+    <form class="card" method="post" action="{{ route('RulesUpdate', $rules) }}">
+        @csrf
+        <div class="card-body">
+            <x-form.error-summary />
+            <x-form.section title="Rule">
+                <x-form.field name="inputLanguage" label="Language" :value="$rules->lang" required help="The title of this rule, e.g. Indonesia or English." />
+                <div class="form-field form-field-wide">
+                    <label for="content" class="form-label">Content<span class="required-mark" aria-hidden="true">*</span></label>
+                    {{-- No "required" attribute: CKEditor hides this textarea and a hidden required field blocks the submit silently. RuleRequest still requires it. --}}
+                    <textarea id="content" name="content" class="form-control{{ $errors->has('content') ? ' is-invalid' : '' }}" rows="10" @error('content') aria-describedby="content-error" aria-invalid="true" @enderror>{{ old('content', $rules->content) }}</textarea>
+                    @error('content')
+                        <div id="content-error" class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+            </x-form.section>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Save changes</button>
             </div>
         </div>
-    </section>
+    </form>
 
     @include('head.rule._editor')
 @endsection

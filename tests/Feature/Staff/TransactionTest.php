@@ -44,21 +44,25 @@ class TransactionTest extends StaffTestCase
         $this->assertEquals($before, DB::table('rekenings')->where('bank_rek', $t->Students->bank_rek)->value('banks_id'));
     }
 
-    public function test_empty_payment_date_keeps_the_old_one(): void
+    public function test_saving_as_unpaid_clears_the_payment_date(): void
     {
-        $t = Transaction::whereNotNull('transaction_payment')->firstOrFail();
-        $old = $t->transaction_payment;
-        $this->asRole('head')->post(route('head.transaction.update', $t), $this->payload($t, ['inputStatus' => 'Paid', 'inputTanggalBayar' => $old]));
+        $t = $this->unpaid();
+        $this->asRole('head')->post(route('head.transaction.update', $t), $this->payload($t, ['inputStatus' => 'Paid', 'inputTanggalBayar' => '2026-09-07']));
+        $this->assertSame('Paid', $t->fresh()->payment_status);
+        $this->assertNotNull($t->fresh()->transaction_payment);
+
         $this->post(route('head.transaction.update', $t), $this->payload($t, ['inputStatus' => 'Unpaid', 'inputTanggalBayar' => '']));
-        $this->assertSame($old, $t->fresh()->transaction_payment);
+        $this->assertNull($t->fresh()->transaction_payment);
+        $this->assertSame('Unpaid', $t->fresh()->payment_status);
     }
 
     public function test_paid_without_a_payment_date_is_refused(): void
     {
         $t = $this->unpaid();
         $this->asRole('head')->post(route('head.transaction.update', $t), $this->payload($t, ['inputStatus' => 'Paid']))
-            ->assertSessionHas('error');
+            ->assertSessionHasErrors(['inputTanggalBayar' => 'Fill in the payment date when the status is Paid.']);
         $this->assertSame('Unpaid', $t->fresh()->payment_status);
+        $this->assertNull($t->fresh()->transaction_payment);
     }
 
     public function test_admin_cannot_edit_a_paid_transaction(): void
@@ -224,5 +228,32 @@ class TransactionTest extends StaffTestCase
     {
         $t = Transaction::where('payment_status', 'Paid')->firstOrFail();
         $this->asRole('admin')->post(route('admin.transaction.update', $t), ['inputQuota' => 'abc'])->assertForbidden();
+    }
+
+    public static function badDiscounts(): array
+    {
+        return [['150%'], ['abc'], ['500000'], ['5.5']];
+    }
+
+    #[\PHPUnit\Framework\Attributes\DataProvider('badDiscounts')]
+    public function test_invalid_discount_is_refused_and_nothing_changes(string $discount): void
+    {
+        $t = $this->unpaid();
+        $before = (array) DB::table('transactions')->where('id', $t->id)->first();
+
+        $this->asRole('head')->post(route('head.transaction.update', $t), $this->payload($t, ['inputDisc' => $discount]))
+            ->assertSessionHasErrors('inputDisc');
+
+        $this->assertEquals($before, (array) DB::table('transactions')->where('id', $t->id)->first());
+    }
+
+    public function test_percent_and_amount_discounts_are_saved(): void
+    {
+        $t = $this->unpaid();
+        $this->asRole('head')->post(route('head.transaction.update', $t), $this->payload($t, ['inputDisc' => '10%']))->assertSessionHasNoErrors();
+        $this->assertSame('10%', $t->fresh()->discount);
+
+        $this->post(route('head.transaction.update', $t), $this->payload($t, ['inputDisc' => '50000']))->assertSessionHasNoErrors();
+        $this->assertSame('50000', $t->fresh()->discount);
     }
 }

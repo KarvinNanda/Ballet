@@ -1,4 +1,4 @@
-{{-- Student table of a class detail page. $actions: show Delete / Generate Transaction (not on frozen classes). --}}
+{{-- Students of a class. $actions: row menu (not on frozen classes). --}}
 @php
     $quotaPay = match ($class_name) {
         'Pointe Class' => 4,
@@ -6,54 +6,48 @@
         default => 3,
     };
 @endphp
-<table class="table table-striped">
-    <thead>
-    <tr>
-        <th scope="col">Name</th>
-        <th scope="col">DOB</th>
-        <th scope="col">Address</th>
-        <th scope="col">Email</th>
-        <th scope="col">Phone</th>
-        <th scope="col">Quota</th>
-        @if($actions)
-            <th scope="col">Action</th>
-        @endif
-    </tr>
-    </thead>
-    <tbody>
-    @forelse($students as $student)
+@if ($students->isEmpty())
+    <x-empty-state icon="people" title="No students in this class yet" />
+@else
+    <table class="table table-hover">
+        <thead>
         <tr>
-            <td>
-                <a href="{{staff_route('student.show', $student->id)}}">{{$student->studentName}}</a>
-            </td>
-            <td>{{\Carbon\Carbon::parse($student->studentDOB)->format('d M Y')}}</td>
-            <td>{{$student->studentAddress}}</td>
-            <td>{{$student->studentEmail}}</td>
-            <td>{{$student->studentPhone}}</td>
-            @if($student->studentStatus != 'trial')
-                <td>{{$student->studentQuota}} / {{$student->studentMaxQuota == 0 ? $quotaPay : $student->studentMaxQuota}}</td>
-            @else
-                <td>{{$student->studentQuota}} / 2</td>
-            @endif
-            @if($actions)
-                <td class="d-flex">
-                    <form action="{{staff_route('class.student.destroy', ['student' => $student->id, 'class' => $class_id])}}" method="post" data-confirm="Hapus data ini?">
-                        @csrf
-                        <button type="submit" class="btn btn-danger me-2">Delete</button>
-                    </form>
-
-                    <form action="{{staff_route('class.student.generate-transaction', ['student' => $student->id, 'class' => $class_id])}}" method="post">
-                        @csrf
-                        <button type="submit" class="btn btn-info">Generate Transaction</button>
-                    </form>
-                </td>
+            <th scope="col">Name</th>
+            <th scope="col">Age</th>
+            <th scope="col" class="d-none d-md-table-cell">Phone</th>
+            <th scope="col">Quota</th>
+            @if ($actions)
+                <th scope="col"><span class="visually-hidden">Actions</span></th>
             @endif
         </tr>
-    @empty
-        <tr><td colspan="{{ $actions ? 7 : 6 }}">No Data</td></tr>
-    @endforelse
-    </tbody>
-</table>
-<div class="alert text-center" role="alert">
-    {{$students->links()}}
-</div>
+        </thead>
+        <tbody>
+        @foreach ($students as $student)
+            <tr>
+                <td><a href="{{ staff_route('student.show', $student->id) }}">{{ $student->studentName }}</a></td>
+                <td>{{ $student->studentDOB ? \Carbon\Carbon::parse($student->studentDOB)->age : '-' }}</td>
+                <td class="d-none d-md-table-cell">{{ $student->studentPhone }}</td>
+                <td>{{ $student->studentQuota }} / {{ $student->studentStatus === 'trial' ? 2 : ($student->studentMaxQuota == 0 ? $quotaPay : $student->studentMaxQuota) }}</td>
+                @if ($actions)
+                    <td class="text-end">
+                        <x-row-menu :label="'More actions for '.$student->studentName">
+                            <li>
+                                <x-confirm-form :action="staff_route('class.student.generate-transaction', ['student' => $student->id, 'class' => $class_id])" :message="'Generate the transactions of '.$student->studentName.' for this class?'">
+                                    <button type="submit" class="dropdown-item">Generate transaction…</button>
+                                </x-confirm-form>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <x-confirm-form :action="staff_route('class.student.destroy', ['student' => $student->id, 'class' => $class_id])" :message="'Remove '.$student->studentName.' from this class?'">
+                                    <button type="submit" class="dropdown-item text-danger">Remove from class…</button>
+                                </x-confirm-form>
+                            </li>
+                        </x-row-menu>
+                    </td>
+                @endif
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+    <div class="mt-3">{{ $students->links() }}</div>
+@endif

@@ -1,55 +1,41 @@
-@inject('carbon', 'Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Report Class Attendance')
+@section('title', 'Class attendance report')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Report Class Attendance</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Class attendance report" />
 
-    <section class="section">
-        <div class="card">
-            <div class="card-body">
-
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
+    <div class="card">
+        <div class="card-body">
+            @if ($data->isEmpty())
+                <x-empty-state icon="clipboard-check" title="No attendance recorded yet" />
+            @else
+                <table class="table table-hover">
                     <thead>
                     <tr>
-                        <th scope="col">Class Name</th>
-                        <th scope="col">Teacher Name</th>
-                        <th scope="col">Action</th>
+                        <th scope="col">Class</th>
+                        <th scope="col">Teacher</th>
+                        <th scope="col">Students</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($data as $item)
-                            <tr>
-                                <td>
-                                    {{$item->class_name}}
-                                    -
-                                    {{$student = \App\Models\ClassTransaction::
-                                        where('id',$item->class_id)
-                                        ->join('mapping_class_children','mapping_class_children.class_id','class_transactions.id')
-                                        ->selectRaw('count(mapping_class_children.student_id) as students')
-                                        ->first()->students}}
-                                </td>
-                                <td>{{$item->teacher}}</td>
-                                <td>
-                                    <form action="{{staff_route('report.class.print',['header' => $item->class_id,'teacher' => $item->teacher])}}" method="post">
-                                        @csrf
-                                        <button type="submit" class="btn btn-primary">Report</button>
-                                    </form>
-                                </td>
+                    @foreach ($data as $item)
+                        <tr>
+                            <td>{{ $item->class_name }}</td>
+                            <td>{{ $item->teacher }}</td>
+                            <td>{{ $item->students }}</td>
+                            <td class="text-end">
+                                <form method="POST" action="{{ staff_route('report.class.print', ['header' => $item->class_id, 'teacher' => $item->teacher]) }}" target="_blank">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Report</button>
+                                </form>
+                            </td>
+                        </tr>
                     @endforeach
                     </tbody>
                 </table>
-                <!-- End Table with stripped rows -->
-
-            </div>
+            @endif
         </div>
-    </section>
-
-    <script>
-
-    </script>
+    </div>
 @endsection

@@ -22,14 +22,36 @@ use Illuminate\Database\UniqueConstraintViolationException;
 
 class StudentController extends Controller
 {
+    private const PER_PAGE = 20;
+
     public function index(StudentListRequest $request){
         $sort = 'asc';
-        $keyword = $request->query('keyword');
+        $students = $this->filtered($this->listQuery(), $request)
+            ->orderBy('students.id','desc')
+            ->paginate(self::PER_PAGE)
+            ->withQueryString();
+
+        return view('staff.student.index',compact('students','sort'));
+    }
+
+    public function sort(StudentListRequest $request, $column, $direction){
+        [$column, $direction] = $this->sortOrFail($column, $direction, ['age', 'dob', 'name']);
+        $students = $this->filtered($this->listQuery(), $request)
+            ->orderBy($column,$direction)
+            ->orderBy('students.id','desc')
+            ->paginate(self::PER_PAGE)
+            ->withQueryString();
+        $sort = $direction == 'asc' ? 'desc':'asc';
+        return view('staff.student.index',compact('students','sort'));
+    }
+
+    /** Status and keyword filters of the list page. StudentListRequest has already dropped invalid values. */
+    private function filtered($query, StudentListRequest $request){
         $status = $request->query('status', 'all');
 
-        $students = $this->listQuery()
+        return $query
             ->when($status !== 'all', fn ($q) => $q->where('students.Status', $status))
-            ->when($keyword, function ($q, $keyword) {
+            ->when($request->query('keyword'), function ($q, $keyword) {
                 $q->where(function ($q) use ($keyword) {
                     $q->where('students.LongName',"LIKE","%$keyword%")
                         ->orWhere('students.ShortName',"LIKE","%$keyword%")
@@ -42,22 +64,7 @@ class StudentController extends Controller
                         ->orWhere('rekenings.nama_pengirim',"LIKE","%$keyword%")
                         ->orWhere('banks.bank_name',"LIKE","%$keyword%");
                 });
-            })
-            ->orderBy('students.id','desc')
-            ->paginate(5)
-            ->withQueryString();
-
-        return view('staff.student.index',compact('students','sort'));
-    }
-
-    public function sort($column,$direction){
-        [$column, $direction] = $this->sortOrFail($column, $direction, ['age', 'dob', 'name']);
-        $students = $this->listQuery()
-            ->orderBy($column,$direction)
-            ->paginate(5)
-            ->withQueryString();
-        $sort = $direction == 'asc' ? 'desc':'asc';
-        return view('staff.student.index',compact('students','sort'));
+            });
     }
 
     /** Student rows for the list page. LEFT JOINs: a student without a bank account must still show up. */
@@ -67,6 +74,7 @@ class StudentController extends Controller
             ->leftJoin('banks','rekenings.banks_id','banks.id')
             ->selectRaw('
                 students.id as id,
+                students.nis as nis,
                 students.Status as status,
                 students.LongName as name,
                 students.Dob as dob,
@@ -238,7 +246,7 @@ class StudentController extends Controller
         });
 
         if($saved === 'stale-quota'){
-            return redirect()->back()->withInput()->with('error','Quota sudah berubah sejak halaman dibuka. Buka ulang halaman lalu coba lagi.');
+            return redirect()->back()->withInput($request->except('Quota_original'))->with('error','Quota sudah berubah sejak halaman dibuka. Buka ulang halaman lalu coba lagi.');
         }
 
         if(! $saved){

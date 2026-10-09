@@ -1,40 +1,22 @@
-@inject('carbon', 'Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Report Stock')
+@section('title', 'Stock report')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Report Stock</h1>
-    </div><!-- End Page Title -->
+    @php($today = now()->setTimezone('GMT+7')->toDateString())
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form class="d-flex align-items-center justify-content-center gap-2" method="POST"
-                    action="{{ staff_route('report.stock.print') }}">
+    <x-page-header title="Stock report" />
 
-                    @csrf
-
-                    <label for="start_date">Start</label>
-                    <input class="form-control" type="date" id="start_date" name="start_date"
-                        value="{{ now()->SetTimeZone('GMT+7')->toDateString() }}">
-
-
-                    <label for="end_date">End</label>
-                    <input class="form-control" type="date" id="end_date" name="end_date"
-                        value="{{ now()->SetTimeZone('GMT+7')->toDateString() }}">
-
-                    <button type="submit" class="btn btn-primary text-nowrap me-3">Report</button>
-
-
-                </form>
+    <form class="card" method="POST" action="{{ staff_route('report.stock.print') }}" target="_blank">
+        @csrf
+        <div class="card-body">
+            <x-form.section title="Period">
+                <x-form.field name="start_date" label="Start date" type="date" :value="$today" required />
+                <x-form.field name="end_date" label="End date" type="date" :value="$today" required help="Opens the PDF in a new tab." />
+            </x-form.section>
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Open report (PDF)</button>
             </div>
-            <div class="card-body"></div>
         </div>
-    </section>
-
-    <script>
-
-    </script>
+    </form>
 @endsection

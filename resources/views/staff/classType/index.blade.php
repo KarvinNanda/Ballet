@@ -1,57 +1,58 @@
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Course List')
+@section('title', 'Courses')
 
 @section('content')
-    <div class="pagetitle">
-        <h1>Course Tables</h1>
-    </div><!-- End Page Title -->
+    <x-page-header title="Courses">
+        <x-slot:actions>
+            <a href="{{ staff_route('class.course.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add course</a>
+        </x-slot:actions>
+    </x-page-header>
 
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-3 mb-3 w-100 d-flex justify-content-between">
-                <div></div>
-                <a href="{{staff_route('class.course.create')}}"><button class="btn btn-success me-5 mt-2 mb-2">Add Course</button></a>
-            </div>
-            <div class="card-body">
-                <!-- Table with stripped rows -->
-                <table class="table table-striped">
+    <div class="card">
+        <div class="card-body">
+            @if ($types->isEmpty())
+                <x-empty-state icon="journal-bookmark" title="No courses yet">
+                    <x-slot:action>
+                        <a href="{{ staff_route('class.course.create') }}" class="btn btn-primary">Add course</a>
+                    </x-slot:action>
+                </x-empty-state>
+            @else
+                <table class="table table-hover">
                     <thead>
                     <tr>
                         <th scope="col">Course</th>
                         <th scope="col">Price</th>
-                        <th scope="col">Update</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($types as $type)
+                    @foreach ($types as $type)
                         <tr>
-                            <td>
-                                {{$type->class_name}}
-                            </td>
-                            <td>Rp. {{number_format($type->class_price)}}</td>
-                            <td class="d-flex">
-                                <form action="{{staff_route('class-type.edit')}}" method="post">
-                                     @csrf
-                                     <input type="hidden" name="typeID" value="{{$type->id}}">
-                                    <button type="submit" class="btn btn-warning me-3">Update</button>
+                            <td>{{ $type->class_name }}</td>
+                            <td>Rp{{ number_format((int) $type->class_price) }}</td>
+                            <td class="text-end text-nowrap">
+                                {{-- The update page is reached by POST (class-type.edit), so Update is a small form. --}}
+                                <form method="post" action="{{ staff_route('class-type.edit') }}" class="d-inline">
+                                    @csrf
+                                    <input type="hidden" name="typeID" value="{{ $type->id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Update</button>
                                 </form>
-
-                                <form action="{{staff_route('class-type.destroy')}}" method="post" data-confirm="Hapus course ini?">
-                                     @csrf
-                                     <input type="hidden" name="typeID" value="{{$type->id}}">
-                                    <button type="submit" class="btn btn-danger ">Delete</button>
-                                </form>
+                                <x-row-menu :label="'More actions for '.$type->class_name">
+                                    <li>
+                                        <x-confirm-form :action="staff_route('class-type.destroy')" :message="'Delete course '.$type->class_name.'? This cannot be undone.'">
+                                            <input type="hidden" name="typeID" value="{{ $type->id }}">
+                                            <button type="submit" class="dropdown-item text-danger">Delete…</button>
+                                        </x-confirm-form>
+                                    </li>
+                                </x-row-menu>
                             </td>
                         </tr>
                     @endforeach
                     </tbody>
                 </table>
-
-                {{$types->links()}}
-            </div>
+                <div class="mt-3">{{ $types->links() }}</div>
+            @endif
         </div>
-    </section>
-
-
+    </div>
 @endsection

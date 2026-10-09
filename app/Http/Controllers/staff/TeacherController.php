@@ -64,8 +64,8 @@ class TeacherController extends Controller
     {
         abort_unless($teacher->role === 'teacher', 404);
 
-        // A teacher with an active class must be replaced first; the switch page handles that.
-        if ($this->hasActiveClass($teacher)) {
+        // A teacher with any class (frozen too) must be replaced first; the switch page handles that.
+        if ($this->hasClasses($teacher)) {
             return redirect(staff_route('teacher.switch', $teacher));
         }
 
@@ -85,8 +85,10 @@ class TeacherController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(5)
             ->withQueryString();
+        $classCount = $this->classCount($teacher);
+        $frozenClassCount = $this->frozenClassCount($teacher);
 
-        return view('staff.teacher.switch', compact('teachers', 'teacher'));
+        return view('staff.teacher.switch', compact('teachers', 'teacher', 'classCount', 'frozenClassCount'));
     }
 
     public function replace(User $teacher, int $replacement)
@@ -94,22 +96,46 @@ class TeacherController extends Controller
         abort_unless($teacher->role === 'teacher', 404);
         $new = User::where('role', 'teacher')->whereKeyNot($teacher->id)->findOrFail($replacement);
 
-        DB::table('mapping_class_teachers as mct')
-            ->leftJoin('class_transactions as ct','ct.id','mct.class_id')
-            ->where('ct.is_freeze','!=',1)
-            ->where('mct.user_id',$teacher->id)
-            ->update(['mct.user_id' => $new->id]);
-        $teacher->delete();
+        DB::transaction(function () use ($teacher, $new) {
+            // Classes the replacement already teaches: drop the old row instead of creating a second (class, teacher) row.
+            // Plucked into an array first; a same-table subquery in DELETE is MySQL error 1093.
+            $already = DB::table('mapping_class_teachers')->where('user_id', $new->id)->pluck('class_id')->all();
+            DB::table('mapping_class_teachers')
+                ->where('user_id', $teacher->id)
+                ->whereIn('class_id', $already)
+                ->delete();
+
+            // Every other class moves, frozen ones included.
+            DB::table('mapping_class_teachers')
+                ->where('user_id', $teacher->id)
+                ->update(['user_id' => $new->id]);
+            $teacher->delete();
+        });
 
         return redirect(staff_route('teacher.index'))->with('msg','Success Replace & Delete Data Teacher');
     }
 
-    private function hasActiveClass(User $teacher): bool
+    private function hasClasses(User $teacher): bool
+    {
+        return $this->classCount($teacher) > 0;
+    }
+
+    /** Classes replace() moves: the teacher's mappings to classes that still exist (ClassController::destroy leaves mappings behind). */
+    private function classCount(User $teacher): int
     {
         return DB::table('mapping_class_teachers as mct')
-            ->leftJoin('class_transactions as ct', 'ct.id', 'mct.class_id')
-            ->where('ct.is_freeze', '!=', 1)
+            ->join('class_transactions as ct', 'ct.id', 'mct.class_id')
             ->where('mct.user_id', $teacher->id)
-            ->exists();
+            ->count();
+    }
+
+    /** The frozen part of classCount(), shown in the switch page copy. */
+    private function frozenClassCount(User $teacher): int
+    {
+        return DB::table('mapping_class_teachers as mct')
+            ->join('class_transactions as ct', 'ct.id', 'mct.class_id')
+            ->where('ct.is_freeze', 1)
+            ->where('mct.user_id', $teacher->id)
+            ->count();
     }
 }

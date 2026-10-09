@@ -1,39 +1,17 @@
-@inject('carbon', 'Carbon\Carbon')
-@extends('Master.master')
+@extends('layouts.app')
 
-@section('title','Report Active Student')
+@section('title', 'Active students report')
 
 @section('content')
+    <x-page-header title="Active students report" />
 
-    <div class="pagetitle">
-        <h1>Report Active Student</h1>
-    </div><!-- End Page Title -->
-
-    <section class="section">
-        <div class="card">
-            <div class="search-bar mt-3 ms-2 mb-3 w-100 d-flex justify-content-between">
-                <form
-                    class="d-flex align-items-center justify-content-center gap-2"
-                    method="POST"
-                    action="{{staff_route('report.active-student.print')}}"
-                >
-
-                    @csrf
-                    <input class="form-control" list="datalistOptions" id="exampleDataList" placeholder="Course" name="class">
-                    <datalist id="datalistOptions">
-                        @foreach($classes as $c)
-                            <option value="{{$c->class_name}}">{{$c->class_name}}</option>
-                        @endforeach
-                    </datalist>
-
-                    <button type="submit" class="btn btn-primary text-nowrap">Report</button>
-                </form>
+    <form class="card" method="POST" action="{{ staff_route('report.active-student.print') }}" target="_blank">
+        @csrf
+        <div class="card-body">
+            <x-form.field name="class" label="Course" type="select" :options="['' => 'All courses'] + $classes->pluck('class_name', 'class_name')->all()" help="Opens the PDF in a new tab." />
+            <div class="save-bar">
+                <button type="submit" class="btn btn-primary">Open report (PDF)</button>
             </div>
-            <div class="card-body"></div>
         </div>
-    </section>
-
-    <script>
-
-    </script>
+    </form>
 @endsection

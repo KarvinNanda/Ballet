@@ -36,7 +36,7 @@ function prepareCardTable(table) {
         cell.dataset.label = row.cells.length === 1 || isActionCell ? '' : labels[column] || '';
         cell.classList.toggle('cell-actions', isActionCell);
         // theme.css sizes action cells by button count, so every button in the row gets the same width.
-        if (isActionCell) cell.style.setProperty('--buttons', String(cell.querySelectorAll('button, .btn').length));
+        if (isActionCell) cell.style.setProperty('--buttons', String(visibleButtons(cell).length));
         cell.classList.toggle('cell-empty', !isActionCell && isPlaceholder(cell));
         column += cell.colSpan;
       }
@@ -53,13 +53,19 @@ function isPlaceholder(cell) {
   return PLACEHOLDERS.includes(cell.textContent.trim()) && cell.querySelector('input, select, textarea, a, img') === null;
 }
 
-/** True when the cell has buttons and no text of its own. Blade indentation whitespace is ignored. */
+/** Buttons shown in the cell itself; items of a dropdown menu are not counted. */
+function visibleButtons(cell) {
+  return Array.from(cell.querySelectorAll('button, .btn')).filter((button) => !button.closest('.dropdown-menu'));
+}
+
+/** True when the cell has buttons and no text of its own. Blade indentation whitespace and dropdown menus are ignored. */
 function isButtonOnly(cell) {
-  const buttons = Array.from(cell.querySelectorAll('button, .btn'));
+  const buttons = visibleButtons(cell);
   if (buttons.length === 0) return false;
 
   const withoutSpaces = (text) => text.replace(/\s+/g, '');
   const buttonText = buttons.map((button) => withoutSpaces(button.textContent)).join('');
+  const menuText = Array.from(cell.querySelectorAll('.dropdown-menu')).map((menu) => withoutSpaces(menu.textContent)).join('');
 
-  return withoutSpaces(cell.textContent).length === buttonText.length;
+  return withoutSpaces(cell.textContent).length === buttonText.length + menuText.length;
 }
