@@ -4,7 +4,7 @@
 
 Web app for the daily operations of a ballet school: attendance, class schedules, the mapping between teachers, students and classes, billing and payments, stock (items sold to students and buyers), and recurring reports.
 
-Built with **Laravel 13**, **PHP 8.4** and **MySQL 8**. The UI is **Bootstrap 5.3** with a custom, mobile-friendly theme.
+Built with **Laravel 13**, **PHP 8.4** and **MySQL 8**. The UI is **Bootstrap 5.3** with a custom theme that works on desktop, tablet and phone.
 
 ---
 
@@ -16,6 +16,7 @@ Built with **Laravel 13**, **PHP 8.4** and **MySQL 8**. The UI is **Bootstrap 5.
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
 - [Tests and CI](#tests-and-ci)
+- [Security](#security)
 - [Production](#production)
 - [Seeded accounts](#seeded-accounts)
 - [Troubleshooting](#troubleshooting)
@@ -24,17 +25,22 @@ Built with **Laravel 13**, **PHP 8.4** and **MySQL 8**. The UI is **Bootstrap 5.
 
 ## Features
 
-- **Authentication**: login (rate limited), logout, password reset by email (hashed, single-use tokens).
-- **Master data**: admin, teacher, finance and student accounts; classes; courses (class types).
-- **Class management**: create classes, assign teachers and students, freeze (level up) a class, reset quota.
-- **Schedules**: single or multiple schedules per class.
-- **Attendance**: teachers record attendance for their own classes; head can record and correct it. A student who must pay first cannot be recorded.
-- **Transactions**: student bills and payments (paid / unpaid).
-- **Stock**: items sold to buyers (in / out, report).
-- **Buyer**: page where buyers order stock.
-- **Reports** (PDF via DomPDF): class attendance, active students, stock, teacher.
+- **Authentication**: login (rate limited per account and per IP), logout, password reset by email (hashed, single-use tokens, 30 minutes).
+- **Accounts**: admin, teacher and finance accounts are created without a password. The new user gets an email with a link to set their own password.
+- **Students**: list with search and status filter (active, inactive, trial), detail page with tabs (profile, classes, transactions), terms and conditions must be accepted when a student is created.
+- **Classes and courses**: create classes, assign teachers and students, freeze (level up) a class, reset quota. A course cannot be deleted while classes use it. Changing a course price updates only the Unpaid bills of that course.
+- **Schedules**: single or weekly schedules per class. Teachers cannot schedule into the past or move a session that has already started.
+- **Attendance**:
+  - A teacher records attendance from the start of a session until the end of the next day (Asia/Jakarta time). After saving it is locked for the teacher.
+  - The head can record and correct any session, for example to add a student the teacher forgot (shown with a "Not recorded yet" badge).
+  - A student who must pay first cannot be recorded ("Payment required").
+- **Transactions**: student bills and payments. Discount is an amount (`50000`) or a percent (`10%`); totals are computed by `App\Support\Discount`. Marking a bill as paid adds its quota to the student once, also when the form is submitted twice.
+- **Stock**: items, stock in (finance) and sales (buyer). A sale above the stock is refused.
+- **Buyer**: the cashier page: pick an item, enter the buyer name and quantity, record the sale.
+- **Reports** (PDF via DomPDF, open in a new tab): class attendance, active students, stock, teacher reward.
 - **Rules & regulations**: rich text (CKEditor 5), sanitized on the server.
 - **Profile**: change your own profile and password.
+- **Lists**: search (matches `%` and `_` literally), status filters, sortable columns (`aria-sort`), pagination that keeps search, status and sort.
 
 ---
 
@@ -63,9 +69,9 @@ Head and admin share the same controllers and views (`staff`). What admin may no
 
 Other roles:
 
-- **Teacher**: sees and manages only their own classes and schedules, and records attendance once per schedule.
-- **Finance**: marks transactions as paid, manages stock movements, and has its own stock and teacher reports.
-- **Buyer**: orders stock.
+- **Teacher**: sees only their own classes and schedules. The home page lists today's sessions and yesterday's sessions that are still open. Records attendance once per session, inside the attendance window.
+- **Finance**: marks transactions as paid, records stock in, and has its own stock, active student and teacher reports.
+- **Buyer**: records sales of stock items. There is no screen to create buyer accounts; see [Seeded accounts](#seeded-accounts).
 
 ---
 
@@ -75,7 +81,8 @@ Other roles:
 Ballet/
 ├── .github/workflows/ci.yml        # GitHub Actions: tests on every push and PR to master
 ├── app/
-│   ├── Console/Commands/           # age:calculation, students:remove-finished-trials
+│   ├── Console/Commands/           # age:calculation, students:remove-finished-trials,
+│   │                               #   users:replace-default-passwords
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   │   ├── staff/              # Shared by admin and head (student, teacher, class, schedule,
@@ -84,30 +91,46 @@ Ballet/
 │   │   │   ├── teacher/            # Teacher area
 │   │   │   ├── finance/            # Finance area
 │   │   │   └── auth/               # Login
-│   │   ├── Middleware/             # EnsureRole, SecurityHeaders, TrustHosts, ...
-│   │   └── Requests/Auth/          # LoginRequest
+│   │   ├── Middleware/             # EnsureRole, SecurityHeaders (CSP), TrustProxies, ...
+│   │   └── Requests/               # Form Requests per area: Staff/, Teacher/, Finance/, Buyer/,
+│   │                               #   Head/, Profile/, Auth/, plus SearchRequest for list pages
 │   ├── Models/
-│   ├── Support/                    # AttendanceRecorder, AttendancePaymentGate, TransactionQuota,
-│   │                               #   HtmlSanitizer, NavigationMenu
-│   └── helpers.php                 # staff_route(), staff_prefix()
+│   ├── Rules/                      # BoundedDate, NotBeforeJakartaNow
+│   ├── Support/                    # Domain logic used by several controllers:
+│   │                               #   AttendanceRecorder, AttendanceWindow, AttendancePaymentGate,
+│   │                               #   TransactionQuota, Discount, StockMovement, AccountInvite,
+│   │                               #   Like, HtmlSanitizer, NavigationMenu, TeacherReportQuery, ...
+│   └── helpers.php                 # staff_route(), staff_prefix(), own_url()
 ├── config/navigation.php           # Sidebar and bottom nav per role
 ├── database/                       # Migrations, factories, seeders (demo data relative to today)
-├── public/assets/                  # theme.css, app.js, Bootstrap, fonts, CKEditor (all local, no CDN)
+├── public/assets/
+│   ├── css/theme.css               # The whole theme (tokens, components, phone cards, touch targets)
+│   ├── js/app.js                   # Shared behaviour: confirm dialogs, tables as cards on phones, ...
+│   ├── js/pages/                   # Page scripts (rule editor, transaction form)
+│   └── vendor/                     # Bootstrap, jQuery, CKEditor, fonts (all local, no CDN)
 ├── resources/views/
+│   ├── components/                 # Page kit: page-header, filter-bar, sort-th, status-badge,
+│   │                               #   empty-state, confirm-form, row-menu, tabs, form/*
 │   ├── staff/                      # Views shared by admin and head
 │   ├── head/                       # Head-only views (admin accounts, rules)
 │   ├── teacher/ finance/ buyer/    # Other role areas
-│   └── layouts/ partials/          # App layout, header, sidebar, toasts
+│   ├── profile/ auth/ forgot-password/
+│   └── layouts/ partials/          # App and guest layouts, header, sidebar, toasts
 ├── routes/
 │   ├── web.php                     # Role groups, head-only routes, redirects from old URLs
 │   ├── staff.php                   # Shared routes, loaded twice: as admin.* under /admin, as head.* under /head
 │   └── api.php                     # /api/user (Sanctum) only
 └── tests/
     ├── Unit/                       # Pure logic, no database
-    └── Feature/                    # HTTP and database tests (Feature/Staff: admin/head permissions)
+    └── Feature/                    # HTTP and database tests (Staff/, Teacher/, Finance/, Buyer/, Gaps/, ...)
 ```
 
-In shared views, build links with `staff_route('student.show', $student)`. It picks `admin.` or `head.` from the current route, so the same view links to the viewer's own area.
+Conventions:
+
+- In shared views, build links with `staff_route('student.show', $student)`. It picks `admin.` or `head.` from the current route, so the same view links to the viewer's own area.
+- Pages are built from the components in `resources/views/components` (`<x-page-header>`, `<x-filter-bar>`, `<x-form.field>`, ...). Copy an existing page in the same area before writing a new one.
+- No inline JavaScript: no `<script>` blocks without `src`, no `onclick=""`, no `javascript:` URLs. Put behaviour in `public/assets/js/`. `tests/Feature/Staff/InlineScriptTest.php` fails the build otherwise (the Content Security Policy would block it in the browser anyway).
+- A "return to the previous page" URL from the request goes through `own_url()` (views) or `backTo()` (controllers), never straight into a redirect or a link.
 
 ---
 
@@ -118,7 +141,7 @@ In shared views, build links with `staff_route('student.show', $student)`. It pi
 | Framework | Laravel 13 |
 | Language | PHP 8.4 |
 | Database | MySQL 8 (Docker, strict mode) |
-| Frontend | Bootstrap 5.3 + `public/assets/css/theme.css` + jQuery 3.7 (all local, no CDN) |
+| Frontend | Bootstrap 5.3 + `public/assets/css/theme.css` + `public/assets/js/app.js` + jQuery 3.7 (all local, no CDN, no build step) |
 | Fonts | Cormorant (headings) + Montserrat (body), self-hosted |
 | PDF | barryvdh/laravel-dompdf ^3 |
 | Editor | CKEditor 5 (local) + HTMLPurifier on the server |
@@ -145,10 +168,10 @@ cp .env.example .env          # set DB_PASSWORD and DB_ROOT_PASSWORD to random v
 php artisan key:generate
 docker compose up -d --wait   # MySQL 8 + Mailpit, values read from .env
 php artisan migrate --seed    # create tables and demo data
-php artisan serve
+php artisan serve             # or: php artisan serve --port=8010
 ```
 
-Open `http://127.0.0.1:8000` (`localhost:8000` may be taken by another local container). All email (password reset, new accounts) goes to Mailpit at `http://localhost:8025`.
+Open `http://127.0.0.1:8000` (`localhost:8000` may be taken by another local container; use `--port=8010` in that case). All email (password reset, new accounts) goes to Mailpit at `http://localhost:8025`.
 
 Demo data is relative to today: every active class has a schedule **today**, so attendance can be tried right away. To reset the demo data: `php artisan migrate:fresh --seed` (this deletes all local data).
 
@@ -165,13 +188,13 @@ docker compose exec mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" -e "CREAT
 Then:
 
 ```bash
-php artisan test                      # everything
-php artisan test --testsuite=Unit     # pure logic, no database, under a second
+php artisan test                      # everything (about 880 tests, under a minute)
+php artisan test --testsuite=Unit     # pure logic, no database
 php artisan test --testsuite=Feature  # HTTP + database
 php artisan test --filter=StudentTest # one class
 ```
 
-Tests use the separate `ballet_test` database (forced in `phpunit.xml`), so local data is never touched. The database is migrated and seeded once per run.
+Tests use the separate `ballet_test` database (forced in `phpunit.xml`), so local data is never touched. The database is migrated and seeded once per run. Run one test process at a time: two runs in parallel share `ballet_test` and fail at random.
 
 **CI** ([.github/workflows/ci.yml](.github/workflows/ci.yml)) runs on every push and pull request to `master`:
 
@@ -184,12 +207,26 @@ The workflow has a read-only token, uses throwaway database credentials that exi
 
 ---
 
+## Security
+
+- **Content Security Policy** is enforced by [app/Http/Middleware/SecurityHeaders.php](app/Http/Middleware/SecurityHeaders.php): `script-src 'self'`, no plugins, no framing by other sites. The same middleware sends `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and HSTS over HTTPS. If a page breaks in production because of the policy, set `CSP_REPORT_ONLY=true` in `.env` (and run `php artisan config:cache`): the browser then only reports violations in the console.
+- **Rate limits** ([app/Providers/RouteServiceProvider.php](app/Providers/RouteServiceProvider.php)): every write request (POST, PUT, DELETE) 30 per minute per user; account creation 10 per hour; login 5 attempts; forgot password 5 per minute.
+- **Validation**: every write goes through a Form Request in `app/Http/Requests`. List pages drop invalid filters instead of failing (`SearchRequest`).
+- **Passwords**: accounts never get a guessable default password (see `AccountInvite`). `users:replace-default-passwords` finds and replaces old `ballet` + date-of-birth passwords from imported data.
+
+---
+
 ## Production
 
-- `APP_ENV=production`, `APP_DEBUG=false`, and `APP_URL` set to the real HTTPS address (password reset links are built from `APP_URL`).
-- `SESSION_SECURE_COOKIE=true`. Set `TRUSTED_PROXIES` when the app runs behind a proxy or load balancer.
-- Set `MAIL_*` to a real SMTP server.
-- Run `php artisan migrate` on every deploy.
+- `APP_ENV=production`, `APP_DEBUG=false`, and `APP_URL` set to the real HTTPS address (password reset and invite links are built from `APP_URL`).
+- `SESSION_SECURE_COOKIE=true`. Set `TRUSTED_PROXIES` when the app runs behind a proxy or load balancer, so `$request->isSecure()` is true and HSTS is sent.
+- `CSP_REPORT_ONLY=false` (the default). See [Security](#security).
+- `CACHE_DRIVER` must be shared by all PHP workers (`database` or `redis`): the rate limiters count in the cache. `array` never works; `file` only works on a single server.
+- Set `MAIL_*` to a real SMTP server and `MAIL_FROM_ADDRESS`.
+- Run `php artisan migrate` on every deploy, then `php artisan route:cache && php artisan config:cache && php artisan view:cache`.
+- After importing the client's existing data:
+  1. `php artisan migrate`. The unique-index migrations stop with a message if the data has duplicates; clean those first.
+  2. `php artisan users:replace-default-passwords` (dry run: lists the accounts), then the same command with `--apply` (sets random passwords and emails each user a set-password link).
 - Add one cron entry for the scheduler:
   `* * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1`
   It runs two daily commands: `age:calculation` (student ages) and `students:remove-finished-trials` (removes trial students who used their trial sessions from every class).
@@ -209,6 +246,12 @@ After `php artisan migrate --seed` (local only, never in production):
 | Teacher | teacher@gmail.com | teacher123 |
 | Teacher | sari.teacher@gmail.com, dewi.teacher@gmail.com, maya.teacher@gmail.com | teacher123 |
 
+There is no seeded buyer account. To try the buyer pages locally:
+
+```bash
+php artisan tinker --execute="App\Models\User::factory()->create(['role' => 'buyer', 'email' => 'buyer@gmail.com', 'password' => bcrypt('buyer123')]);"
+```
+
 ---
 
 ## Troubleshooting
@@ -216,8 +259,14 @@ After `php artisan migrate --seed` (local only, never in production):
 **`SQLSTATE[HY000] [1049] Unknown database`**
 The database container is not up, or `.env` does not match it. Run `docker compose up -d --wait` and check `DB_*` in `.env`. For tests, create `ballet_test` (see [Tests and CI](#tests-and-ci)).
 
-**`SQLSTATE[HY000] [2002] Connection refused`**
-MySQL is still starting. `docker compose up -d --wait` waits for the health check.
+**`SQLSTATE[HY000] [2002] Connection refused`** or **`failed to connect to the docker API`**
+Docker Desktop or MySQL is still starting. Open Docker Desktop, then `docker compose up -d --wait` waits for the health check.
+
+**A button or editor does nothing, and the browser console shows "Refused to execute ... Content Security Policy"**
+Some script is inline or comes from another host. Move it to `public/assets/js/`. As a temporary measure in production, set `CSP_REPORT_ONLY=true`.
+
+**Old styles after an update**
+The theme is a plain CSS file; hard refresh the browser (Cmd+Shift+R / Ctrl+Shift+R).
 
 **Email is not sent**
 Locally, open Mailpit at `http://localhost:8025`. In production, check `MAIL_*`; for Gmail use an App Password, not the account password.
