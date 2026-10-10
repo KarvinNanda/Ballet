@@ -14,7 +14,14 @@
                 @unless ($actions) · Frozen @endunless
             </p>
         </div>
-        <x-status-badge :status="$class_status" />
+        <div class="page-actions">
+            <x-status-badge :status="$class_status" />
+            @if ($actions)
+                <a href="{{ staff_route('class.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to classes</a>
+            @else
+                <a href="{{ staff_route('class.freeze.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to frozen classes</a>
+            @endif
+        </div>
     </div>
 </div>
 

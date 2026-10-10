@@ -69,6 +69,7 @@ class ReportController extends Controller
                 schedules.date as date,
                 detail_absens.Description as description,
                 detail_absens.Notes as note,
+                students.id as student_id,
                 students.LongName as student_name,
                 class_types.class_name as class_name
             ')
@@ -77,12 +78,8 @@ class ReportController extends Controller
             ->orderBy('schedules.date')
             ->get()
             ->groupBy('date');
-//        dd($report,$firstDayOfClass,$lastDayOfClass);
-        $first = collect();
-        foreach($report as $items){
-            $first=$items;
-            break;
-        }
+        // One row per student recorded on ANY session of the period (not only the first one, so late joiners are listed).
+        $first = $report->flatten(1)->whereNotNull('student_id')->unique('student_id')->sortBy('student_name')->values();
 
         $pdf = Pdf::loadView('staff.report.class-attendence.print',compact('report','className','first','teacher'))
             ->setPaper('a4', 'landscape')

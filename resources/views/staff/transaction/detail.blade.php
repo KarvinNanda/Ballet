@@ -19,6 +19,7 @@
             </div>
             <div class="page-actions">
                 <x-status-badge :status="$detail->payment_status" />
+                <a href="{{ staff_route('transaction.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to transactions</a>
                 @can('transaction.edit-paid', $transaction)
                     <a href="{{ staff_route('transaction.edit', $transaction->id) }}" class="btn btn-outline-secondary">Update</a>
                 @endcan
