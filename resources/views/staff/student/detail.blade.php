@@ -31,7 +31,10 @@
                 <h1 class="page-title summary-name">{{ $detail->LongName }}</h1>
                 <p class="summary-meta">{{ implode(' · ', $meta) }}</p>
             </div>
-            <x-status-badge :status="$detail->Status" />
+            <div class="page-actions">
+                <x-status-badge :status="$detail->Status" />
+                <a href="{{ staff_route('student.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left" aria-hidden="true"></i> Back to students</a>
+            </div>
         </div>
         <div class="stat-grid">
             <div class="stat"><span class="stat-label">Quota</span><span class="stat-value">{{ $detail->Quota ?? 0 }}</span></div>

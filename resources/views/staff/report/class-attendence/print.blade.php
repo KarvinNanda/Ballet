@@ -52,25 +52,18 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @php
+                                // Legacy Indonesian values (Sakit, Izin) get the same letters as their English ones.
+                                $letters = ['Attend' => 'V', 'Sick' => 'S', 'Sakit' => 'S', 'Permission' => 'I', 'Izin' => 'I', 'Absent' => 'A'];
+                            @endphp
                             @foreach($first as $f)
-                                @php
-                                    $temp = $f->student_name;
-                                @endphp
                                 <tr>
                                     <td>{{$loop->iteration}}</td>
                                     <td>{{$f->student_name}}</td>
+                                    {{-- Exactly one cell per session date: empty when the student has no record that day. --}}
                                     @foreach($report as $items)
-                                        @foreach($items as $item)
-                                            @if($item->description == 'Attend' && $item->student_name == $temp)
-                                                <td>V</td>
-                                            @elseif($item->description == 'Sick' && $item->student_name == $temp)
-                                                <td>S</td>
-                                            @elseif($item->description == 'Permission' && $item->student_name == $temp)
-                                                <td>I</td>
-                                            @elseif($item->description == 'Absent' && $item->student_name == $temp)
-                                                <td>A</td>
-                                            @endif
-                                        @endforeach
+                                        @php($item = $items->firstWhere('student_id', $f->student_id))
+                                        <td>{{ $item ? ($letters[$item->description] ?? $item->description) : '' }}</td>
                                     @endforeach
                                 </tr>
                             @endforeach

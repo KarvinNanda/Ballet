@@ -138,7 +138,7 @@ h4, h5, h6, .card-title { font-family: var(--ep-font-body); font-weight: 600; }
   .table-cards > tbody > tr > td.cell-actions form { flex: 1 1 0; display: flex; gap: .4rem; margin: 0; }
   .table-cards > tbody > tr > td.cell-actions br { display: none; }
   .table-cards > tbody > tr > td.cell-actions .btn {
-    display: block; flex: 1 1 0; width: 100%; min-height: 40px; margin: 0 !important; padding: .4rem .5rem;
+    display: flex; align-items: center; justify-content: center; flex: 1 1 0; width: 100%; min-height: 40px; margin: 0 !important; padding: .4rem .5rem;
     font-size: .8125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .table-cards > tbody > tr > td.cell-actions > a { flex: 1 1 0; display: flex; }
@@ -166,7 +166,7 @@ h4, h5, h6, .card-title { font-family: var(--ep-font-body); font-weight: 600; }
 .status-filter-link:hover { background: var(--ep-bg); color: var(--ep-text); }
 .status-filter-link.active { background: var(--ep-accent-soft); color: var(--ep-accent); font-weight: 600; }
 
-.status-badge { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+.status-badge { display: inline-block; align-self: center; padding: .2rem .6rem; border-radius: 999px; font-size: .75rem; font-weight: 600; line-height: 1.4; white-space: nowrap; } /* align-self: never stretched to a button's height */
 .status-badge-success { background: #DCFCE7; color: #166534; }
 .status-badge-warning { background: #FEF3C7; color: #92400E; }
 .status-badge-neutral { background: #F1F5F9; color: #475569; }

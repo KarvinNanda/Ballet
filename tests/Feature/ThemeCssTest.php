@@ -29,6 +29,19 @@ class ThemeCssTest extends TestCase
         ];
     }
 
+    public function test_card_footer_buttons_center_their_label(): void
+    {
+        $css = file_get_contents(public_path('assets/css/theme.css'));
+        // display:block cannot center the label vertically in a 40–44px button; flex can.
+        $this->assertMatchesRegularExpression('/td\.cell-actions \.btn \{\s*display: flex; align-items: center; justify-content: center;/', $css);
+    }
+
+    public function test_status_badges_never_stretch_in_flex_rows(): void
+    {
+        $css = file_get_contents(public_path('assets/css/theme.css'));
+        $this->assertMatchesRegularExpression('/\.status-badge \{[^}]*align-self: center;/', $css);
+    }
+
     #[DataProvider('rules')]
     public function test_the_coarse_pointer_block_holds_the_44px_rule(string $rule): void
     {
